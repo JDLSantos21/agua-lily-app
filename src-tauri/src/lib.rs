@@ -4,10 +4,10 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
-            let handle = app.handle().clone();
-            tauri::async_runtime::spawn(async move {
-                update(handle).await.unwrap();
-            });
+            // let handle = app.handle().clone();
+            // tauri::async_runtime::spawn(async move {
+            //     update(handle).await.unwrap();
+            // });
             Ok(())
         })
         .run(tauri::generate_context!())

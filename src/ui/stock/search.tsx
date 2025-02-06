@@ -13,9 +13,8 @@ export default function StockSearch({
   const handleSearch = useDebouncedCallback((term: string) => {
     onSearch(term);
   }, 500);
-  console.log("renderizando Stock...");
   return (
-    <div className="relative flex flex-1 flex-shrink-0">
+    <div className="relative flex flex-1 flex-shrink-0 mb-2">
       <label htmlFor="search" className="sr-only">
         Search
       </label>

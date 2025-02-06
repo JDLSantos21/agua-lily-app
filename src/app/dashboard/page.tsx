@@ -1,7 +1,6 @@
 "use client";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { RoleBased } from "@/components/RoleBased";
-import { checkForUpdates } from "@/lib/update";
 
 export default function Dashboard() {
   return (
@@ -10,8 +9,9 @@ export default function Dashboard() {
         <h1>Dashboard</h1>
       </div>
 
-      <button onClick={checkForUpdates}>Check for updates</button>
-      <h1>Esta es la version 0.1.2</h1>
+      {/* <button onClick={checkForUpdates}>Check for updates</button> */}
+      <h1>Esta es la version 0.1.4</h1>
+
       {/* Panel de Administrador */}
       <RoleBased allowedRoles={["admin"]}>
         <div>

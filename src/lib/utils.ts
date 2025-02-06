@@ -1,6 +1,7 @@
 import { AdjustmentCreate } from "@/types/materials/adjustment";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { newMaterial } from "@/types/materials/material";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -100,6 +101,29 @@ export const setAdjustment = async (adjustmentData: AdjustmentCreate) => {
     console.log(error);
     throw new Error(
       "Ocurrío un problema registrando el ajuste, intenta de nuevo."
+    );
+  }
+};
+
+//Funcion para registrar un nuevo material
+export const setMaterial = async (materialData: newMaterial) => {
+  try {
+    const response = await fetch(`http://localhost:5000/api/materials`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(materialData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Error en el registro del material");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.log(error);
+    throw new Error(
+      "Ocurrío un problema registrando el material, intenta de nuevo."
     );
   }
 };

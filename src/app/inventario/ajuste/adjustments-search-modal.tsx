@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { CalendarIcon, Filter, Loader, Search } from "lucide-react";
+import { CalendarIcon, FileSearch, Filter, Loader, Search } from "lucide-react";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
@@ -9,6 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -30,7 +31,7 @@ import {
 import { fetchFilteredAdjustments } from "@/lib/data";
 import { useDebouncedCallback } from "use-debounce";
 import { Adjustment } from "@/types/materials/adjustment";
-import { Excel } from "../../../../../public/excel";
+import { Excel } from "../../../../public/excel";
 
 export function AdjustmentsSearchModal() {
   const [open, setOpen] = useState(false);
@@ -63,6 +64,7 @@ export function AdjustmentsSearchModal() {
   useEffect(() => {
     if (open) {
       fetchAdjustments(materialName, startDate, endDate);
+      console.log("Buscando ajustes...", materialName, startDate, endDate);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, startDate, endDate]);
@@ -84,8 +86,18 @@ export function AdjustmentsSearchModal() {
     // Asegúrate de que 'adjustments' tenga los datos a exportar
     if (!adjustments.length) return;
 
+    const adjustmentsToExport = adjustments.map((adjustment) => ({
+      Material: adjustment.material_name,
+      "Stock Anterior": adjustment.previous_stock,
+      "Valor Ajustado": adjustment.quantity,
+      "Fecha de Ajuste": format(new Date(adjustment.created_at), "PPP", {
+        locale: es,
+      }),
+      Motivo: adjustment.reason,
+    }));
+
     // Convierte el arreglo de objetos a una hoja de Excel
-    const worksheet = XLSX.utils.json_to_sheet(adjustments);
+    const worksheet = XLSX.utils.json_to_sheet(adjustmentsToExport);
 
     // Crea un nuevo libro de Excel
     const workbook = XLSX.utils.book_new();
@@ -100,19 +112,25 @@ export function AdjustmentsSearchModal() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Buscar o Generar Reporte</Button>
+        <Button variant="outline">
+          <FileSearch className="mr-1 h-4 w-4" />
+          Buscar Ajustes
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[90vw] w-[90vw] max-h-[90vh] h-[90vh] flex flex-col">
-        <DialogHeader className="flex flex-row items-center justify-between">
-          <DialogTitle>Ajustes del Inventario</DialogTitle>
+        <DialogHeader className="flex ">
+          <DialogTitle>Filtrado de Ajustes</DialogTitle>
+          <DialogDescription>
+            Busca y filtra los ajustes de inventario.
+          </DialogDescription>
         </DialogHeader>
         <div className="flex items-center space-x-2 mb-4">
           {/* Input para búsqueda de material */}
           <div className="relative flex-1">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute text-blue-500 left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Material"
-              className="pl-8"
+              className="pl-8 outline-none"
               value={materialName}
               onChange={(e) => setMaterialName(e.target.value)}
             />
@@ -124,7 +142,7 @@ export function AdjustmentsSearchModal() {
                 variant="outline"
                 className="w-[280px] justify-start text-left font-normal"
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <CalendarIcon className="mr-2 h-4 w-4 text-blue-500 dark:text-white" />
                 {startDate
                   ? format(startDate, "PPP", { locale: es })
                   : "Fecha Inicial"}
@@ -148,7 +166,7 @@ export function AdjustmentsSearchModal() {
                 variant="outline"
                 className="w-[280px] justify-start text-left font-normal"
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <CalendarIcon className="mr-2 h-4 w-4 text-blue-500 dark:text-white" />
                 {endDate
                   ? format(endDate, "PPP", { locale: es })
                   : "Fecha Final"}
@@ -184,7 +202,8 @@ export function AdjustmentsSearchModal() {
             <TableHeader>
               <TableRow>
                 <TableHead>Material</TableHead>
-                <TableHead>Cantidad</TableHead>
+                <TableHead>Stock Anterior</TableHead>
+                <TableHead>Valor Ajustado</TableHead>
                 <TableHead>Fecha de Ajuste</TableHead>
                 <TableHead>Motivo</TableHead>
               </TableRow>
@@ -193,7 +212,7 @@ export function AdjustmentsSearchModal() {
               {!adjustments.length && !loading ? (
                 <TableRow>
                   <TableCell
-                    colSpan={4}
+                    colSpan={5}
                     className="text-center py-8 text-lg font-medium text-muted-foreground"
                   >
                     No hay ajustes que coincidan con los filtros aplicados.
@@ -211,6 +230,7 @@ export function AdjustmentsSearchModal() {
                 adjustments.map((adjustment) => (
                   <TableRow key={adjustment.id}>
                     <TableCell>{adjustment.material_name}</TableCell>
+                    <TableCell>{adjustment.previous_stock}</TableCell>
                     <TableCell>{adjustment.quantity}</TableCell>
                     <TableCell>
                       {format(new Date(adjustment.created_at), "PPP", {

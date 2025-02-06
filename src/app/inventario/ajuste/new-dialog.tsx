@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AdjustmentCreate } from "@/types/materials/adjustment";
 import { fetchMaterials } from "@/lib/data";
+import { FileCog } from "lucide-react";
 
 interface Material {
   id: number;
@@ -86,7 +87,7 @@ export default function NewAjustDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <Toaster richColors />
       <DialogTrigger className="px-5 py-2 bg-white border border-gray-200 hover:bg-gray-100 text-sm rounded-md">
-        Registrar nuevo ajuste
+        <FileCog className="h-4 w-4 inline-block mr-2" /> Ajustar
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -205,7 +206,9 @@ export default function NewAjustDialog() {
             >
               Cancelar
             </Button>
-            <Button type="submit">Registrar Ajuste</Button>
+            <Button variant="primary" type="submit">
+              Registrar Ajuste
+            </Button>
           </div>
         </form>
       </DialogContent>

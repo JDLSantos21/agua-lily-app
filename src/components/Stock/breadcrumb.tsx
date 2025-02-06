@@ -18,11 +18,11 @@ export default function StockBreadcrumb() {
       <BreadcrumbList>
         {/* Siempre mostrar el Dashboard como primer breadcrumb */}
         <BreadcrumbItem>
-          <Link href="/dashboard">Dashboard</Link>
+          <Link href="/inventario">Inventario</Link>
         </BreadcrumbItem>
 
         {pathSegments.map((segment, index) => {
-          const url = `/dashboard/${pathSegments
+          const url = `/inventario/${pathSegments
             .slice(0, index + 1)
             .join("/")}`;
           const isLast = index === pathSegments.length - 1;

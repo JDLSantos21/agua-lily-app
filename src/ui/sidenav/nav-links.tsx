@@ -6,7 +6,7 @@ import { LayoutDashboard, Package } from "lucide-react";
 
 const links = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Stock", href: "/dashboard/stock", icon: Package },
+  { name: "Inventario", href: "/inventario", icon: Package },
 ];
 
 export default function NavLinks() {
@@ -15,7 +15,7 @@ export default function NavLinks() {
   return (
     <nav className="flex flex-col space-y-2 px-2">
       {links.map((link) => {
-        const isActive = pathname === link.href;
+        const isActive = pathname.startsWith(link.href);
         return (
           <Link
             key={link.href}

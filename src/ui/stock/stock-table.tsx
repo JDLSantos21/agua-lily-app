@@ -14,6 +14,8 @@ import { fetchFilteredStock } from "@/lib/data";
 import { MaterialsTableSkeleton } from "../skeletons";
 import { OutputModal } from "./outputModal";
 import { Toaster } from "sonner";
+import moment from "moment";
+moment.locale("es");
 
 export default function StockTable({ query }: { query: string }) {
   const [materials, setMaterials] = useState<Material[]>([]);
@@ -22,11 +24,18 @@ export default function StockTable({ query }: { query: string }) {
     null
   );
 
+  console.log(materials);
+
   const updateStock = ({ quantity, id }: { quantity: number; id: number }) => {
+    const fechaActual = new Date().toISOString();
     setMaterials((prev) =>
       prev.map((material) =>
         material.id === id
-          ? { ...material, stock: material.stock - quantity }
+          ? {
+              ...material,
+              stock: material.stock - quantity,
+              updated_at: fechaActual,
+            }
           : material
       )
     );
@@ -66,10 +75,10 @@ export default function StockTable({ query }: { query: string }) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-[35%]">Nombre</TableHead>
-            <TableHead className="w-[20%]">Categoría</TableHead>
             <TableHead className="w-[20%]">Unidad</TableHead>
             <TableHead className="text-center w-[13%]">Stock</TableHead>
             <TableHead className="text-center w-[12%]">Estado</TableHead>
+            <TableHead className="text-center w-[20%]">Actualizado</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -80,7 +89,6 @@ export default function StockTable({ query }: { query: string }) {
               className="cursor-pointer"
             >
               <TableCell>{material.name}</TableCell>
-              <TableCell>{material.category}</TableCell>
               <TableCell>{material.unit}</TableCell>
               <TableCell className="text-center">{material.stock}</TableCell>
               <TableCell className="flex justify-center">
@@ -94,6 +102,7 @@ export default function StockTable({ query }: { query: string }) {
                   } `}
                 ></div>
               </TableCell>
+              <TableCell>{moment(material.updated_at).format("lll")}</TableCell>
             </TableRow>
           ))}
         </TableBody>

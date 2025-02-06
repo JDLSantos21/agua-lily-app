@@ -3,14 +3,7 @@
 import NavLinks from "./nav-links";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "next/navigation";
-import {
-  ChevronDown,
-  UserCircle,
-  Users,
-  ChartBar,
-  LifeBuoy,
-  Moon,
-} from "lucide-react";
+import { ChevronDown, UserCircle, LifeBuoy, Moon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Settings } from "lucide-react";
 
 export default function SideNav() {
   const { logout, name, role } = useAuthStore();
@@ -29,6 +23,10 @@ export default function SideNav() {
   const handleLogout = () => {
     logout();
     router.replace("/");
+  };
+
+  const handleSettings = () => {
+    router.push("/settings");
   };
 
   return (
@@ -75,22 +73,11 @@ export default function SideNav() {
                 Perfil
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="gap-3">
+              <DropdownMenuItem
+                className="gap-3"
+                onClick={() => handleSettings()}
+              >
                 Configuración
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
-
-              <DropdownMenuLabel>Organización</DropdownMenuLabel>
-
-              <DropdownMenuItem className="gap-3">
-                <Users className="h-4 w-4 text-gray-600" />
-                Mi Equipo
-              </DropdownMenuItem>
-
-              <DropdownMenuItem className="gap-3">
-                <ChartBar className="h-4 w-4 text-gray-600" />
-                Estadísticas
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
@@ -103,6 +90,14 @@ export default function SideNav() {
               <DropdownMenuItem className="gap-3">
                 <LifeBuoy className="h-4 w-4 text-gray-600" />
                 Soporte
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                className="gap-3"
+                onClick={() => handleSettings()}
+              >
+                <Settings className="h-4 w-4 text-gray-600" />
+                Configuración
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
