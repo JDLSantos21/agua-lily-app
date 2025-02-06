@@ -1,0 +1,50 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "agua-lily-app",
+  "version": "0.1.1",
+  "identifier": "com.lily.dev",
+  "build": {
+    "frontendDist": "../out",
+    "devUrl": "http://localhost:3000",
+    "beforeDevCommand": "pnpm dev",
+    "beforeBuildCommand": "pnpm build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Agua Lily",
+        "fullscreen": false,
+        "height": 720,
+        "width": 1280,
+        "minWidth": 1100,
+        "minHeight": 600,
+        "resizable": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "plugins": {
+    "updater": {
+      "dialogs": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDFDMjI3NUU3QkQwNzk4RkIKUldUN21BZTk1M1VpSE5NYWZvYndsVFBhdU81U28rQnBPK0pmQVlkRU4yalZxZWhkVzR0RkxqRmIK",
+      "endpoints": [
+        "https://github.com/JDLSantos21/agua-lily-app/releases/latest/download/latest.json"
+      ],
+      "dangerousInsecureTransportProtocol": true
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "createUpdaterArtifacts": true,
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
