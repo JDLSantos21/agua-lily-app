@@ -127,3 +127,35 @@ export const setMaterial = async (materialData: newMaterial) => {
     );
   }
 };
+
+export const editMaterial = async (
+  id: number,
+  materialData: {
+    name: string;
+    category: string;
+    description?: string;
+    unit: string;
+    price: number;
+    minimum_stock: number;
+  }
+) => {
+  try {
+    const response = await fetch(`http://localhost:5000/api/materials/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(materialData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Error en la edición del material");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.log(error);
+    throw new Error(
+      "Ocurrío un problema editando el material, intenta de nuevo."
+    );
+  }
+};

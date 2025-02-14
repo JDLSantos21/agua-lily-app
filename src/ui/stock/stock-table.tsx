@@ -1,112 +1,115 @@
+// ui/stock/stock-table.tsx
 "use client";
 
+import { useState, useCallback, memo } from "react";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useState, useCallback } from "react";
-import { Material } from "@/lib/types";
-import { fetchFilteredStock } from "@/lib/data";
-import { MaterialsTableSkeleton } from "../skeletons";
-import { OutputModal } from "./outputModal";
+import { StockTableSkeleton } from "../skeletons";
 import { Toaster } from "sonner";
-import moment from "moment";
-moment.locale("es");
+import MaterialRow from "@/app/inventario/MaterialRow";
+import { OutputModal } from "./outputModal";
+import { useFetchFilteredStock } from "@/hooks/useFetchFilteredStock";
+import { Material } from "@/lib/types";
+import { useResponsiveItemsPerPage } from "@/hooks/useResponsiveItemsPerPage";
+import { usePagination } from "@/hooks/usePagination";
+import TablePagination from "@/components/pagination";
 
-export default function StockTable({ query }: { query: string }) {
-  const [materials, setMaterials] = useState<Material[]>([]);
-  const [loading, setLoading] = useState(true);
+interface StockTableProps {
+  query: string;
+}
+
+function StockTable({ query }: StockTableProps) {
+  const { materials, loading, error, setMaterials } =
+    useFetchFilteredStock(query);
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(
     null
   );
 
-  console.log(materials);
+  const itemsPerPage = useResponsiveItemsPerPage(70);
 
-  const updateStock = ({ quantity, id }: { quantity: number; id: number }) => {
-    const fechaActual = new Date().toISOString();
-    setMaterials((prev) =>
-      prev.map((material) =>
-        material.id === id
-          ? {
-              ...material,
-              stock: material.stock - quantity,
-              updated_at: fechaActual,
-            }
-          : material
-      )
-    );
-  };
+  // Utilizamos el hook de paginación
+  const { currentPage, totalPages, currentData, changePage } = usePagination(
+    materials,
+    itemsPerPage
+  );
 
-  const openModal = (material: Material) => {
+  // Actualiza el stock de un material y actualiza la fecha de modificación
+  const updateStock = useCallback(
+    ({ quantity, id }: { quantity: number; id: number }) => {
+      const currentDate = new Date().toISOString();
+      setMaterials((prev) =>
+        prev.map((material) =>
+          material.id === id
+            ? {
+                ...material,
+                stock: (material.stock ?? 0) - quantity,
+                updated_at: currentDate,
+              }
+            : material
+        )
+      );
+    },
+    [setMaterials]
+  );
+
+  const openModal = useCallback((material: Material) => {
     setSelectedMaterial(material);
-  };
+  }, []);
 
-  const fetchMaterials = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await fetchFilteredStock(query);
-      setMaterials(data);
-    } catch (error) {
-      console.error("Error fetching materials:", error);
-    }
-    setLoading(false);
-  }, [query]);
-
-  useEffect(() => {
-    fetchMaterials();
-  }, [fetchMaterials]);
-
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setSelectedMaterial(null);
-  };
+  }, []);
 
-  if (loading) {
-    return <MaterialsTableSkeleton />;
-  }
+  if (loading) return <StockTableSkeleton />;
+  if (error)
+    return (
+      <div className="text-center text-red-500">Error: {error.message}</div>
+    );
 
   return (
     <>
       <Toaster richColors />
-      <Table className="table-fixed">
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[35%]">Nombre</TableHead>
-            <TableHead className="w-[20%]">Unidad</TableHead>
-            <TableHead className="text-center w-[13%]">Stock</TableHead>
-            <TableHead className="text-center w-[12%]">Estado</TableHead>
-            <TableHead className="text-center w-[20%]">Actualizado</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {materials.map((material) => (
-            <TableRow
-              key={material.id}
-              onClick={() => openModal(material)}
-              className="cursor-pointer"
-            >
-              <TableCell>{material.name}</TableCell>
-              <TableCell>{material.unit}</TableCell>
-              <TableCell className="text-center">{material.stock}</TableCell>
-              <TableCell className="flex justify-center">
-                <div
-                  className={`w-3 h-3 rounded-full ${
-                    material.stock <= material.minimum_stock
-                      ? "bg-red-500 animate-pulse"
-                      : material.stock <= material.minimum_stock * 1.5
-                      ? "bg-yellow-500"
-                      : "bg-blue-500"
-                  } `}
-                ></div>
-              </TableCell>
-              <TableCell>{moment(material.updated_at).format("lll")}</TableCell>
+      <div className="flex flex-col justify-between h-[calc(100vh-15rem)]">
+        <Table className="table-fixed">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[32%]">Nombre</TableHead>
+              <TableHead className="w-[18%]">Unidad</TableHead>
+              <TableHead className="text-center w-[13%]">Stock</TableHead>
+              <TableHead className="text-center w-[12%]">Estado</TableHead>
+              <TableHead className="text-center w-[30%]">Actualizado</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {currentData.length > 0 ? (
+              currentData.map((material) => (
+                <MaterialRow
+                  key={material.id}
+                  material={material}
+                  onClick={openModal}
+                />
+              ))
+            ) : (
+              <TableRow>
+                <td colSpan={5} className="text-center">
+                  No se encontraron materiales
+                </td>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+
+        <TablePagination
+          currentPage={currentPage}
+          handlePageChange={changePage}
+          totalPages={totalPages}
+        />
+      </div>
       {selectedMaterial && (
         <OutputModal
           material={selectedMaterial}
@@ -117,3 +120,5 @@ export default function StockTable({ query }: { query: string }) {
     </>
   );
 }
+
+export default memo(StockTable);

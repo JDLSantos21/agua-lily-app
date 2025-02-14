@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "agua-lily-app",
-  "version": "0.1.3",
+  "productName": "Agua Lily App",
+  "version": "0.1.7",
   "identifier": "com.lily.dev",
   "build": {
     "frontendDist": "../out",
@@ -43,7 +43,7 @@
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
-      "icons/icon.ico"
+      "icons/favicon.ico"
     ]
   }
 }

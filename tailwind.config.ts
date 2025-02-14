@@ -1,5 +1,7 @@
 import type { Config } from "tailwindcss";
 
+//añadir fuente oswald
+
 export default {
   darkMode: ["class"],
   content: [
@@ -13,6 +15,10 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+      },
+      fontFamily: {
+        Oswald: ["Oswald", "sans-serif"],
+        Liter: ["Liter", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

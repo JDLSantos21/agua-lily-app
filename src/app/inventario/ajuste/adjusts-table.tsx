@@ -18,12 +18,11 @@ export default function AdjustTable({
     <Table className="w-full border-collapse">
       <TableHeader>
         <TableRow className="border-b">
-          <TableHead className="text-left">Producto</TableHead>
-          <TableHead className="text-left">Previo</TableHead>
-          <TableHead className="text-left">Nuevo</TableHead>
-          <TableHead className="text-left">Motivo</TableHead>
-          <TableHead className="text-left">Fecha</TableHead>
-          <TableHead className="text-left"> </TableHead>
+          <TableHead className="text-left w-[30%]">Producto</TableHead>
+          <TableHead className="text-left w-[10%]">Previo</TableHead>
+          <TableHead className="text-left w-[10%]">Nuevo</TableHead>
+          <TableHead className="text-left w-[23%]">Motivo</TableHead>
+          <TableHead className="text-left w-[27%]">Fecha</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -37,17 +36,16 @@ export default function AdjustTable({
           currentData.map((adj) => (
             <TableRow key={adj.id} className="border-b">
               <TableCell className="h-12 p-3">{adj.material_name}</TableCell>
-              <TableCell className="p-3 text-red-500">
+              <TableCell className="h-12 p-3 text-center text-red-500">
                 {adj.previous_stock}
               </TableCell>
-              <TableCell className="p-3 text-green-500">
+              <TableCell className="h-12 p-3 text-center text-green-500">
                 {adj.new_stock}
               </TableCell>
-              <TableCell className="p-3">{adj.reason}</TableCell>
-              <TableCell className="p-3">
+              <TableCell className="h-12 p-3">{adj.reason}</TableCell>
+              <TableCell className="h-12 p-3">
                 {moment(adj.created_at).format("LLL")}
               </TableCell>
-              <TableCell className="p-3"></TableCell>
             </TableRow>
           ))
         )}

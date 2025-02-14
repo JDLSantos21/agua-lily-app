@@ -1,6 +1,6 @@
 import StockBreadcrumb from "@/components/Stock/breadcrumb";
 import SideNav from "@/ui/sidenav/sidenav";
-import TopNav from "@/components/Stock/top-nav";
+import { InventoryMenu } from "@/components/Stock/nav-menu";
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
@@ -9,8 +9,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </div>
       <div className="flex-grow p-6 md:overflow-y-auto md:p-12 mx-auto max-w-7xl">
         <StockBreadcrumb />
-        <div className="space-y-6 select-none mt-5">
-          <TopNav />
+        <div className="space-y-6 select-none mt-5 h-12 mb-2">
+          <InventoryMenu />
         </div>
         {children}
       </div>

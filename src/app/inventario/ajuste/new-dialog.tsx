@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AdjustmentCreate } from "@/types/materials/adjustment";
 import { fetchMaterials } from "@/lib/data";
-import { FileCog } from "lucide-react";
 
 interface Material {
   id: number;
@@ -86,12 +85,12 @@ export default function NewAjustDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Toaster richColors />
-      <DialogTrigger className="px-5 py-2 bg-white border border-gray-200 hover:bg-gray-100 text-sm rounded-md">
-        <FileCog className="h-4 w-4 inline-block mr-2" /> Ajustar
+      <DialogTrigger className="relative flex cursor-default hover:bg-neutral-100 w-full select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-neutral-100 focus:text-neutral-900 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:bg-neutral-800 dark:focus:text-neutral-50">
+        Ajustar
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Nuevo Ajuste</DialogTitle>
+          <DialogTitle className="text-gray-700">Nuevo Ajuste</DialogTitle>
           <DialogDescription>
             Registra un nuevo ajuste de inventario
           </DialogDescription>

@@ -13,12 +13,11 @@ export default function AdjustTableSkeleton() {
       {/* Encabezado de la tabla */}
       <TableHeader>
         <TableRow className="border-b">
-          <TableHead className="text-left">Producto</TableHead>
-          <TableHead className="text-left">Previo</TableHead>
-          <TableHead className="text-left">Nuevo</TableHead>
-          <TableHead className="text-left">Motivo</TableHead>
-          <TableHead className="text-left">Fecha</TableHead>
-          <TableHead className="text-left"> </TableHead>
+          <TableHead className="text-left w-[30%]">Producto</TableHead>
+          <TableHead className="text-left w-[10%]">Previo</TableHead>
+          <TableHead className="text-left w-[10%]">Nuevo</TableHead>
+          <TableHead className="text-left w-[23%]">Motivo</TableHead>
+          <TableHead className="text-left w-[27%]">Fecha</TableHead>
         </TableRow>
       </TableHeader>
       {/* Filas de la tabla */}

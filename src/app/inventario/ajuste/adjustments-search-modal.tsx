@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { CalendarIcon, FileSearch, Filter, Loader, Search } from "lucide-react";
+import { CalendarIcon, Filter, Loader, Search } from "lucide-react";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
@@ -111,15 +111,14 @@ export function AdjustmentsSearchModal() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">
-          <FileSearch className="mr-1 h-4 w-4" />
-          Buscar Ajustes
-        </Button>
+      <DialogTrigger className="relative flex cursor-default hover:bg-neutral-100 w-full select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-neutral-100 focus:text-neutral-900 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:bg-neutral-800 dark:focus:text-neutral-50">
+        Buscar Ajustes
       </DialogTrigger>
       <DialogContent className="max-w-[90vw] w-[90vw] max-h-[90vh] h-[90vh] flex flex-col">
         <DialogHeader className="flex ">
-          <DialogTitle>Filtrado de Ajustes</DialogTitle>
+          <DialogTitle className="text-gray-700">
+            Filtrado de Ajustes
+          </DialogTitle>
           <DialogDescription>
             Busca y filtra los ajustes de inventario.
           </DialogDescription>
@@ -127,7 +126,7 @@ export function AdjustmentsSearchModal() {
         <div className="flex items-center space-x-2 mb-4">
           {/* Input para búsqueda de material */}
           <div className="relative flex-1">
-            <Search className="absolute text-blue-500 left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Material"
               className="pl-8 outline-none"
@@ -142,7 +141,7 @@ export function AdjustmentsSearchModal() {
                 variant="outline"
                 className="w-[280px] justify-start text-left font-normal"
               >
-                <CalendarIcon className="mr-2 h-4 w-4 text-blue-500 dark:text-white" />
+                <CalendarIcon className="mr-2 h-4 w-4 dark:text-white" />
                 {startDate
                   ? format(startDate, "PPP", { locale: es })
                   : "Fecha Inicial"}
@@ -166,7 +165,7 @@ export function AdjustmentsSearchModal() {
                 variant="outline"
                 className="w-[280px] justify-start text-left font-normal"
               >
-                <CalendarIcon className="mr-2 h-4 w-4 text-blue-500 dark:text-white" />
+                <CalendarIcon className="mr-2 h-4 w-4 dark:text-white" />
                 {endDate
                   ? format(endDate, "PPP", { locale: es })
                   : "Fecha Final"}

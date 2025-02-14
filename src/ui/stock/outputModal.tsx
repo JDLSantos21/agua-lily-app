@@ -57,7 +57,7 @@ export const OutputModal: React.FC<OutputModalProps> = ({
 
       const { employee_code, quantity } = data;
 
-      if (material.stock < quantity) {
+      if (material.stock === undefined || material.stock < quantity) {
         toast.error("La cantidad ingresada es mayor al stock actual");
         setFocus("quantity");
         return;
@@ -102,10 +102,10 @@ export const OutputModal: React.FC<OutputModalProps> = ({
     <Dialog open={!!material} onOpenChange={closeModal}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-center">
-            {material?.name}
+          <DialogTitle className="text-lg text-gray-700  font-semibold">
+            {material?.name.toLocaleUpperCase()}
           </DialogTitle>
-          <DialogDescription className="text-center">
+          <DialogDescription>
             Ingrese los detalles de la salida del material.
           </DialogDescription>
         </DialogHeader>

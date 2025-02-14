@@ -1,198 +1,100 @@
 "use client";
-import { useForm, type SubmitHandler } from "react-hook-form";
-import { toast, Toaster } from "sonner";
 import {
-  Package,
-  FileText,
-  Tag,
-  DollarSign,
-  Box,
-  Archive,
-  AlertCircle,
-  Loader2,
-} from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { newMaterial } from "@/types/materials/material";
-import { setMaterial } from "@/lib/utils";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableHeader,
+} from "@/components/ui/table";
+import moment from "moment";
+moment.locale("es");
+import type { Material } from "@/lib/types";
+import MaterialsDetailsModal from "./material-details-modal";
 import { useState } from "react";
+import { MaterialsTableSkeleton } from "@/ui/skeletons";
+import { useResponsiveItemsPerPage } from "@/hooks/useResponsiveItemsPerPage";
+import { usePagination } from "@/hooks/usePagination";
+import TablePagination from "@/components/pagination";
+import { useFetchFilteredStock } from "@/hooks/useFetchFilteredStock";
 
-export default function MaterialForm() {
-  const [loading, setLoading] = useState(false);
-  const {
-    register,
-    reset,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<newMaterial>();
+export default function Material() {
+  const { materials, loading } = useFetchFilteredStock();
+  const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(
+    null
+  );
 
-  const onSubmit: SubmitHandler<newMaterial> = (data) => {
-    setLoading(true);
-    console.log(data);
-    try {
-      setMaterial(data);
-      toast.success("El material se ha registrado correctamente.");
-      reset();
-    } catch (error) {
-      console.error(error);
-      toast.error("Ocurrion un error al registrar el material");
-    } finally {
-      setLoading(false);
-    }
+  const itemsPerPage = useResponsiveItemsPerPage(57);
+
+  const { currentPage, totalPages, currentData, changePage } = usePagination(
+    materials,
+    itemsPerPage
+  );
+
+  const openModal = (material: Material) => {
+    setSelectedMaterial(material);
   };
 
+  if (loading) {
+    return <MaterialsTableSkeleton />;
+  }
+
+  console.log(materials);
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mt-5">
-      <Toaster richColors />
-      <div className="grid grid-cols-2 gap-6">
-        <div>
-          <Label htmlFor="name" className="flex items-center gap-2 mb-2">
-            <Package className="w-4 h-4" />
-            Nombre del Material
-          </Label>
-          <Input
-            id="name"
-            {...register("name", { required: "El nombre es requerido" })}
-          />
-          {errors.name && (
-            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor="category" className="flex items-center gap-2 mb-2">
-            <Tag className="w-4 h-4" />
-            Categoría
-          </Label>
-          <Input
-            id="category"
-            {...register("category", { required: "La categoría es requerida" })}
-          />
-          {errors.category && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.category.message}
-            </p>
-          )}
-        </div>
-
-        <div className="col-span-2">
-          <Label htmlFor="description" className="flex items-center gap-2 mb-2">
-            <FileText className="w-4 h-4" />
-            Descripción
-          </Label>
-          <Textarea
-            id="description"
-            {...register("description", {
-              required: "La descripción es requerida",
-            })}
-            rows={3}
-          />
-          {errors.description && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.description.message}
-            </p>
-          )}
-        </div>
-
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <Label htmlFor="price" className="flex items-center gap-2 mb-2">
-              <DollarSign className="w-4 h-4" />
-              Precio
-            </Label>
-            <Input
-              id="price"
-              type="number"
-              step="0.01"
-              {...register("price", {
-                required: "El precio es requerido",
-                min: 0,
-              })}
-              className="w-full noControls"
-            />
-            {errors.price && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.price.message}
-              </p>
+    <>
+      <div className="h-[calc(100vh-12rem)] flex flex-col justify-between">
+        <Table className="w-full border-collapse">
+          <TableHeader>
+            <TableRow className="border-b">
+              <TableHead className="text-left w-[35%]">Material</TableHead>
+              <TableHead className="text-left w-[15%]">Categoría</TableHead>
+              <TableHead className="text-left w-[13%]">Cantidad</TableHead>
+              <TableHead className="text-left w-[20%]">Actualizado</TableHead>
+              <TableHead className="text-left w-[17%]">Creado</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {currentData?.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="p-2 text-center">
+                  No hay materiales
+                </TableCell>
+              </TableRow>
+            ) : (
+              currentData?.map((material: Material) => (
+                <TableRow
+                  key={material.id}
+                  className="border-b cursor-pointer"
+                  onClick={() => openModal(material)}
+                >
+                  <TableCell className="h-12 p-3">{material.name}</TableCell>
+                  <TableCell className="p-3">{material.category}</TableCell>
+                  <TableCell className="p-3">{material.stock}</TableCell>
+                  <TableCell className="p-3">
+                    {moment(material.updated_at).format("L HH:mm")}
+                  </TableCell>
+                  <TableCell className="p-3">
+                    {moment(material.created_at).format("L")}
+                  </TableCell>
+                </TableRow>
+              ))
             )}
-          </div>
-          <div className="flex-1">
-            <Label htmlFor="unit" className="flex items-center gap-2 mb-2">
-              <Box className="w-4 h-4" />
-              Unidad
-            </Label>
-            <Input
-              id="unit"
-              {...register("unit", {
-                required: "La unidad de medida es requerida",
-              })}
-              className="w-full"
-            />
-            {errors.unit && (
-              <p className="text-red-500 text-sm mt-1">{errors.unit.message}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <Label htmlFor="stock" className="flex items-center gap-2 mb-2">
-              <Archive className="w-4 h-4" />
-              Disponibilidad
-            </Label>
-            <Input
-              id="stock"
-              {...register("stock", {
-                required: "La disponibilidad actual es requerida",
-              })}
-              className="w-full noControls"
-            />
-            {errors.stock && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.stock.message}
-              </p>
-            )}
-          </div>
-          <div className="flex-1">
-            <Label
-              htmlFor="minimum_stock"
-              className="flex items-center gap-2 mb-2"
-            >
-              <AlertCircle className="w-4 h-4" />
-              Disponibilidad Minima
-            </Label>
-            <Input
-              id="minimum_stock"
-              type="number"
-              {...register("minimum_stock", {
-                required: "La disponibilidad mínima es requerida",
-                min: 0,
-              })}
-              className="w-full noControls"
-            />
-            {errors.minimum_stock && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.minimum_stock.message}
-              </p>
-            )}
-          </div>
-        </div>
+          </TableBody>
+        </Table>
+        <TablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          handlePageChange={changePage}
+        />
       </div>
 
-      <Button
-        variant={`primary`}
-        disabled={loading}
-        type="submit"
-        className="w-full mt-6"
-      >
-        {loading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
-        ) : (
-          "Registrar Material"
-        )}
-      </Button>
-    </form>
+      {selectedMaterial && (
+        <MaterialsDetailsModal
+          material={selectedMaterial}
+          closeModal={() => setSelectedMaterial(null)}
+        />
+      )}
+    </>
   );
 }

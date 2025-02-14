@@ -115,7 +115,7 @@ export function TableRowSkeleton() {
     <tr className="w-full border-b border-gray-100 last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg">
       {/* Customer Name and Image */}
       <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-32 rounded bg-gray-100"></div>
+        <div className="h-6 w-[80%] rounded bg-gray-100"></div>
       </td>
       {/* Email */}
       <td className="whitespace-nowrap px-3 py-3">
@@ -123,15 +123,15 @@ export function TableRowSkeleton() {
       </td>
       {/* Amount */}
       <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-16 rounded bg-gray-100"></div>
+        <div className="h-6 w-full rounded bg-gray-100"></div>
       </td>
       {/* Date */}
-      <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-16 rounded bg-gray-100"></div>
+      <td className="whitespace-nowrap px-3 py-3 grid place-content-center">
+        <div className="h-5 w-5 rounded-full bg-gray-100"></div>
       </td>
       {/* Status */}
       <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-16 rounded bg-gray-100"></div>
+        <div className="h-6 w-full rounded bg-gray-100"></div>
       </td>
     </tr>
   );
@@ -161,16 +161,16 @@ export function InvoicesMobileSkeleton() {
   );
 }
 
-export function MaterialsTableSkeleton() {
+export function StockTableSkeleton() {
   return (
     <Table className="table-fixed">
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[35%]">Nombre</TableHead>
-          <TableHead className="w-[20%]">Categoría</TableHead>
-          <TableHead className="w-[20%]">Unidad</TableHead>
-          <TableHead className="text-center w-[13%]">Stock Actual</TableHead>
-          <TableHead className="text-center w-[12%]">Stock Mínimo</TableHead>
+          <TableHead className="w-[32%]">Nombre</TableHead>
+          <TableHead className="w-[18%]">Unidad</TableHead>
+          <TableHead className="text-center w-[13%]">Stock</TableHead>
+          <TableHead className="text-center w-[12%]">Estado</TableHead>
+          <TableHead className="text-center w-[30%]">Actualizado</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -179,6 +179,56 @@ export function MaterialsTableSkeleton() {
         <TableRowSkeleton />
         <TableRowSkeleton />
         <TableRowSkeleton />
+      </TableBody>
+    </Table>
+  );
+}
+
+const MaterialTableRow = () => {
+  return (
+    <tr>
+      {/* Material */}
+      <td className="whitespace-nowrap px-3 py-3">
+        <div className="h-6 w-full rounded bg-gray-100"></div>
+      </td>
+      {/* Categoria */}
+      <td className="whitespace-nowrap px-3 py-3">
+        <div className="h-6 w-32 rounded bg-gray-100"></div>
+      </td>
+      {/* Cantidad */}
+      <td className="whitespace-nowrap px-3 py-3">
+        <div className="h-6 w-full rounded bg-gray-100"></div>
+      </td>
+      {/* Actualizado */}
+      <td className="whitespace-nowrap px-3 py-3">
+        <div className="h-6 w-full bg-gray-100"></div>
+      </td>
+      {/* Creado */}
+      <td className="whitespace-nowrap px-3 py-3">
+        <div className="h-6 w-full rounded bg-gray-100"></div>
+      </td>
+    </tr>
+  );
+};
+
+export function MaterialsTableSkeleton() {
+  return (
+    <Table className="table-fixed">
+      <TableHeader>
+        <TableRow className="border-b">
+          <TableHead className="text-left w-[35%]">Material</TableHead>
+          <TableHead className="text-left w-[15%]">Categoría</TableHead>
+          <TableHead className="text-left w-[13%]">Cantidad</TableHead>
+          <TableHead className="text-left w-[20%]">Actualizado</TableHead>
+          <TableHead className="text-left w-[17%]">Creado</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <MaterialTableRow />
+        <MaterialTableRow />
+        <MaterialTableRow />
+        <MaterialTableRow />
+        <MaterialTableRow />
       </TableBody>
     </Table>
   );
