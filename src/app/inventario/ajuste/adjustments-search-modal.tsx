@@ -28,7 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fetchFilteredAdjustments } from "@/lib/data";
+import { fetchFilteredAdjustments } from "@/api/materials";
 import { useDebouncedCallback } from "use-debounce";
 import { Adjustment } from "@/types/materials/adjustment";
 import { Excel } from "../../../../public/excel";

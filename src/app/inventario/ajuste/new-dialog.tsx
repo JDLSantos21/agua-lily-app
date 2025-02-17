@@ -28,7 +28,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { AdjustmentCreate } from "@/types/materials/adjustment";
-import { fetchMaterials } from "@/lib/data";
+import { fetchMaterials } from "@/api/materials";
 
 interface Material {
   id: number;
@@ -43,6 +43,7 @@ export default function NewAjustDialog() {
   const [customReason, setCustomReason] = useState("");
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
+  console.log("materials", materials);
   const user_id = useAuthStore((state) => state.user_id);
 
   useEffect(() => {

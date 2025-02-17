@@ -10,7 +10,7 @@ export default function Dashboard() {
       </div>
 
       {/* <button onClick={checkForUpdates}>Check for updates</button> */}
-      <h1>Esta es la version 0.1.4</h1>
+      <h1>Esta es la version 0.1.7</h1>
 
       {/* Panel de Administrador */}
       <RoleBased allowedRoles={["admin"]}>

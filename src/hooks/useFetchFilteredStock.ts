@@ -1,6 +1,6 @@
 // hooks/useFetchFilteredStock.ts
 import { useState, useCallback, useEffect } from "react";
-import { fetchFilteredStock } from "@/lib/data";
+import { fetchFilteredStock } from "@/api/materials";
 import { Material } from "@/lib/types";
 
 export function useFetchFilteredStock(query?: string) {
