@@ -18,7 +18,7 @@ import { Edit, Loader2 } from "lucide-react";
 import type { Material } from "@/lib/types";
 import moment from "moment";
 import { RoleBased } from "@/components/RoleBased";
-import { editMaterial } from "@/lib/utils";
+import { editMaterial } from "@/api/materials";
 import { toast, Toaster } from "sonner";
 
 interface ModalProps {

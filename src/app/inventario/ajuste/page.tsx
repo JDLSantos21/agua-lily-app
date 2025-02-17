@@ -13,7 +13,7 @@ export default function StockAjustPage() {
   const [adjustments, setAdjustments] = useState<Adjustment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Obtenemos la cantidad de items por página de forma responsiva
+  // Cantidad de items por página de forma responsiva
   const itemsPerPage = useResponsiveItemsPerPage();
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export default function StockAjustPage() {
     });
   }, []);
 
-  // Utilizamos el hook de paginación
+  // hook de paginación
   const { currentPage, totalPages, currentData, changePage } = usePagination(
     adjustments,
     itemsPerPage

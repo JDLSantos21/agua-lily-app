@@ -14,7 +14,8 @@ import type { Material } from "@/lib/types";
 import { useForm } from "react-hook-form";
 import { Package, User, ArrowRightCircle, Loader } from "lucide-react";
 import type React from "react"; // Added import for React
-import { setOutputMaterial, verifyEmployeeCode } from "@/lib/utils";
+import { setOutputMaterial } from "@/api/materials";
+import { verifyEmployeeCode } from "@/api/employees";
 import { toast } from "sonner";
 
 interface OutputModalProps {

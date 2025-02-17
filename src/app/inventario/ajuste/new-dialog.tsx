@@ -12,8 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { setAdjustment } from "@/lib/utils";
-import { verifyEmployeeCode } from "@/lib/utils";
+import { setAdjustment } from "@/api/materials";
+import { verifyEmployeeCode } from "@/api/employees";
 import { useAuthStore } from "@/stores/authStore";
 import { MaterialCombobox } from "./material-combobox";
 import { toast, Toaster } from "sonner";

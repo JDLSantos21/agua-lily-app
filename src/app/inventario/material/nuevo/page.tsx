@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { newMaterial } from "@/types/materials/material";
-import { setMaterial } from "@/lib/utils";
+import { setMaterial } from "@/api/materials";
 import { useState } from "react";
 
 export default function MaterialForm() {
