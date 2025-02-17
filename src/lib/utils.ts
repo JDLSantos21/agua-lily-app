@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 export const setStockStatus = (stock: number, minimumStock: number) => {
   if (stock <= minimumStock) {
     return "bg-red-500 animate-pulse";
-  } else if (stock <= minimumStock * 2) {
+  } else if (stock <= minimumStock * 1.5) {
     return "bg-yellow-500";
   } else {
     return "bg-blue-500";

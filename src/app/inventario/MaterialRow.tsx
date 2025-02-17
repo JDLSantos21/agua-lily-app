@@ -11,17 +11,18 @@ interface MaterialRowProps {
 }
 
 export default function MaterialRow({ material, onClick }: MaterialRowProps) {
+  console.log(material);
   return (
     <TableRow onClick={() => onClick(material)} className="cursor-pointer">
       <TableCell>{material.name}</TableCell>
       <TableCell>{material.unit}</TableCell>
       <TableCell className="text-center">{material.stock}</TableCell>
-      <TableCell className="flex justify-center">
+      <TableCell className="flex justify-center pt-5">
         <div
           className={`w-3 h-3 rounded-full ${
-            material.stock! <= material.minimum_stock
+            Number(material.stock) <= Number(material.minimum_stock)
               ? "bg-red-500 animate-pulse"
-              : material.stock! <= material.minimum_stock * 1.5
+              : Number(material.stock) <= Number(material.minimum_stock) * 1.5
               ? "bg-yellow-500"
               : "bg-blue-500"
           }`}
