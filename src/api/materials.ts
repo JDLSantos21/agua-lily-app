@@ -16,7 +16,7 @@ export const fetchAdjustments = async () => {
 };
 
 export const fetchFilteredStock = async (query: string) => {
-  return await fetcher(`/materials/filter?query=${query}`);
+  return await fetcher(`/materials/filter`, {}, { query });
 };
 
 export const fetchFilteredAdjustments = async ({
@@ -29,7 +29,9 @@ export const fetchFilteredAdjustments = async ({
   end_date: string;
 }) => {
   return await fetcher(
-    `/materials/adjustments/filter?materialName=${material_name}&startDate=${start_date}&endDate=${end_date}`
+    `/materials/adjustments/filter`,
+    {},
+    { materialName: material_name, startDate: start_date, endDate: end_date }
   );
 };
 
