@@ -11,6 +11,7 @@ export function useFetchFilteredStock(query?: string) {
   const fetchMaterials = useCallback(async () => {
     setLoading(true);
     setError(null);
+    console.log("se hizo el fetch");
     try {
       const data = await fetchFilteredStock(query || "");
       setMaterials(data);

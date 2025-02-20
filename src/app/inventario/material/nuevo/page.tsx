@@ -19,16 +19,23 @@ export default function MaterialForm() {
     formState: { errors },
   } = useForm<newMaterial>();
 
-  const onSubmit: SubmitHandler<newMaterial> = (data) => {
+  const onSubmit: SubmitHandler<newMaterial> = (data: newMaterial) => {
     setLoading(true);
-    console.log(data);
+
+    const formatMaterial = {
+      ...data,
+      price: Number(data.price),
+      stock: Number(data.stock),
+      minimum_stock: Number(data.minimum_stock),
+    };
+
     try {
-      setMaterial(data);
       toast.success("El material se ha registrado correctamente.");
+      setMaterial(formatMaterial);
       reset();
     } catch (error) {
-      console.error(error);
       toast.error("Ocurrion un error al registrar el material");
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -132,6 +139,7 @@ export default function MaterialForm() {
             </Label>
             <Input
               id="stock"
+              type="number"
               {...register("stock", {
                 required: "La disponibilidad actual es requerida",
               })}

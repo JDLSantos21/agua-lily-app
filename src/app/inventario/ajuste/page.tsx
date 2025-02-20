@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Adjustment } from "@/types/materials/adjustment";
 import AdjustTable from "./adjusts-table";
 import AdjustTableSkeleton from "./adjust-table-skeleton";
-import { fetchAdjustments } from "@/api/materials";
+import { fetchAdjustments } from "@/api/inventory";
 import { useResponsiveItemsPerPage } from "@/hooks/useResponsiveItemsPerPage";
 import { usePagination } from "@/hooks/usePagination";
 import TablePagination from "@/components/pagination";

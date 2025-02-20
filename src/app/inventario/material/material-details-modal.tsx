@@ -14,22 +14,24 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Edit, Loader2 } from "lucide-react";
+import { Edit, Loader2, Trash } from "lucide-react";
 import type { Material } from "@/lib/types";
 import moment from "moment";
 import { RoleBased } from "@/components/RoleBased";
-import { editMaterial } from "@/api/materials";
+import { deleteMaterial, editMaterial } from "@/api/materials";
 import { toast, Toaster } from "sonner";
 
 interface ModalProps {
   material: Material | null;
   closeModal: () => void;
+  setMaterials: React.Dispatch<React.SetStateAction<Material[]>>; // Pasamos setMaterials
   // Opcional: onMaterialUpdated?: (updated: Material) => void;
 }
 
 export default function MaterialsDetailsModal({
   material,
   closeModal,
+  setMaterials,
 }: // Opcional: onMaterialUpdated,
 ModalProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -46,38 +48,58 @@ ModalProps) {
     setCurrentMaterial((prev) => (prev ? { ...prev, [name]: value } : null));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentMaterial || !material) return;
-    // Creamos un objeto con solo las propiedades actualizables
-    const { name, category, unit, price, minimum_stock, description } =
-      currentMaterial;
-    const updatedMaterial = {
-      name,
-      category,
-      unit,
-      price,
-      minimum_stock,
-      description,
-    };
+  const handleMaterialDelete = (id: number) => {
+    if (!confirm("¿Estás seguro de eliminar este material?")) return;
+    try {
+      deleteMaterial(id);
+      toast.success("Material eliminado correctamente");
+      closeModal();
+      setMaterials((prev) => prev.filter((m) => m.id !== id));
+    } catch (error) {
+      console.error("problema al eliminar el material", error);
+      toast.error("Hubo un problema al eliminar el material");
+    }
+  };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
 
-    editMaterial(material.id, updatedMaterial)
-      .then(() => {
-        setCurrentMaterial((prev) =>
-          prev ? { ...prev, ...updatedMaterial } : null
-        );
-        toast.success("Material actualizado correctamente");
-      })
-      .catch((error) => {
-        console.error("problema al actualizar el material", error);
-        toast.error("Hubo un problema al actualizar el material");
-      })
-      .finally(() => {
-        setLoading(false);
-        setIsEditing(false);
-      });
+    if (!currentMaterial || !material) return;
+
+    try {
+      const updatedMaterial = {
+        name: currentMaterial.name,
+        category: currentMaterial.category,
+        unit: currentMaterial.unit,
+        price: currentMaterial.price,
+        minimum_stock: currentMaterial.minimum_stock,
+        description: currentMaterial.description,
+      };
+
+      await editMaterial(material.id, updatedMaterial);
+      toast.success("Material actualizado correctamente");
+
+      setMaterials(
+        (prev) =>
+          prev.map((m) =>
+            m.id === material.id
+              ? {
+                  ...m,
+                  ...updatedMaterial,
+                  updated_at: new Date().toISOString(),
+                }
+              : m
+          ) // Actualizamos la lista
+      );
+
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Problema al actualizar el material", error);
+      toast.error("Hubo un problema al actualizar el material");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!material) return null;
@@ -85,7 +107,7 @@ ModalProps) {
   return (
     <Dialog open={!!material} onOpenChange={closeModal}>
       <Toaster richColors />
-      <DialogContent className="max-w-4xl w-full max-h-[90vh] h-auto flex flex-col overflow-y-auto">
+      <DialogContent className="max-w-4xl w-full max-h-[90vh] h-[500px] flex flex-col overflow-y-auto ">
         <DialogHeader>
           <DialogTitle className="text-2xl text-gray-700">
             {currentMaterial?.name.toLocaleUpperCase()}
@@ -147,12 +169,20 @@ ModalProps) {
                     </p>
                   </div>
                   <RoleBased allowedRoles={["admin", "administrativo"]}>
-                    <Button
-                      onClick={() => setIsEditing(true)}
-                      className="ml-2 bg-yellow-500"
-                    >
-                      <Edit className="mr-2 h-4 w-4" /> Editar
-                    </Button>
+                    <div>
+                      <Button
+                        onClick={() => setIsEditing(true)}
+                        className="ml-2 bg-transparent hover:bg-transparent text-gray-800 hover:text-gray-600"
+                      >
+                        <Edit className="h-4 w-4" /> Editar
+                      </Button>
+                      <Button
+                        onClick={() => handleMaterialDelete(material.id)}
+                        className="ml-1 bg-transparent hover:bg-transparent hover:text-red-300 text-red-500"
+                      >
+                        <Trash className="h-4 w-4" /> Eliminar
+                      </Button>
+                    </div>
                   </RoleBased>
                 </div>
               </div>

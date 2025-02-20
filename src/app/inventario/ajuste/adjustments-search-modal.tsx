@@ -28,10 +28,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fetchFilteredAdjustments } from "@/api/materials";
+import { fetchFilterAdjustments as searchAdjustments } from "@/api/inventory";
 import { useDebouncedCallback } from "use-debounce";
 import { Adjustment } from "@/types/materials/adjustment";
 import { Excel } from "../../../../public/excel";
+import { adjustmentFilter } from "@/types/inventory";
+import { toast } from "sonner";
 
 export function AdjustmentsSearchModal() {
   const [open, setOpen] = useState(false);
@@ -42,28 +44,54 @@ export function AdjustmentsSearchModal() {
   const [loading, setLoading] = useState(false);
 
   // Función centralizada para realizar la búsqueda
-  const fetchAdjustments = async (name: string, start?: Date, end?: Date) => {
+  const fetchAdjustments = async (filterData: adjustmentFilter) => {
     setLoading(true);
-    const data = await fetchFilteredAdjustments({
-      material_name: name,
-      start_date: start?.toISOString() || "",
-      end_date: end?.toISOString() || "",
-    });
-    setAdjustments(data);
-    setLoading(false);
+
+    for (const filter in filterData) {
+      const key = filter as keyof adjustmentFilter;
+      if (!filterData[key]) {
+        delete filterData[key];
+      }
+    }
+
+    if (filterData.start_date) {
+      filterData.start_date = format(filterData.start_date, "yyyy-MM-dd");
+    }
+
+    if (filterData.end_date) {
+      filterData.end_date = format(filterData.end_date, "yyyy-MM-dd");
+    }
+
+    try {
+      const data = await searchAdjustments(filterData);
+      setAdjustments(data);
+    } catch (e) {
+      console.error(e);
+      toast.error("Ocurrió un error al buscar los ajustes.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Debounce para la búsqueda por nombre de material (300ms de retardo)
   const debouncedFetch = useDebouncedCallback(() => {
     if (open) {
-      fetchAdjustments(materialName, startDate, endDate);
+      fetchAdjustments({
+        material_name: materialName,
+        start_date: startDate,
+        end_date: endDate,
+      });
     }
-  }, 300);
+  }, 500);
 
   // Efecto que se dispara al abrir el modal o al cambiar las fechas
   useEffect(() => {
     if (open) {
-      fetchAdjustments(materialName, startDate, endDate);
+      fetchAdjustments({
+        material_name: materialName,
+        start_date: startDate,
+        end_date: endDate,
+      });
       console.log("Buscando ajustes...", materialName, startDate, endDate);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,7 +107,7 @@ export function AdjustmentsSearchModal() {
     setMaterialName("");
     setStartDate(undefined);
     setEndDate(undefined);
-    fetchAdjustments("", undefined, undefined);
+    fetchAdjustments({});
   };
 
   const handleExport = () => {

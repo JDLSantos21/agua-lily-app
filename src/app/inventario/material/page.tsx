@@ -19,13 +19,12 @@ import TablePagination from "@/components/pagination";
 import { useFetchFilteredStock } from "@/hooks/useFetchFilteredStock";
 
 export default function Material() {
-  const { materials, loading } = useFetchFilteredStock();
+  const { materials, loading, setMaterials } = useFetchFilteredStock();
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(
     null
   );
 
   const itemsPerPage = useResponsiveItemsPerPage(57);
-
   const { currentPage, totalPages, currentData, changePage } = usePagination(
     materials,
     itemsPerPage
@@ -38,8 +37,6 @@ export default function Material() {
   if (loading) {
     return <MaterialsTableSkeleton />;
   }
-
-  console.log(materials);
 
   return (
     <>
@@ -93,6 +90,7 @@ export default function Material() {
         <MaterialsDetailsModal
           material={selectedMaterial}
           closeModal={() => setSelectedMaterial(null)}
+          setMaterials={setMaterials} // Pasamos la función para actualizar la tabla
         />
       )}
     </>

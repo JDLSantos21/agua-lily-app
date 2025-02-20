@@ -2,11 +2,12 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package } from "lucide-react";
+import { LayoutDashboard, Package, Fuel } from "lucide-react";
 
 const links = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Inventario", href: "/inventario", icon: Package },
+  { name: "Combustible", href: "/combustible", icon: Fuel },
 ];
 
 export default function NavLinks() {

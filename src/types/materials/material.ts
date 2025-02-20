@@ -2,8 +2,8 @@ export interface newMaterial {
   name: string;
   description: string;
   category: string;
-  price: number;
   unit: string;
+  price: number;
   stock: number;
   minimum_stock: number;
 }

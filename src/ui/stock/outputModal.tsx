@@ -14,9 +14,10 @@ import type { Material } from "@/lib/types";
 import { useForm } from "react-hook-form";
 import { Package, User, ArrowRightCircle, Loader } from "lucide-react";
 import type React from "react"; // Added import for React
-import { setOutputMaterial } from "@/api/materials";
 import { verifyEmployeeCode } from "@/api/employees";
 import { toast } from "sonner";
+import { registerMovement } from "@/api/inventory";
+import { validateOutput } from "@/schemas/inventory";
 
 interface OutputModalProps {
   material: Material | null;
@@ -56,7 +57,18 @@ export const OutputModal: React.FC<OutputModalProps> = ({
         return;
       }
 
-      const { employee_code, quantity } = data;
+      // ✅ Validamos los datos con Zod
+      const outputData = await validateOutput(data);
+
+      if (outputData.error) {
+        const issues = outputData.error.issues;
+        const firstMessageError = issues[0].message;
+        toast.error(firstMessageError);
+        return;
+      }
+
+      const { employee_code, quantity, reason_checkbox, reason } =
+        outputData.data;
 
       if (material.stock === undefined || material.stock < quantity) {
         toast.error("La cantidad ingresada es mayor al stock actual");
@@ -65,7 +77,6 @@ export const OutputModal: React.FC<OutputModalProps> = ({
       }
 
       const isValid = await verifyEmployeeCode(employee_code).catch((error) => {
-        console.log("Error en verificación de empleado:", error);
         toast.error(error.message || "Error de conexión con el servidor");
         throw error;
       });
@@ -81,16 +92,14 @@ export const OutputModal: React.FC<OutputModalProps> = ({
         quantity,
         material_id: material.id,
         user_id: Number(user_id),
-        ...(data.reason_checkbox && { reason: data.reason }),
+        type: "salida",
+        ...(reason_checkbox && { reason }),
       };
 
-      await setOutputMaterial(formData);
+      await registerMovement(formData);
       toast.success("Salida registrada exitosamente");
-      //actualizar stock
-      updateFunc({
-        id: material.id,
-        quantity,
-      });
+
+      updateFunc({ id: material.id, quantity });
       closeModal();
       reset();
     } catch (error) {
@@ -124,7 +133,6 @@ export const OutputModal: React.FC<OutputModalProps> = ({
                 className="pl-10 noControls focus-visible:outline-gray-300"
                 {...register("quantity", {
                   required: true,
-                  min: 1,
                   valueAsNumber: true,
                 })}
               />
@@ -141,7 +149,7 @@ export const OutputModal: React.FC<OutputModalProps> = ({
                 type="text"
                 placeholder="Ingrese el código"
                 className="pl-10 focus-visible:outline-gray-300"
-                {...register("employee_code", { required: true })}
+                {...register("employee_code")}
               />
             </div>
           </div>

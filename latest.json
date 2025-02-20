@@ -1,7 +1,7 @@
 {
-  "version": "v0.1.7",
-  "pub_date": "2025-02-14T00:00:00Z",
-  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSE5VSW05RXdqZThBTXVweTJMQXFGTDZpVjhsM3p3bUVXN1NPKzlyWi9ZWXpUejcwVDd3MzhyVitZV21QZnpsOGw4bkFLQ2tKdWVxeDl0K082b0UwQ2dRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzM5NTQ3NjM5CWZpbGU6QWd1YSBMaWx5IEFwcF8wLjEuN194NjQtc2V0dXAuZXhlClQ2T01hNzRJaUw2RGZhN0ZPd2R4Q1E2eXlLaWtwQStuMkxsSzBGazJpSFNlRDg0TUdVVjJmSHFkOE5DczdlckVQZ1pHTXRrL1h5K2kzSGhZSnV0akF3PT0K",
-  "url": "https://github.com/JDLSantos21/agua-lily-app/releases/latest/download/Agua.Lily.App_0.1.7_x64-setup.exe",
-  "notes": "Paginación y mejora de la UI."
+  "version": "v1.0.0",
+  "pub_date": "2025-02-17T00:00:00Z",
+  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSEJtelVDY2VqbFhYc1ZOVnV4VkI4MG5MWjd6TG95bEhmZ1E2QlRtQWp4OWJLRENydnVteXdtekFqVytPNlBSMUZDeVRxaTBRTEpsaDFEalAxZEVocXdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzM5ODE5MTY4CWZpbGU6QWd1YSBMaWx5IEFwcF8xLjAuMF94NjQtc2V0dXAuZXhlCk9aUGwySkw3TE9kQ0RkQW5TMStITk5YSzhQcUNFQ2F4cnRJMDBUQ2R2TXMwd3FKUkZDR0dCV01vMHVRL0IvUVVrQ0V0TXJoclBiNzEyMXp2MTc3NENRPT0K",
+  "url": "https://github.com/JDLSantos21/agua-lily-app/releases/latest/download/setup.exe",
+  "notes": "Primera versión (version preliminar) de la aplicacion para uso en producción."
 }
