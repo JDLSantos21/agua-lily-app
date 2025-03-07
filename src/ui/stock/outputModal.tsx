@@ -44,8 +44,6 @@ export const OutputModal: React.FC<OutputModalProps> = ({
 
   const isSubmitting = formState.isSubmitting;
 
-  console.log("renderizando modal...");
-
   const user_id = localStorage.getItem("user_id");
 
   const onSubmit = async (data: OutputFormData) => {

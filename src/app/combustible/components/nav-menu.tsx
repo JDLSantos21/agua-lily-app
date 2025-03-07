@@ -3,23 +3,17 @@
 import * as React from "react";
 import Link from "next/link";
 
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarTrigger,
-} from "@/components/ui/menubar";
-import NewAjustDialog from "@/app/inventario/ajuste/new-dialog";
-import { AdjustmentsSearchModal } from "@/app/inventario/ajuste/adjustments-search-modal";
-import { RoleBased } from "@/components/RoleBased";
+import { Menubar, MenubarMenu, MenubarTrigger } from "@/components/ui/menubar";
+import { Home } from "lucide-react";
 
 export function FuelMenu() {
   return (
-    <Menubar>
+    <Menubar className="p-4">
       <MenubarMenu>
         <Link href={"/combustible"} passHref>
-          <MenubarTrigger>Inicio</MenubarTrigger>
+          <MenubarTrigger>
+            <Home />
+          </MenubarTrigger>
         </Link>
       </MenubarMenu>
 
@@ -27,13 +21,13 @@ export function FuelMenu() {
         <Link href={"/combustible/registro"} passHref>
           <MenubarTrigger>Registro</MenubarTrigger>
         </Link>
-        <RoleBased allowedRoles={["admin", "administrativo", "operador"]}>
+        {/* <RoleBased allowedRoles={["admin", "administrativo", "operador"]}>
           <MenubarContent>
             <Link href={"/combustible"} passHref>
               <MenubarItem>Menu de registro</MenubarItem>
             </Link>
           </MenubarContent>
-        </RoleBased>
+        </RoleBased> */}
       </MenubarMenu>
       <MenubarMenu>
         <Link href={"/combustible/consulta"} passHref>
@@ -44,12 +38,12 @@ export function FuelMenu() {
         <Link href={"/combustible/reabastecimiento"} passHref>
           <MenubarTrigger>Reabastecimiento</MenubarTrigger>
         </Link>
-        <MenubarContent>
+        {/* <MenubarContent>
           <RoleBased allowedRoles={["admin", "administrativo"]}>
             <NewAjustDialog />
           </RoleBased>
           <AdjustmentsSearchModal />
-        </MenubarContent>
+        </MenubarContent> */}
       </MenubarMenu>
     </Menubar>
   );

@@ -15,13 +15,22 @@ export const fetcher = async (
   // Añadir los parámetros a la URL
   url.search = searchParams.toString();
 
-  console.log("fetcherURL", url.toString());
-  const response = await fetch(url.toString(), options);
+  try {
+    const response = await fetch(url.toString(), options);
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.log(errorData);
+      throw new Error(
+        errorData.message || "Ocurrió un problema, intente de nuevo más tarde."
+      );
+    }
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || "Error en la petición");
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    } else {
+      throw new Error("Ocurrió un problema, intente de nuevo más tarde.");
+    }
   }
-
-  return response.json();
 };

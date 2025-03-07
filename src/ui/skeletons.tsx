@@ -189,23 +189,23 @@ const MaterialTableRow = () => {
     <tr>
       {/* Material */}
       <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-full rounded bg-gray-100"></div>
+        <div className="h-6 animate-pulse w-full rounded bg-gray-200"></div>
       </td>
       {/* Categoria */}
       <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-32 rounded bg-gray-100"></div>
+        <div className="h-6 animate-pulse w-32 rounded bg-gray-200"></div>
       </td>
       {/* Cantidad */}
       <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-full rounded bg-gray-100"></div>
+        <div className="h-6 animate-pulse w-full rounded bg-gray-200"></div>
       </td>
       {/* Actualizado */}
       <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-full bg-gray-100"></div>
+        <div className="h-6 animate-pulse w-full bg-gray-200"></div>
       </td>
       {/* Creado */}
       <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-full rounded bg-gray-100"></div>
+        <div className="h-6 animate-pulse w-full rounded bg-gray-200"></div>
       </td>
     </tr>
   );
@@ -231,5 +231,17 @@ export function MaterialsTableSkeleton() {
         <MaterialTableRow />
       </TableBody>
     </Table>
+  );
+}
+
+export function AdjustmentSearchSkeleton() {
+  return (
+    <>
+      <MaterialTableRow />
+      <MaterialTableRow />
+      <MaterialTableRow />
+      <MaterialTableRow />
+      <MaterialTableRow />
+    </>
   );
 }

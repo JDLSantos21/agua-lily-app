@@ -15,10 +15,10 @@ export interface Adjustment {
   material_name: string;
 }
 
-export interface AdjustmentCreate {
-  material_id: number | null;
-  quantity: string;
+export interface CreateAdjustment {
+  material_id: number;
+  quantity: number;
   reason: string;
   employee_code: string;
-  user_id: number | null;
+  user_id: number;
 }

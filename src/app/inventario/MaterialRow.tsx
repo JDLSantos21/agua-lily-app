@@ -11,7 +11,6 @@ interface MaterialRowProps {
 }
 
 export default function MaterialRow({ material, onClick }: MaterialRowProps) {
-  console.log(material);
   return (
     <TableRow onClick={() => onClick(material)} className="cursor-pointer">
       <TableCell>{material.name}</TableCell>

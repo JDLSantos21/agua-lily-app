@@ -22,7 +22,7 @@ export default function UpdateChecker() {
   };
 
   return (
-    <Button onClick={handleCheckUpdate} disabled={checking}>
+    <Button variant="primary" onClick={handleCheckUpdate} disabled={checking}>
       {checking ? "Buscando..." : "Buscar actualización"}
     </Button>
   );

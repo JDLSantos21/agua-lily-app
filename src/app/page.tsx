@@ -26,7 +26,7 @@ export default function Home() {
 
   // Si se ha inicializado pero no hay token, mostramos el login
   return (
-    <div className="flex items-center justify-center h-screen select-none">
+    <div className="flex probando items-center justify-center h-screen select-none">
       <Login />
     </div>
   );

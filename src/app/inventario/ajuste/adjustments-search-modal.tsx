@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { CalendarIcon, Filter, Loader, Search } from "lucide-react";
+import { CalendarIcon, Filter, Search } from "lucide-react";
 import { es } from "date-fns/locale";
 import { format } from "date-fns";
 import * as XLSX from "xlsx";
@@ -34,6 +34,7 @@ import { Adjustment } from "@/types/materials/adjustment";
 import { Excel } from "../../../../public/excel";
 import { adjustmentFilter } from "@/types/inventory";
 import { toast } from "sonner";
+import { AdjustmentSearchSkeleton } from "@/ui/skeletons";
 
 export function AdjustmentsSearchModal() {
   const [open, setOpen] = useState(false);
@@ -92,7 +93,6 @@ export function AdjustmentsSearchModal() {
         start_date: startDate,
         end_date: endDate,
       });
-      console.log("Buscando ajustes...", materialName, startDate, endDate);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, startDate, endDate]);
@@ -225,7 +225,7 @@ export function AdjustmentsSearchModal() {
           </Button>
         </div>
         <div className="flex-1 overflow-auto h-full">
-          <Table className="table-fixed h-full">
+          <Table className="table-fixed  h-full">
             <TableHeader>
               <TableRow>
                 <TableHead>Material</TableHead>
@@ -246,13 +246,7 @@ export function AdjustmentsSearchModal() {
                   </TableCell>
                 </TableRow>
               ) : loading ? (
-                <TableRow>
-                  <TableCell colSpan={4}>
-                    <div className="flex justify-center items-center py-8">
-                      <Loader className="h-8 w-8 animate-spin" />
-                    </div>
-                  </TableCell>
-                </TableRow>
+                <AdjustmentSearchSkeleton />
               ) : (
                 adjustments.map((adjustment) => (
                   <TableRow key={adjustment.id}>

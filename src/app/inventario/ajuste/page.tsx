@@ -20,7 +20,6 @@ export default function StockAjustPage() {
     setLoading(true);
     fetchAdjustments().then((data) => {
       setAdjustments(data);
-      console.log(data);
       setLoading(false);
     });
   }, []);
@@ -34,11 +33,14 @@ export default function StockAjustPage() {
   return (
     <div className="h-[calc(100vh-13rem)] mx-auto flex flex-col justify-between">
       <div className="table-container">
-        {/* Listado de ajustes */}
         {loading ? (
           <AdjustTableSkeleton />
-        ) : (
+        ) : adjustments.length !== 0 ? (
           <AdjustTable currentData={currentData} />
+        ) : (
+          <div className="text-gray-500 text-center">
+            No hay ajustes registrados
+          </div>
         )}
       </div>
       <TablePagination

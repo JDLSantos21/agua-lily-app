@@ -1,6 +1,7 @@
 // import StockBreadcrumb from "@/components/Stock/breadcrumb";
 import SideNav from "@/ui/sidenav/sidenav";
 import { FuelMenu } from "./components/nav-menu";
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">

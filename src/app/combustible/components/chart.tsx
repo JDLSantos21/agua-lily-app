@@ -1,20 +1,17 @@
 "use client";
+import { fuelAvailability } from "@/types/fuel.types";
 import { Chart, ArcElement } from "chart.js";
 Chart.register(ArcElement);
 import { Doughnut } from "react-chartjs-2";
 
-const fuelAvailable = {
-  disponible: 1000,
-};
-
-export const FuelChart = () => {
+export const FuelChart = ({ data }: { data: fuelAvailability }) => {
   const MAX_CAPACITY = 1500;
-  const AVAILABLE_FUEL = fuelAvailable.disponible || 0;
+  const AVAILABLE_FUEL = Number(data.available) || 0;
 
   const fuelLevel = (AVAILABLE_FUEL / MAX_CAPACITY) * 100;
 
   const chartData = {
-    labels: ["Available", "Used"],
+    labels: ["Disponible", "Usado"],
     datasets: [
       {
         data: [AVAILABLE_FUEL, MAX_CAPACITY - AVAILABLE_FUEL],
@@ -41,7 +38,7 @@ export const FuelChart = () => {
     fuelLevel > FUEL_LIMIT ? "text-green-500" : "text-red-500";
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className=" max-w-md mx-auto">
       <div>
         <div className="relative w-64 h-64 mx-auto">
           <Doughnut data={chartData} options={chartOptions} />

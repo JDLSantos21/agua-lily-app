@@ -66,6 +66,7 @@ function StockTable({ query }: StockTableProps) {
   }, []);
 
   if (loading) return <StockTableSkeleton />;
+
   if (error)
     return (
       <div className="text-center text-red-500">Error: {error.message}</div>
@@ -86,8 +87,18 @@ function StockTable({ query }: StockTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentData.length > 0 ? (
-              currentData.map((material) => (
+            {
+              // Si no hay registros, mostrar un mensaje
+              !currentData?.length && (
+                <TableRow>
+                  <td colSpan={5} className="text-center">
+                    No se encontraron materiales
+                  </td>
+                </TableRow>
+              )
+            }
+            {currentData?.length > 0 ? (
+              currentData?.map((material) => (
                 <MaterialRow
                   key={material.id}
                   material={material}

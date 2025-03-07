@@ -12,11 +12,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { setAdjustment } from "@/api/materials";
 import { verifyEmployeeCode } from "@/api/employees";
 import { useAuthStore } from "@/stores/authStore";
 import { MaterialCombobox } from "./material-combobox";
-import { toast, Toaster } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,8 +25,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { AdjustmentCreate } from "@/types/materials/adjustment";
+import { CreateAdjustment } from "@/types/materials/adjustment";
 import { fetchMaterials } from "@/api/materials";
+import { validateAdjustment } from "@/schemas/inventory";
+import { toast } from "sonner";
+import { setAdjustment } from "@/api/inventory";
 
 interface Material {
   id: number;
@@ -37,35 +38,43 @@ interface Material {
 
 export default function NewAjustDialog() {
   const { register, handleSubmit, setValue, watch, reset } =
-    useForm<AdjustmentCreate>();
+    useForm<CreateAdjustment>();
   const [open, setOpen] = useState(false);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [customReason, setCustomReason] = useState("");
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-  console.log("materials", materials);
   const user_id = useAuthStore((state) => state.user_id);
 
   useEffect(() => {
     fetchMaterials().then((data) => setMaterials(data));
   }, []);
 
-  const onSubmit: SubmitHandler<AdjustmentCreate> = async (
-    data: AdjustmentCreate
+  const onSubmit: SubmitHandler<CreateAdjustment> = async (
+    data: CreateAdjustment
   ) => {
     if (data.reason === "custom") {
       data.reason = customReason;
     }
 
-    data.user_id = user_id;
+    if (user_id) {
+      data.user_id = user_id;
+    } else {
+      data.user_id = 0;
+    }
 
-    if (!data.material_id) {
+    data.quantity = parseInt(data.quantity.toString());
+
+    const dataValidated = await validateAdjustment(data);
+
+    if (dataValidated.error) {
+      toast.warning("Verifica los datos ingresados.");
       setIsConfirmOpen(false);
-      toast.warning("Selecciona un material");
       return;
     }
 
     try {
+      console.log("data", dataValidated.data);
       await setAdjustment(data);
       toast.success("Ajuste registrado correctamente");
       reset();
@@ -85,7 +94,6 @@ export default function NewAjustDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Toaster richColors />
       <DialogTrigger className="relative flex cursor-default hover:bg-neutral-100 w-full select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-neutral-100 focus:text-neutral-900 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:bg-neutral-800 dark:focus:text-neutral-50">
         Ajustar
       </DialogTrigger>
@@ -109,7 +117,7 @@ export default function NewAjustDialog() {
             <MaterialCombobox
               materials={materials}
               onSelect={(material) => {
-                setValue("material_id", material ? material.id : null);
+                setValue("material_id", material ? material.id : 0);
               }}
             />
           </div>

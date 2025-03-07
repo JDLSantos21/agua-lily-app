@@ -33,6 +33,43 @@ export async function checkForUpdates(): Promise<UpdateInfo | null> {
     return null;
   }
 }
+export async function downloadUpdate(
+  update: Update,
+  onProgress: (progress: number) => void
+): Promise<void> {
+  let downloaded = 0;
+  let contentLength: number | undefined = 0;
+
+  await update.download((event) => {
+    switch (event.event) {
+      case "Started":
+        contentLength = event.data.contentLength;
+        console.log("Descarga iniciada:", contentLength);
+        break;
+      case "Progress":
+        downloaded += event.data.chunkLength;
+        if (contentLength) {
+          const progress = (downloaded / contentLength) * 100;
+          onProgress(progress); // Reporta el porcentaje al callback
+        }
+        break;
+      case "Finished":
+        console.log("Descarga completada");
+        onProgress(100); // Asegura que el progreso llegue al 100%
+        break;
+    }
+  });
+}
+
+export async function installUpdate(update: Update): Promise<void> {
+  try {
+    await update.install();
+    alert("Instalación completada. Reinicia la aplicación.");
+  } catch (error) {
+    console.error("Error al instalar la actualización:", error);
+    alert("Hubo un error al instalar la actualización.");
+  }
+}
 
 /**
  * Descarga e instala la actualización.

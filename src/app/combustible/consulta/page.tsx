@@ -1,7 +1,14 @@
-export default function consulta() {
+// app/combustible/consulta/page.tsx
+import { Suspense } from "react";
+import FuelQueryForm from "./components/fuel-query-form";
+import FuelQuerySkeleton from "./components/fuel-query-skeleton";
+
+export default function FuelQueryPage() {
   return (
-    <main className="flex-1 overflow-x-hidden max-h-[80%] overflow-y-auto p-6 ">
-      Consulta
-    </main>
+    <div className="container mx-auto">
+      <Suspense fallback={<FuelQuerySkeleton />}>
+        <FuelQueryForm />
+      </Suspense>
+    </div>
   );
 }

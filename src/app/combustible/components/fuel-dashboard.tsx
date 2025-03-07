@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Table,
   TableBody,
@@ -8,77 +10,47 @@ import {
 } from "@/components/ui/table";
 import moment from "moment";
 import { FuelChart } from "./chart";
-
-const fuelRegisters = [
-  {
-    id: 1,
-    ficha: 1,
-    galones: 10,
-    fecha: "2021-10-10",
-  },
-  {
-    id: 2,
-    ficha: 2,
-    galones: 20,
-    fecha: "2021-10-11",
-  },
-  {
-    id: 3,
-    ficha: 3,
-    galones: 30,
-    fecha: "2021-10-12",
-  },
-  {
-    id: 4,
-    ficha: 4,
-    galones: 40,
-    fecha: "2021-10-13",
-  },
-  {
-    id: 5,
-    ficha: 5,
-    galones: 50,
-    fecha: "2021-10-14",
-  },
-];
+import FuelDashboardSkeleton from "./fuel-dashboard-skeleton";
+import useFetchDashboard from "@/hooks/useFetchDashboard";
 
 export const FuelDashboard = () => {
-  const loading = false;
+  const { fuel_records, loading, availability } = useFetchDashboard();
+
+  if (loading) return <FuelDashboardSkeleton />;
+
   return (
     <div className="flex">
-      {loading ? (
-        <div>cargando</div>
-      ) : fuelRegisters.length === 0 ? (
+      {fuel_records?.length === 0 ? (
         <h1>No hay registros de combustible</h1>
       ) : (
-        <div className="relative w-full">
+        <div className="relative w-full flex justify-between">
           <div className="w-1/2">
             <h1 className="text-xl font-semibold text-gray-800">Resumen</h1>
             <p className="text-sm text-gray-500">
               Registros de combustible más recientes.
             </p>
-            <Table>
+            <Table className="mt-4 table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Unidad</TableHead>
-                  <TableHead>Galones</TableHead>
-                  <TableHead>Fecha</TableHead>
+                  <TableHead className="w-[30%]">Unidad</TableHead>
+                  <TableHead className="w-[20%]">Galones</TableHead>
+                  <TableHead className="w-[50%]">Fecha</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {fuelRegisters.slice(0, 5).map((item) => (
+                {fuel_records?.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell>Ficha {item.ficha}</TableCell>
-                    <TableCell>{item.galones}</TableCell>
-                    <TableCell>{moment(item.fecha).format("LL")}</TableCell>
+                    <TableCell>{item.current_tag}</TableCell>
+                    <TableCell>{item.gallons}</TableCell>
+                    <TableCell>
+                      {moment(item.record_date).format("LL")}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </div>
-          <div className="w-1/2 absolute bottom-0 right-0">
-            <FuelChart />
-          </div>
+          {availability && <FuelChart data={availability} />}
         </div>
       )}
     </div>

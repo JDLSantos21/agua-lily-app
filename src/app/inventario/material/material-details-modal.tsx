@@ -172,7 +172,7 @@ ModalProps) {
                     <div>
                       <Button
                         onClick={() => setIsEditing(true)}
-                        className="ml-2 bg-transparent hover:bg-transparent text-gray-800 hover:text-gray-600"
+                        className="ml-2 bg-transparent hover:bg-transparent text-gray-800 hover:text-gray-600 outline-gray-300"
                       >
                         <Edit className="h-4 w-4" /> Editar
                       </Button>

@@ -12,3 +12,11 @@ export interface adjustmentFilter {
   start_date?: Date | string;
   end_date?: Date | string;
 }
+
+export interface CreateAdjustment {
+  material_id: number;
+  quantity: number;
+  reason: string;
+  employee_code: string;
+  user_id: number;
+}

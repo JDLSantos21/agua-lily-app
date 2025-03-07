@@ -13,7 +13,6 @@ import {
 import NewAjustDialog from "@/app/inventario/ajuste/new-dialog";
 import { AdjustmentsSearchModal } from "@/app/inventario/ajuste/adjustments-search-modal";
 import { RoleBased } from "../RoleBased";
-
 export function InventoryMenu() {
   return (
     <Menubar>
@@ -23,7 +22,7 @@ export function InventoryMenu() {
         </Link>
       </MenubarMenu>
       <MenubarMenu>
-        <Link href={"/inventario/material"} passHref>
+        <Link href={`/inventario/material`} passHref>
           <MenubarTrigger>Materiales</MenubarTrigger>
         </Link>
         <RoleBased allowedRoles={["admin", "administrativo"]}>
