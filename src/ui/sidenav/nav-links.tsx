@@ -2,13 +2,14 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Fuel } from "lucide-react";
+import { LayoutDashboard, Package, Fuel, HandCoins } from "lucide-react";
 import { motion } from "framer-motion";
 
 const links = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Inventario", href: "/inventario", icon: Package },
   { name: "Combustible", href: "/combustible", icon: Fuel },
+  { name: "Gestión de Activos", href: "/activos", icon: HandCoins },
 ];
 
 export default function NavLinks() {
@@ -28,7 +29,7 @@ export default function NavLinks() {
           >
             <Link
               href={link.href}
-              className={`flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all rounded-lg
+              className={`flex items-center gap-3 px-4 py-3 w-full text-sm font-medium transition-all rounded-lg
                 ${
                   isActive
                     ? "bg-blue-50 text-blue-600 border-l-4 border-blue-500"

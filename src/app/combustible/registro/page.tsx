@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useForm, Controller, FieldErrors } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { fetchRegisterInitialData, registerFuelConsumption } from "@/api/fuel";
 import { useAuthStore } from "@/stores/authStore";
 import FuelRecordDisplay from "./components/fuel-record-display";
@@ -30,9 +30,9 @@ const fuelSchema = z.object({
   gallons: z
     .number()
     .min(1, "Los galones no pueden ser 0 ni negativos")
-    .max(100, "Los galones no pueden ser mayores a 200"),
+    .max(200, "Los galones no pueden ser mayores a 200"),
   record_date: z.string().optional().nullable(),
-  signature: z.number().optional(),
+  signature: z.number().optional().nullable(),
 });
 
 type FormData = z.infer<typeof fuelSchema>;
@@ -40,17 +40,8 @@ type FormData = z.infer<typeof fuelSchema>;
 export default function FuelRegisterForm() {
   const [initialData, setInitialData] = useState<InitialData | null>(null);
   const [showDateInput, setShowDateInput] = useState(false);
+  const [lastRecord, setLastRecord] = useState<LastRecord | undefined>(undefined);
   const user_id = useAuthStore((state) => state.user_id);
-
-  useEffect(() => {
-    try {
-      fetchRegisterInitialData().then((data) => {
-        setInitialData(data);
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
 
   const {
     register,
@@ -58,7 +49,7 @@ export default function FuelRegisterForm() {
     control,
     watch,
     reset,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = useForm<FormData>({
     resolver: zodResolver(fuelSchema),
     defaultValues: {
@@ -68,19 +59,82 @@ export default function FuelRegisterForm() {
       gallons: 0,
     },
   });
+  
+  // Watch vehicle ID for changes
+  const watchVehicleId = watch("vehicle_id");
+  
+  // Fetch initial data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchRegisterInitialData();
+        setInitialData(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    
+    fetchData();
+  }, []);
+  
+  // Update lastRecord when vehicle changes or initialData loads
+  useEffect(() => {
+    if (initialData && watchVehicleId) {
+      const record = initialData.lastRecords.find(
+        (record) => Number(record.vehicle_id) === Number(watchVehicleId)
+      );
+      setLastRecord(record);
+    } else {
+      setLastRecord(undefined);
+    }
+  }, [watchVehicleId, initialData]);
+  
+  // Muestra los errores del formulario en un useEffect en lugar de durante el renderizado
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      Object.keys(errors).forEach((key) => {
+        const errorMessage = errors[key as keyof FormData]?.message;
+        if (errorMessage && typeof errorMessage === 'string') {
+          toast.error(errorMessage);
+        }
+      });
+    }
+  }, [errors]);
 
+  // Si initialData es null, renderiza el skeleton
   if (!initialData) {
     return <FuelRegisterSkeleton />;
   }
-  const watchVehicleId = watch("vehicle_id");
-
-  const lastRecord: LastRecord | undefined = initialData.lastRecords.find(
-    (record) => Number(record.vehicle_id) === Number(watchVehicleId)
-  );
 
   const onSubmit = async (data: FormData) => {
+    // Validaciones adicionales
+    let hasValidationErrors = false;
+    
+    if(data.vehicle_id != String(30)) {
+      if(lastRecord === undefined) {
+        toast.error("No se encontró el último registro del vehículo");
+        hasValidationErrors = true;
+      } else if(lastRecord?.mileage >= data.mileage) {
+        toast.error("El kilometraje no puede ser menor al último registro");
+        hasValidationErrors = true;
+      } else if((data.mileage - lastRecord?.mileage) > 450) {
+        toast.error("La diferencia de kilometraje no puede ser mayor a 450 km");
+        hasValidationErrors = true;
+      }
+
+      if(data.gallons > 50) {
+        toast.error("La cantidad de galones no puede ser mayor a 50");
+        hasValidationErrors = true;
+      }
+    }
+
     if (!user_id) {
       toast.error("No se pudo obtener el ID del usuario");
+      hasValidationErrors = true;
+    }
+    
+    // Si hay errores de validación, no continúes
+    if (hasValidationErrors) {
       return;
     }
 
@@ -106,25 +160,13 @@ export default function FuelRegisterForm() {
     }
   };
 
-  // Manejar errores con Sonner
-  const onError = (errors: FieldErrors<FormData>) => {
-    console.log(errors);
-    Object.keys(errors).forEach((key) => {
-      const errorMessage = errors[key as keyof FormData]?.message;
-      if (errorMessage) {
-        toast.error(errorMessage);
-      }
-    });
-  };
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Formulario */}
-      <Card className="">
-        <Toaster richColors />
+      <Card>
         <CardContent className="pt-6">
           <form
-            onSubmit={handleSubmit(onSubmit, onError)}
+            onSubmit={handleSubmit(onSubmit)}
             className="space-y-4"
           >
             {/* Vehículo */}

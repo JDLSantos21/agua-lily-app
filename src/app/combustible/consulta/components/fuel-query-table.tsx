@@ -20,6 +20,8 @@ export default function FuelQueryTable({
   if (loading) {
     return <FuelQueryTableSkeleton />;
   }
+
+  console.log(fuelRecords);
   return (
     <Table className="table-fixed">
       <TableHeader>
@@ -42,7 +44,7 @@ export default function FuelQueryTable({
       ) : (
         <TableBody>
           {fuelRecords.map((record) => (
-            <TableRow key={`${record.vehicle_id}-${record.record_date}`}>
+            <TableRow key={`${record.mileage}-${record.record_date}-${record.gallons}`}>
               <TableCell>{record.current_tag}</TableCell>
               <TableCell>{record.driver}</TableCell>
               <TableCell>{record.mileage}</TableCell>

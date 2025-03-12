@@ -1,71 +1,106 @@
-import { motion } from "framer-motion";
+"use client";
+import { FC } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Gauge, Fuel, Calendar, AlertCircle } from "lucide-react";
+import { Gauge, Fuel, Calendar, AlertCircle, Tag } from "lucide-react";
 import moment from "moment";
 import { LastRecord } from "@/types/fuel.types";
 
-export default function FuelRecordDisplay({
-  lastRecord,
-}: {
+interface FuelRecordDisplayProps {
   lastRecord: LastRecord | undefined;
-}) {
-  if (!lastRecord) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Card className="w-full max-w-sm">
-          <CardContent className="p-6 flex items-center justify-center text-muted-foreground">
-            <AlertCircle className="h-5 w-5 mr-2" />
-            <span>Seleccione un vehículo.</span>
-          </CardContent>
-        </Card>
-      </motion.div>
-    );
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card className="w-full max-w-sm overflow-hidden">
-        <CardContent className="p-6">
-          <h3 className="text-lg font-semibold mb-4 text-center">
-            Último Registro
-          </h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 text-muted-foreground">
-                <Calendar className="h-5 w-5" />
-                <span className="text-sm">Fecha</span>
-              </div>
-              <span className="font-medium">
-                {moment(lastRecord.record_date).format("LL")}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 text-muted-foreground">
-                <Gauge className="h-5 w-5" />
-                <span className="text-sm">Kilometraje</span>
-              </div>
-              <span className="font-medium">{lastRecord.mileage} km</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 text-muted-foreground">
-                <Fuel className="h-5 w-5" />
-                <span className="text-sm">Cantidad</span>
-              </div>
-              <span className="font-medium">{lastRecord.gallons} Galones</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
 }
+
+const animationProps = {
+  initial: { opacity: 0, y: -20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: 20 },
+  transition: { duration: 0.3 }
+};
+
+/**
+ * Componente que muestra el último registro de combustible para el vehículo seleccionado
+ */
+const FuelRecordDisplay: FC<FuelRecordDisplayProps> = ({ lastRecord }) => {
+  return (
+    <AnimatePresence mode="wait">
+      {!lastRecord ? (
+        // Estado cuando no hay vehículo seleccionado
+        <motion.div key="empty" {...animationProps}>
+          <Card className="w-full shadow-sm">
+            <CardContent className="p-6 flex items-center justify-center text-muted-foreground h-[250px]">
+              <div className="flex flex-col items-center space-y-2">
+                <AlertCircle className="h-8 w-8 mb-2 text-amber-500" />
+                <span className="text-center">
+                  Seleccione un vehículo para ver su último registro
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      ) : (
+        // Estado cuando hay un vehículo con último registro
+        <motion.div key="data" {...animationProps}>
+          <Card className="w-full shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-center mb-4">
+                <Tag className="h-5 w-5 mr-2 text-primary/80" />
+                <h3 className="text-lg font-semibold text-center">
+                  {lastRecord.current_tag}
+                </h3>
+              </div>
+              
+              <h4 className="text-md font-medium mb-4 text-center text-muted-foreground">
+                Último Registro
+              </h4>
+              
+              <div className="space-y-4">
+                <RecordItem 
+                  icon={<Calendar className="h-5 w-5" />} 
+                  label="Fecha" 
+                  value={moment(lastRecord.record_date).format("LL")} 
+                />
+                
+                <RecordItem 
+                  icon={<Gauge className="h-5 w-5" />} 
+                  label="Kilometraje" 
+                  value={`${lastRecord.mileage} km`} 
+                />
+                
+                <RecordItem 
+                  icon={<Fuel className="h-5 w-5" />} 
+                  label="Cantidad" 
+                  value={`${lastRecord.gallons} Galones`} 
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+interface RecordItemProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+}
+
+/**
+ * Componente que renderiza un ítem individual de información del registro
+ */
+const RecordItem: FC<RecordItemProps> = ({ icon, label, value }) => {
+  return (
+    <div className="flex items-center justify-between group hover:bg-gray-50 p-2 rounded-md transition-colors">
+      <div className="flex items-center space-x-2 text-muted-foreground">
+        <div className="text-primary/70 group-hover:text-primary transition-colors">
+          {icon}
+        </div>
+        <span className="text-sm">{label}</span>
+      </div>
+      <span className="font-medium">{value}</span>
+    </div>
+  );
+};
+
+export default FuelRecordDisplay;

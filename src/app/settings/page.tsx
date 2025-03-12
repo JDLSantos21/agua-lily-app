@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+// import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,28 +10,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { ArrowLeft, Sun, Moon, Bell, User } from "lucide-react";
+// import { Switch } from "@/components/ui/switch";
+// import { Label } from "@/components/ui/label";
+import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import UpdateChecker from "@/components/updateChecker";
 import UpdateModal from "@/components/updateModal";
 
 // Hooks simulados para tema y notificaciones (reemplaza con tu lógica real)
-const useTheme = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  return { isDarkMode, setIsDarkMode };
-};
+// const useTheme = () => {
+//   const [isDarkMode, setIsDarkMode] = useState(false);
+//   return { isDarkMode, setIsDarkMode };
+// };
 
-const useNotifications = () => {
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  return { notificationsEnabled, setNotificationsEnabled };
-};
+// const useNotifications = () => {
+//   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+//   return { notificationsEnabled, setNotificationsEnabled };
+// };
 
 export default function Settings() {
   const router = useRouter();
-  const { isDarkMode, setIsDarkMode } = useTheme();
-  const { notificationsEnabled, setNotificationsEnabled } = useNotifications();
+  // const { isDarkMode, setIsDarkMode } = useTheme();
+  // const { notificationsEnabled, setNotificationsEnabled } = useNotifications();
 
   const handleBack = () => {
     router.back();
@@ -68,8 +68,7 @@ export default function Settings() {
             <UpdateModal />
           </CardContent>
         </Card>
-
-        {/* Sección: Tema */}
+        {/* 
         <Card>
           <CardHeader>
             <CardTitle>Tema</CardTitle>
@@ -92,7 +91,6 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        {/* Sección: Notificaciones */}
         <Card>
           <CardHeader>
             <CardTitle>Notificaciones</CardTitle>
@@ -114,7 +112,6 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        {/* Sección: Cuenta de Usuario */}
         <Card>
           <CardHeader>
             <CardTitle>Cuenta de Usuario</CardTitle>
@@ -133,7 +130,7 @@ export default function Settings() {
               </Button>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </motion.div>
   );
