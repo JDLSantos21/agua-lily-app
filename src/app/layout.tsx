@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { Toaster } from "sonner";
 import { SocketProvider } from "@/components/SocketProvider";
+import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -23,10 +24,13 @@ export default function RootLayout({
 }>) {
   const initializeAuth = useAuthStore((state) => state.initializeAuth);
 
+  useInactivityLogout()
+
+
   useEffect(() => {
     initializeAuth();
   }, [initializeAuth]);
-
+  
   return (
     <html lang="en">
       <body>

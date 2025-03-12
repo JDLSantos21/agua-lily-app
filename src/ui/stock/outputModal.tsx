@@ -18,6 +18,7 @@ import { verifyEmployeeCode } from "@/api/employees";
 import { toast } from "sonner";
 import { registerMovement } from "@/api/inventory";
 import { validateOutput } from "@/schemas/inventory";
+import { useAuthStore } from "@/stores/authStore";
 
 interface OutputModalProps {
   material: Material | null;
@@ -41,10 +42,9 @@ export const OutputModal: React.FC<OutputModalProps> = ({
     useForm<OutputFormData>({
       mode: "onChange",
     });
+  const user_id = useAuthStore((state) => state.user_id)
 
   const isSubmitting = formState.isSubmitting;
-
-  const user_id = localStorage.getItem("user_id");
 
   const onSubmit = async (data: OutputFormData) => {
     try {

@@ -10,7 +10,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StockTableSkeleton } from "../skeletons";
-import { Toaster } from "sonner";
 import MaterialRow from "@/app/inventario/MaterialRow";
 import { OutputModal } from "./outputModal";
 import { useFetchFilteredStock } from "@/hooks/useFetchFilteredStock";
@@ -74,7 +73,6 @@ function StockTable({ query }: StockTableProps) {
 
   return (
     <>
-      <Toaster richColors />
       <div className="flex flex-col justify-between h-[calc(100vh-15rem)]">
         <Table className="table-fixed">
           <TableHeader>

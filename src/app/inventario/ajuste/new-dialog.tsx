@@ -79,7 +79,7 @@ export default function NewAjustDialog() {
       toast.success("Ajuste registrado correctamente");
       reset();
     } catch (error) {
-      console.error("Error registrando ajuste", error);
+      console.log("Error registrando ajuste", error);
       toast.error("Error al registrar el ajuste");
       return;
     }

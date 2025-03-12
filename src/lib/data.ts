@@ -11,7 +11,7 @@
 //     const data = await res.json();
 //     return data;
 //   } catch (error) {
-//     console.error("Error fetching materials", error);
+//     console.log("Error fetching materials", error);
 //   }
 // };
 
@@ -21,7 +21,7 @@
 //     const data = await res.json();
 //     return data;
 //   } catch (error) {
-//     console.error("Error fetching adjustments:", error);
+//     console.log("Error fetching adjustments:", error);
 //   }
 // };
 
@@ -41,6 +41,6 @@
 //     const data = await res.json();
 //     return data;
 //   } catch (error) {
-//     console.error("Error fetching adjustments:", error);
+//     console.log("Error fetching adjustments:", error);
 //   }
 // };

@@ -18,10 +18,7 @@ interface ReplenishmentRecord {
 }
 
 export default async function ReplenishmentTable() {
-  //simular la carga de datos
-  // const sleep = (ms: number) =>
-  //   new Promise((resolve) => setTimeout(resolve, ms));
-  // await sleep(2000);
+  // Obtener los registros de reabastecimiento en el servidor
   const records: ReplenishmentRecord[] = await fetchRecentReplenishments();
 
   return (

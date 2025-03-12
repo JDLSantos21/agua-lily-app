@@ -26,7 +26,7 @@ export default function VehiclesPage() {
         setVehicles(data);
         setFilteredVehicles(data);
       } catch (error) {
-        console.error("Error fetching vehicles:", error);
+        console.log("Error fetching vehicles:", error);
       } finally {
         setIsLoading(false);
       }
@@ -54,7 +54,7 @@ export default function VehiclesPage() {
       setVehicles(data);
       setFilteredVehicles(data);
     } catch (error) {
-      console.error("Error refreshing vehicles:", error);
+      console.log("Error refreshing vehicles:", error);
     } finally {
       setIsLoading(false);
     }

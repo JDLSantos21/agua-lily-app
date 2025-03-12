@@ -2,6 +2,7 @@
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { RoleBased } from "@/components/RoleBased";
 
+
 export default function Dashboard() {
   return (
     <ProtectedRoute requiredRole="operador">

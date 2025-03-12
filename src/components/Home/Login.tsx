@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 // Iconos de lucide-react
 import { User, Lock, LogIn, Loader } from "lucide-react";
 // Alertas con sonner
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -69,7 +69,6 @@ export default function Login() {
 
   return (
     <Card className="w-full max-w-md mx-auto mt-20">
-      <Toaster richColors />
       <CardHeader>
         <CardTitle>Bienvenido</CardTitle>
         <CardDescription>Inicia sesión en el sistema</CardDescription>

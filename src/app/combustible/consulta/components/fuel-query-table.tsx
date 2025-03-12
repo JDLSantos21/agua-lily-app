@@ -21,7 +21,6 @@ export default function FuelQueryTable({
     return <FuelQueryTableSkeleton />;
   }
 
-  console.log(fuelRecords);
   return (
     <Table className="table-fixed">
       <TableHeader>

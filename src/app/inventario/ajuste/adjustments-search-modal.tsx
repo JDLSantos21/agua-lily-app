@@ -67,7 +67,7 @@ export function AdjustmentsSearchModal() {
       const data = await searchAdjustments(filterData);
       setAdjustments(data);
     } catch (e) {
-      console.error(e);
+      console.log(e);
       toast.error("Ocurrió un error al buscar los ajustes.");
     } finally {
       setLoading(false);

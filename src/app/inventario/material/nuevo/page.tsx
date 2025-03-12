@@ -1,6 +1,6 @@
 "use client";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { Package, FileText, Tag, AlertCircle, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,6 @@ export default function MaterialForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-4xl mt-5">
-      <Toaster richColors />
       <div className="grid grid-cols-2 gap-6">
         <div>
           <Label htmlFor="name" className="flex items-center gap-2 mb-2">

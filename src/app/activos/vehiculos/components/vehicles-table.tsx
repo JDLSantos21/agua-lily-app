@@ -58,7 +58,7 @@ export function VehiclesTable({
       await deleteVehicle(vehicleToDelete.id);
       await onRefresh();
     } catch (error) {
-      console.error("Error deleting vehicle:", error);
+      console.log("Error deleting vehicle:", error);
     } finally {
       setDeleting(false);
       setVehicleToDelete(null);

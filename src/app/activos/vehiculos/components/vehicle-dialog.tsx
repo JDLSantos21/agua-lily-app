@@ -134,7 +134,7 @@ export function VehicleDialog({
     //   await onSuccess();
     //   onOpenChange(false);
     // } catch (error) {
-    //   console.error("Error al guardar vehículo:", error);
+    //   console.log("Error al guardar vehículo:", error);
     // } finally {
     //   setIsSubmitting(false);
     // }

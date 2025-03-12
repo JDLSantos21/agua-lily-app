@@ -19,7 +19,7 @@ import type { Material } from "@/lib/types";
 import moment from "moment";
 import { RoleBased } from "@/components/RoleBased";
 import { deleteMaterial, editMaterial } from "@/api/materials";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 
 interface ModalProps {
   material: Material | null;
@@ -56,7 +56,7 @@ ModalProps) {
       closeModal();
       setMaterials((prev) => prev.filter((m) => m.id !== id));
     } catch (error) {
-      console.error("problema al eliminar el material", error);
+      console.log("problema al eliminar el material", error);
       toast.error("Hubo un problema al eliminar el material");
     }
   };
@@ -95,7 +95,7 @@ ModalProps) {
 
       setIsEditing(false);
     } catch (error) {
-      console.error("Problema al actualizar el material", error);
+      console.log("Problema al actualizar el material", error);
       toast.error("Hubo un problema al actualizar el material");
     } finally {
       setLoading(false);
@@ -106,7 +106,6 @@ ModalProps) {
 
   return (
     <Dialog open={!!material} onOpenChange={closeModal}>
-      <Toaster richColors />
       <DialogContent className="max-w-4xl w-full max-h-[90vh] h-[500px] flex flex-col overflow-y-auto ">
         <DialogHeader>
           <DialogTitle className="text-2xl text-gray-700">

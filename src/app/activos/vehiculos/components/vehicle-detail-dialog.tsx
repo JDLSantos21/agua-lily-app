@@ -76,7 +76,7 @@ export function VehicleDetailDialog({
           const data = await getVehicleConsumption(vehicle.id);
           setConsumptionData(data);
         } catch (error) {
-          console.error("Error fetching consumption data:", error);
+          console.log("Error fetching consumption data:", error);
           setConsumptionData({ monthlyData: [], recentRecords: [] });
         } finally {
           setIsLoading(false);
@@ -104,7 +104,7 @@ export function VehicleDetailDialog({
     try {
       return format(parseISO(dateString), "dd/MM/yyyy", { locale: es });
     } catch (error) {
-      console.error("Error formatting record date:", error);
+      console.log("Error formatting record date:", error);
       return "Fecha inválida";
     }
   };

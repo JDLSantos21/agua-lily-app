@@ -29,7 +29,7 @@ export async function checkForUpdates(): Promise<UpdateInfo | null> {
     }
     return null;
   } catch (error) {
-    console.error("Error al buscar actualizaciones:", error);
+    console.log("Error al buscar actualizaciones:", error);
     return null;
   }
 }
@@ -66,7 +66,7 @@ export async function installUpdate(update: Update): Promise<void> {
     await update.install();
     alert("Instalación completada. Reinicia la aplicación.");
   } catch (error) {
-    console.error("Error al instalar la actualización:", error);
+    console.log("Error al instalar la actualización:", error);
     alert("Hubo un error al instalar la actualización.");
   }
 }
@@ -80,7 +80,7 @@ export async function downloadAndInstallUpdate(update: Update): Promise<void> {
     await update.downloadAndInstall();
     alert("Actualización completada. Reinicia la aplicación.");
   } catch (error) {
-    console.error("Error al instalar la actualización:", error);
+    console.log("Error al instalar la actualización:", error);
     alert("Hubo un error al instalar la actualización.");
   }
 }
