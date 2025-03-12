@@ -44,25 +44,31 @@ export const fetcher = async (
 
     if (!response.ok) {
       // Si es un error 401, verificar si el token ha expirado
+      const errorData = await response.json();
+
       if (response.status === 401) {
-        const { logout } = useAuthStore.getState();
-        console.log("Error 401 recibido:", response);
-        
-        // Verificar si tenemos un token en localStorage que pueda ser válido
-        const storedToken = localStorage.getItem("token");
-        if (!storedToken || isTokenExpired(storedToken)) {
-          // Si no hay token o está expirado, cerrar sesión
-          logout();
+
+        if(errorData.message === "NO_TOKEN_FOUND") {
+          console.log("No se ha encontrando el token, cerrando sesión");
+          useAuthStore.getState().logout();
           throw new Error("Sesión expirada. Por favor, inicia sesión nuevamente.");
-        } else {
-          // Si hay un token válido pero recibimos 401, puede ser un problema de sincronización
-          // Intentar reinicializar la autenticación antes de fallar
-          useAuthStore.getState().initializeAuth();
-          throw new Error("Error de autorización. Por favor, intenta nuevamente.");
+        }
+
+        if(errorData.message === "TOKEN_EXPIRED") {
+          console.log("Token expirado, cerrando sesión");
+          useAuthStore.getState().logout();
+          throw new Error("Sesión expirada. Por favor, inicia sesión nuevamente.");
         }
       }
 
-      const errorData = await response.json();
+      if(response.status === 403) {
+        if(errorData.message === "INVALID_TOKEN") {
+          console.log("Token inválido, cerrando sesión");
+          useAuthStore.getState().logout();
+          throw new Error("Sesión expirada. Por favor, inicia sesión nuevamente.");
+        }
+      }
+      
       console.log("Error de respuesta:", errorData);
       throw new Error(
         errorData.message || "Ocurrió un problema, intente de nuevo más tarde."
@@ -78,20 +84,3 @@ export const fetcher = async (
     }
   }
 };
-
-// Función auxiliar para verificar la expiración del token
-function isTokenExpired(token: string): boolean {
-  try {
-    // Decodificar el token para obtener el payload
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const payload = JSON.parse(window.atob(base64));
-    
-    // Comprobar si el token ha expirado
-    const currentTime = Date.now() / 1000;
-    return payload.exp < currentTime;
-  } catch (error) {
-    console.error("Error verificando expiración del token:", error);
-    return true; // Considerar expirado en caso de error
-  }
-}
