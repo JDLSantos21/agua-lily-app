@@ -1,11 +1,13 @@
 "use client";
 // import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { Toaster } from "sonner";
 import { SocketProvider } from "@/components/SocketProvider";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";
+
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -33,7 +35,7 @@ export default function RootLayout({
   
   return (
     <html lang="en">
-      <body>
+      <body className="select-none">
         <SocketProvider />
         <Toaster richColors />
         {children}

@@ -1,21 +1,59 @@
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Liter&family=Oswald:wght@200..700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Liter&family=Oswald:wght@200..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Liter&family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
-
-
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer base {
   :root {
     --radius: 0.5rem;
+    
+    /* Font family variables */
+    --font-heading: 'Oswald', sans-serif;
+    --font-subheading: 'Inter', sans-serif;
+    --font-body: 'Roboto', sans-serif;
+    --font-accent: 'Liter', sans-serif;
+    
+    /* Font size variables */
+    --text-h1: 2.25rem; /* 36px */
+    --text-h2: 1.875rem; /* 30px */
+    --text-h3: 1.5rem; /* 24px */
+    --text-h4: 1.25rem; /* 20px */
+    --text-h5: 1.125rem; /* 18px */
+    --text-base: 1rem; /* 16px */
+    --text-sm: 0.875rem; /* 14px */
+    --text-xs: 0.75rem; /* 12px */
+    
+    /* Font weight variables */
+    --font-light: 300;
+    --font-normal: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
   }
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+/* Utility classes for the fonts */
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-subheading {
+  font-family: var(--font-subheading);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+.font-accent {
+  font-family: var(--font-accent);
 }
 
 *::-webkit-scrollbar {

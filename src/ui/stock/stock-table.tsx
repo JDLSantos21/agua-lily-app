@@ -5,6 +5,7 @@ import { useState, useCallback, memo } from "react";
 import {
   Table,
   TableBody,
+  TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -79,22 +80,13 @@ function StockTable({ query }: StockTableProps) {
             <TableRow>
               <TableHead className="w-[32%]">Nombre</TableHead>
               <TableHead className="w-[18%]">Unidad</TableHead>
-              <TableHead className="text-center w-[13%]">Stock</TableHead>
+              <TableHead className="text-center w-[13%]">Existencias</TableHead>
               <TableHead className="text-center w-[12%]">Estado</TableHead>
               <TableHead className="text-center w-[30%]">Actualizado</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {
-              // Si no hay registros, mostrar un mensaje
-              !currentData?.length && (
-                <TableRow>
-                  <td colSpan={5} className="text-center">
-                    No se encontraron materiales
-                  </td>
-                </TableRow>
-              )
-            }
+           
             {currentData?.length > 0 ? (
               currentData?.map((material) => (
                 <MaterialRow
@@ -105,9 +97,9 @@ function StockTable({ query }: StockTableProps) {
               ))
             ) : (
               <TableRow>
-                <td colSpan={5} className="text-center">
+                <TableCell colSpan={5} className="text-center text-gray-600">
                   No se encontraron materiales
-                </td>
+                </TableCell>
               </TableRow>
             )}
           </TableBody>

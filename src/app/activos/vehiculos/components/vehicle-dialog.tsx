@@ -288,7 +288,7 @@ export function VehicleDialog({
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button variant='primary' type="submit" disabled={isSubmitting}>
               {isSubmitting
                 ? "Guardando..."
                 : isEditing

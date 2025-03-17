@@ -25,7 +25,7 @@ export const FuelDashboard = () => {
       ) : (
         <div className="relative w-full flex justify-between">
           <div className="w-1/2">
-            <h1 className="text-xl font-semibold text-gray-800">Resumen</h1>
+            <h1 className="text-xl font-bold font-Inter">Resumen</h1>
             <p className="text-sm text-gray-500">
               Registros de combustible más recientes.
             </p>

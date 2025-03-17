@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import type { Material } from "@/lib/types";
 import { useForm } from "react-hook-form";
 import { Package, User, ArrowRightCircle, Loader } from "lucide-react";
-import type React from "react"; // Added import for React
+import type React from "react";
 import { verifyEmployeeCode } from "@/api/employees";
 import { toast } from "sonner";
 import { registerMovement } from "@/api/inventory";
@@ -42,7 +42,7 @@ export const OutputModal: React.FC<OutputModalProps> = ({
     useForm<OutputFormData>({
       mode: "onChange",
     });
-  const user_id = useAuthStore((state) => state.user_id)
+  const user_id = useAuthStore((state) => state.user_id);
 
   const isSubmitting = formState.isSubmitting;
 
@@ -110,7 +110,7 @@ export const OutputModal: React.FC<OutputModalProps> = ({
     <Dialog open={!!material} onOpenChange={closeModal}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-lg text-gray-700  font-semibold">
+          <DialogTitle className="font-heading">
             {material?.name.toLocaleUpperCase()}
           </DialogTitle>
           <DialogDescription>
@@ -128,7 +128,7 @@ export const OutputModal: React.FC<OutputModalProps> = ({
                 id="quantity"
                 type="number"
                 placeholder="Ingrese la cantidad"
-                className="pl-10 noControls focus-visible:outline-gray-300"
+                className="pl-10 noControls"
                 {...register("quantity", {
                   required: true,
                   valueAsNumber: true,
@@ -146,7 +146,7 @@ export const OutputModal: React.FC<OutputModalProps> = ({
                 id="employee_code"
                 type="text"
                 placeholder="Ingrese el código"
-                className="pl-10 focus-visible:outline-gray-300"
+                className="pl-10"
                 {...register("employee_code")}
               />
             </div>
@@ -173,7 +173,6 @@ export const OutputModal: React.FC<OutputModalProps> = ({
                 id="reason"
                 type="text"
                 placeholder="Ingrese el motivo"
-                className="focus-visible:outline-gray-300"
                 {...register("reason", { required: true })}
               />
             </div>

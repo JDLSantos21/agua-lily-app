@@ -29,7 +29,7 @@ export default function NavLinks() {
           >
             <Link
               href={link.href}
-              className={`flex items-center gap-3 px-4 py-3 w-full text-sm font-medium transition-all rounded-lg
+              className={`flex items-center gap-3 px-4 py-3 font- w-full text-sm transition-all rounded-lg
                 ${
                   isActive
                     ? "bg-blue-50 text-blue-600 border-l-4 border-blue-500"

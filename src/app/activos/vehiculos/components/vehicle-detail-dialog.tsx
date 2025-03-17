@@ -116,14 +116,14 @@ export function VehicleDetailDialog({
         labels: [],
         datasets: [
           {
-            label: 'Consumo de Combustible (galones)',
+            label: 'Consumo de Combustible',
             data: [],
             borderColor: 'rgb(53, 162, 235)',
             backgroundColor: 'rgba(53, 162, 235, 0.5)',
             tension: 0.3,
           },
           {
-            label: 'Rendimiento (km/galón)',
+            label: 'Rendimiento',
             data: [],
             borderColor: 'rgb(75, 192, 192)',
             backgroundColor: 'rgba(75, 192, 192, 0.5)',
@@ -159,14 +159,14 @@ export function VehicleDetailDialog({
       labels,
       datasets: [
         {
-          label: 'Consumo de Combustible (galones)',
+          label: 'Consumo de Combustible',
           data: gallonsData,
           borderColor: 'rgb(53, 162, 235)',
           backgroundColor: 'rgba(53, 162, 235, 0.5)',
           tension: 0.3,
         },
         {
-          label: 'Rendimiento (km/galón)',
+          label: 'Rendimiento',
           data: efficiencyData,
           borderColor: 'rgb(75, 192, 192)',
           backgroundColor: 'rgba(75, 192, 192, 0.5)',
@@ -215,6 +215,8 @@ export function VehicleDetailDialog({
     },
   };
 
+  const GALLON_COST = 200.40;
+
   // Calculate consumption statistics
   const calculateStatistics = () => {
     if (!consumptionData || !consumptionData.monthlyData || consumptionData.monthlyData.length === 0) {
@@ -232,7 +234,7 @@ export function VehicleDetailDialog({
     const avgConsumption = totalMonths > 0 ? Number((totalGallons / totalMonths).toFixed(1)) : 0;
     const avgEfficiency = totalGallons > 0 ? Number((totalKilometers / totalGallons).toFixed(1)) : 0;
     // Assuming a price of $4 per gallon for the calculation
-    const avgCost = Number((avgConsumption * 174).toFixed(2));
+    const avgCost = Number((avgConsumption * GALLON_COST).toFixed(2));
 
     return {
       averageConsumption: avgConsumption,
@@ -370,7 +372,7 @@ export function VehicleDetailDialog({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calendar className="h-5 w-5" />
-                  Últimos Reabastecimientos
+                  Últimos registros
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -436,8 +438,10 @@ export function VehicleDetailDialog({
                     <div className="bg-amber-50 p-4 rounded-lg text-center">
                       <div className="text-sm text-amber-700 font-medium">Costo Mensual Promedio</div>
                       <div className="text-2xl font-bold text-amber-800">
-                        {stats.averageCost > 0 ? `$${stats.averageCost}` : 'N/A'}
-                      </div>
+  {stats.averageCost > 0 
+    ? new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(stats.averageCost) 
+    : 'N/A'}
+</div>
                     </div>
                   </div>
                 )}

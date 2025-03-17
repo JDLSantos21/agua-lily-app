@@ -17,8 +17,31 @@ export default {
         foreground: "var(--foreground)",
       },
       fontFamily: {
+        heading: ["var(--font-heading)"],
+        subheading: ["var(--font-subheading)"],
+        body: ["var(--font-body)"],
+        accent: ["var(--font-accent)"],
+        // Mantener compatibilidad con clases existentes
         Oswald: ["Oswald", "sans-serif"],
         Liter: ["Liter", "sans-serif"],
+        Inter: ["Inter", "sans-serif"],
+      },
+      fontSize: {
+        h1: "var(--text-h1)",
+        h2: "var(--text-h2)",
+        h3: "var(--text-h3)",
+        h4: "var(--text-h4)",
+        h5: "var(--text-h5)",
+        base: "var(--text-base)",
+        sm: "var(--text-sm)",
+        xs: "var(--text-xs)",
+      },
+      fontWeight: {
+        light: "var(--font-light)",
+        normal: "var(--font-normal)",
+        medium: "var(--font-medium)",
+        semibold: "var(--font-semibold)",
+        bold: "var(--font-bold)",
       },
       borderRadius: {
         lg: "var(--radius)",

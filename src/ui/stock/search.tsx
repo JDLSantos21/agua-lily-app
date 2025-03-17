@@ -1,5 +1,6 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 
@@ -18,7 +19,7 @@ export default function StockSearch({
       <label htmlFor="search" className="sr-only">
         Search
       </label>
-      <input
+      <Input
         onChange={(event) => handleSearch(event.target.value)}
         className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
         placeholder={placeholder}

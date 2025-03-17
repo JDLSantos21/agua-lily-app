@@ -9,18 +9,43 @@ import {
 import { FuelRecords } from "@/types/fuel.types";
 import moment from "moment";
 import FuelQueryTableSkeleton from "./fuel-query-table-skeleton";
+import { motion } from "framer-motion";
+import { Info } from "lucide-react";
 
 export default function FuelQueryTable({
   fuelRecords,
   loading,
 }: {
-  fuelRecords: FuelRecords;
+  fuelRecords: FuelRecords | null;
   loading: boolean;
 }) {
   if (loading) {
     return <FuelQueryTableSkeleton />;
   }
 
+  console.log(fuelRecords)
+
+  if(fuelRecords === null) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-muted-foreground select-none text-lg border p-2 w-96 mx-auto"
+      >
+        <div className="flex items-center justify-center text-blue-400 space-x-2 text-sm">
+        <Info className="h-6 w-6" />
+        <p>
+
+        Información
+        </p>
+        </div>
+        <div className="text-center text-sm py-2 text-gray-600">
+          Realiza una búsqueda para obtener resultados de los registros de combustibles.
+        </div>
+      </motion.div>
+    )
+  }
   return (
     <Table className="table-fixed">
       <TableHeader>
@@ -36,7 +61,7 @@ export default function FuelQueryTable({
         <TableBody>
           <TableRow>
             <TableCell colSpan={5} className="text-center">
-              No se encontraron registros con esos filtros.
+              Sin resultados.
             </TableCell>
           </TableRow>
         </TableBody>

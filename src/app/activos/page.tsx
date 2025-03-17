@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+
 import {motion} from "framer-motion";
 
 export default function AssetsPage() {
@@ -12,7 +12,7 @@ export default function AssetsPage() {
       description: "Gestión de la flota vehicular de la empresa",
       icon:<img src="/truck2.webp" className="w-24 mb-4 text-blue-500" alt="truck" />,
       href: "/activos/vehiculos",
-      color: "bg-blue-50 hover:bg-blue-100"
+      color: "bg-gray-50 hover:bg-gray-100"
     },
     // {
     //   title: "Refrigeradores",
@@ -33,9 +33,9 @@ export default function AssetsPage() {
   return (
     <div className="container mx-auto p-4 space-y-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Gestión de Activos</h1>
-        <p className="text-muted-foreground mt-2">
-          Administre y controle todos los activos de la empresa desde un solo lugar
+        <h1 className="text-3xl font-heading font-bold">Gestión de Activos</h1>
+        <p className="font-subheading text-gray-600 mt-2">
+          Administración y control todos los activos
         </p>
       </div>
       
@@ -46,7 +46,7 @@ export default function AssetsPage() {
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {assetCategories.map((category, index) => (
           <Link href={category.href} key={index} className="no-underline text-foreground">
-            <Card className={`h-full transition-all duration-300 ${category.color} border-none shadow hover:shadow-md`}>
+            <Card className={`h-full transition-all duration-300 ${category.color} border-none shadow`}>
               <CardHeader className="flex flex-col items-center text-center">
                 {category.icon}
                 <CardTitle>{category.title}</CardTitle>
@@ -55,9 +55,7 @@ export default function AssetsPage() {
                 <CardDescription>{category.description}</CardDescription>
               </CardContent>
               <CardFooter className="flex justify-center pt-2">
-                <Button variant="outline">
-                  Gestionar
-                </Button>
+               Gestionar
               </CardFooter>
             </Card>
           </Link>

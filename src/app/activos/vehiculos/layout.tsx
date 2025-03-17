@@ -25,9 +25,9 @@ export default function VehiclesLayout({
                 <ChevronLeft className="h-4 w-4" />
               </Link>
             </Button>
-            <h2 className="text-2xl font-semibold tracking-tight">Vehículos</h2>
+            <h2 className="text-2xl font-subheading  font-bold">Vehículos</h2>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm font-subheading text-gray-600">
             Gestiona la flota de vehículos de la empresa
           </p>
         </div>

@@ -23,7 +23,7 @@ const querySchema = z.object({
 type QueryFormData = z.infer<typeof querySchema>;
 
 export default function FuelQueryForm() {
-  const [fuelRecords, setFuelRecords] = useState<FuelRecords>([]);
+  const [fuelRecords, setFuelRecords] = useState<FuelRecords | null>(null);
   const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit } = useForm<QueryFormData>({
@@ -84,7 +84,7 @@ export default function FuelQueryForm() {
       </form>
 
       {/* Botón de exportar */}
-      <Button onClick={() => exportToExcel(fuelRecords)} variant="outline">
+      <Button disabled={fuelRecords === null} onClick={() => exportToExcel(fuelRecords)} variant="outline">
         Exportar a Excel
       </Button>
 

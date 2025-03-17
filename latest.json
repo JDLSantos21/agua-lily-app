@@ -1,7 +1,7 @@
 {
-  "version": "v1.1.1",
-  "pub_date": "2025-03-10T00:00:00Z",
-  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSElvKzZvS2NPS2poUkI0Nk9BMjNyTjdzVkQ5TkEwQXhLdUh5bjJrQ1UyMmhxdXE1eisyb1BzL2xxQ3ZDWTlpVVo4WENNeGtsTnVQK3JwMXoxLzl5N2dFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQxNjU4MjA4CWZpbGU6QWd1YSBMaWx5IEFwcF8xLjEuMV94NjQtc2V0dXAuZXhlCmxaYU1RZ1Q0djZ4TnR3dWV3bDA0QzZLaGo1VWtwaElpNXBWQUdkaW1vdTFOT01UN1dPOEdVWExzc05MYzNVd3dSMnM3M1lQWThsc05pWnlTOEpUREN3PT0K",
+  "version": "v1.1.2",
+  "pub_date": "2025-03-12T00:00:00Z",
+  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSEZxaFVkU2NKTzIrWnMzODAvL0JkdGJmUkk0Y3JyeGxWdmdjMTV3VklGL1hVZDZDZGU0RXEzWFRQYXhEUWlISnFqWlFFNWlXMGFxenF6VGNWeElScHdjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQxODA4NDY1CWZpbGU6QWd1YSBMaWx5IEFwcF8xLjEuMl94NjQtc2V0dXAuZXhlCjd2ekhTZjYvbHNxY0grMDNJODlQWEhQdlB6S1JLWEx1VC9paGpwM2JIMzlSYjlsODJSa3dUL1AxTTRtVG5hdW5jSGV6UkcvTEZocDA0UVBWMHVHQUNBPT0K",
   "url": "https://github.com/JDLSantos21/agua-lily-app/releases/latest/download/setup.exe",
-  "notes": "Se amplió el limite de galones a 200. Se añadio modulo de Activos."
+  "notes": "Utilizando autenticacion con JWT y estableciendo limite de tiempo para la sesion."
 }

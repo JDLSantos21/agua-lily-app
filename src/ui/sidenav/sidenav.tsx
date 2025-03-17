@@ -30,7 +30,7 @@ export default function SideNav() {
   };
 
   return (
-    <div className="flex h-full flex-col px-3 py-6 md:px-2 border-r border-gray-100 bg-white">
+    <div className="flex select-none h-full flex-col px-3 py-6 md:px-2 border-r border-gray-100 bg-white">
       <div className="flex grow flex-col justify-between space-y-6">
         <div className="space-y-2">
           <div className="mb-8 grid place-items-center">

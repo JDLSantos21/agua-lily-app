@@ -6,8 +6,8 @@ import { toast } from "sonner";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 
-export const exportToExcel = async (fuelRecords: FuelRecords) => {
-  if (fuelRecords.length === 0) {
+export const exportToExcel = async (fuelRecords: FuelRecords | null) => {
+  if (fuelRecords === null || fuelRecords.length === 0) {
     toast.error("No hay datos para exportar");
     return;
   }
