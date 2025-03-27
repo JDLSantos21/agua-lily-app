@@ -50,6 +50,7 @@ export default function FuelRegisterForm() {
     handleSubmit,
     control,
     watch,
+    reset,
     formState: { isSubmitting, errors },
   } = useForm<FormData>({
     resolver: zodResolver(fuelSchema),
@@ -152,7 +153,10 @@ export default function FuelRegisterForm() {
     // Desencadena el toast "promise"
     toast.promise(requestPromise, {
       loading: "Registrando consumo de combustible...",
-      success: "Consumo registrado correctamente",
+      success: () => {
+        reset();
+        return "Consumo registrado correctamente";
+      },
       error: (err) => `Error al registrar: ${err.message}`,
     });
 
