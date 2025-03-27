@@ -168,7 +168,7 @@ export function StockTableSkeleton() {
         <TableRow>
           <TableHead className="w-[32%]">Nombre</TableHead>
           <TableHead className="w-[18%]">Unidad</TableHead>
-          <TableHead className="text-center w-[13%]">Stock</TableHead>
+          <TableHead className="text-center w-[13%]">Existencias</TableHead>
           <TableHead className="text-center w-[12%]">Estado</TableHead>
           <TableHead className="text-center w-[30%]">Actualizado</TableHead>
         </TableRow>
@@ -217,14 +217,12 @@ export function MaterialsTableSkeleton() {
       <TableHeader>
         <TableRow className="border-b">
           <TableHead className="text-left w-[35%]">Material</TableHead>
-          <TableHead className="text-left w-[15%]">Categoría</TableHead>
-          <TableHead className="text-left w-[13%]">Cantidad</TableHead>
-          <TableHead className="text-left w-[20%]">Actualizado</TableHead>
-          <TableHead className="text-left w-[17%]">Creado</TableHead>
+          <TableHead className="text-left w-[20%]">Categoría</TableHead>
+          <TableHead className="text-left w-[15%]">Cantidad</TableHead>
+          <TableHead className="text-left w-[30%]">Actualizado</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        <MaterialTableRow />
         <MaterialTableRow />
         <MaterialTableRow />
         <MaterialTableRow />

@@ -17,7 +17,7 @@ import { motion } from "framer-motion";
 import UpdateChecker from "@/components/updateChecker";
 import UpdateModal from "@/components/updateModal";
 
-// Hooks simulados para tema y notificaciones (reemplaza con tu lógica real)
+// Hooks simulados para tema y notificaciones
 // const useTheme = () => {
 //   const [isDarkMode, setIsDarkMode] = useState(false);
 //   return { isDarkMode, setIsDarkMode };
@@ -38,12 +38,7 @@ export default function Settings() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="container mx-auto py-6 p-10"
-    >
+    <motion.div className="container mx-auto py-6 p-10">
       {/* Encabezado */}
       <div className="flex items-center mb-6">
         <Button variant="outline" onClick={handleBack} className="mr-4">
@@ -55,19 +50,26 @@ export default function Settings() {
       {/* Contenido */}
       <div className="space-y-6">
         {/* Sección: Actualización de la Aplicación */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Actualización de la Aplicación</CardTitle>
-            <CardDescription>
-              Verifica y aplica actualizaciones para mantener la aplicación al
-              día.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <UpdateChecker />
-            <UpdateModal />
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-2/5"
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle>Actualización de la Aplicación</CardTitle>
+              <CardDescription>
+                Verifica y aplica actualizaciones para mantener la aplicación al
+                día.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <UpdateChecker />
+              <UpdateModal />
+            </CardContent>
+          </Card>
+        </motion.div>
         {/* 
         <Card>
           <CardHeader>

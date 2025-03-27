@@ -36,9 +36,8 @@ export function MaterialCombobox({
   const [selectedMaterial, setSelectedMaterial] =
     React.useState<Material | null>(null);
 
-  const handleSelect = (materialId: string) => {
-    const material =
-      materials.find((m) => m.id.toString() === materialId) || null;
+  const handleSelect = (materialName: string) => {
+    const material = materials.find((m) => m.name === materialName) || null;
     setSelectedMaterial(material);
     onSelect(material);
     setOpen(false);
@@ -51,7 +50,7 @@ export function MaterialCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className="w-full justify-between outline-blue-200"
         >
           {selectedMaterial
             ? selectedMaterial.name
@@ -59,7 +58,7 @@ export function MaterialCombobox({
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[464px] p-0">
         <Command>
           <CommandInput placeholder="Buscar material..." className="h-9" />
           <CommandList>
@@ -68,7 +67,7 @@ export function MaterialCombobox({
               {materials.map((material) => (
                 <CommandItem
                   key={material.id}
-                  value={material.id.toString()}
+                  value={material.name}
                   onSelect={(currentValue) => {
                     handleSelect(currentValue);
                   }}
@@ -77,7 +76,7 @@ export function MaterialCombobox({
                   <Check
                     className={cn(
                       "ml-auto",
-                      selectedMaterial?.id.toString() === material.id.toString()
+                      selectedMaterial?.name === material.name
                         ? "opacity-100"
                         : "opacity-0"
                     )}

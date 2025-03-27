@@ -10,18 +10,18 @@ export const fetcher = async (
   const url = new URL(`${API_URL}${endpoint}`);
   const searchParams = new URLSearchParams(params as Record<string, string>);
 
-  // Añadir los parámetros a la URL 
+  // Añadir los parámetros a la URL
   url.search = searchParams.toString();
 
   // Obtener el token primero del store, y si no está disponible, directamente del localStorage
   // Esto ayuda cuando la página se refresca y el estado de Zustand aún no se ha inicializado
   const authState = useAuthStore.getState();
   let token = authState.token;
-  
+
   // Si el token no está en el estado de Zustand, intentar obtenerlo del localStorage
   if (!token) {
     token = authState.getTokenFromStorage();
-    
+
     // Si obtuvimos un token del localStorage, pero no está en el estado, inicializar el estado
     if (token && !authState.isInitialized) {
       authState.initializeAuth();
@@ -47,29 +47,33 @@ export const fetcher = async (
       const errorData = await response.json();
 
       if (response.status === 401) {
-
-        if(errorData.message === "NO_TOKEN_FOUND") {
+        if (errorData.message === "NO_TOKEN_FOUND") {
           console.log("No se ha encontrando el token, cerrando sesión");
           useAuthStore.getState().logout();
-          throw new Error("Sesión expirada. Por favor, inicia sesión nuevamente.");
+          throw new Error(
+            "Sesión expirada. Por favor, inicia sesión nuevamente."
+          );
         }
 
-        if(errorData.message === "TOKEN_EXPIRED") {
+        if (errorData.message === "TOKEN_EXPIRED") {
           console.log("Token expirado, cerrando sesión");
           useAuthStore.getState().logout();
-          throw new Error("Sesión expirada. Por favor, inicia sesión nuevamente.");
+          throw new Error(
+            "Sesión expirada. Por favor, inicia sesión nuevamente."
+          );
         }
       }
 
-      if(response.status === 403) {
-        if(errorData.message === "INVALID_TOKEN") {
+      if (response.status === 403) {
+        if (errorData.message === "INVALID_TOKEN") {
           console.log("Token inválido, cerrando sesión");
           useAuthStore.getState().logout();
-          throw new Error("Sesión expirada. Por favor, inicia sesión nuevamente.");
+          throw new Error(
+            "Sesión expirada. Por favor, inicia sesión nuevamente."
+          );
         }
       }
-      
-      console.log("Error de respuesta:", errorData);
+
       throw new Error(
         errorData.message || "Ocurrió un problema, intente de nuevo más tarde."
       );

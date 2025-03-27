@@ -40,7 +40,9 @@ type FormData = z.infer<typeof fuelSchema>;
 export default function FuelRegisterForm() {
   const [initialData, setInitialData] = useState<InitialData | null>(null);
   const [showDateInput, setShowDateInput] = useState(false);
-  const [lastRecord, setLastRecord] = useState<LastRecord | undefined>(undefined);
+  const [lastRecord, setLastRecord] = useState<LastRecord | undefined>(
+    undefined
+  );
   const user_id = useAuthStore((state) => state.user_id);
 
   const {
@@ -48,7 +50,6 @@ export default function FuelRegisterForm() {
     handleSubmit,
     control,
     watch,
-    reset,
     formState: { isSubmitting, errors },
   } = useForm<FormData>({
     resolver: zodResolver(fuelSchema),
@@ -59,10 +60,10 @@ export default function FuelRegisterForm() {
       gallons: 0,
     },
   });
-  
+
   // Watch vehicle ID for changes
   const watchVehicleId = watch("vehicle_id");
-  
+
   // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
@@ -73,10 +74,10 @@ export default function FuelRegisterForm() {
         console.log(error);
       }
     };
-    
+
     fetchData();
   }, []);
-  
+
   // Update lastRecord when vehicle changes or initialData loads
   useEffect(() => {
     if (initialData && watchVehicleId) {
@@ -88,13 +89,13 @@ export default function FuelRegisterForm() {
       setLastRecord(undefined);
     }
   }, [watchVehicleId, initialData]);
-  
+
   // Muestra los errores del formulario en un useEffect en lugar de durante el renderizado
   useEffect(() => {
     if (Object.keys(errors).length > 0) {
       Object.keys(errors).forEach((key) => {
         const errorMessage = errors[key as keyof FormData]?.message;
-        if (errorMessage && typeof errorMessage === 'string') {
+        if (errorMessage && typeof errorMessage === "string") {
           toast.error(errorMessage);
         }
       });
@@ -109,20 +110,20 @@ export default function FuelRegisterForm() {
   const onSubmit = async (data: FormData) => {
     // Validaciones adicionales
     let hasValidationErrors = false;
-    
-    if(data.vehicle_id != String(30)) {
-      if(lastRecord === undefined) {
+
+    if (data.vehicle_id != String(30)) {
+      if (lastRecord === undefined) {
         toast.error("No se encontró el último registro del vehículo");
         hasValidationErrors = true;
-      } else if(lastRecord?.mileage >= data.mileage) {
+      } else if (lastRecord?.mileage >= data.mileage) {
         toast.error("El kilometraje no puede ser menor al último registro");
         hasValidationErrors = true;
-      } else if((data.mileage - lastRecord?.mileage) > 450) {
+      } else if (data.mileage - lastRecord?.mileage > 450) {
         toast.error("La diferencia de kilometraje no puede ser mayor a 450 km");
         hasValidationErrors = true;
       }
 
-      if(data.gallons > 50) {
+      if (data.gallons > 50) {
         toast.error("La cantidad de galones no puede ser mayor a 50");
         hasValidationErrors = true;
       }
@@ -132,7 +133,13 @@ export default function FuelRegisterForm() {
       toast.error("No se pudo obtener el ID del usuario");
       hasValidationErrors = true;
     }
-    
+
+    if (data.record_date) {
+      data.record_date = new Date(data.record_date).toString();
+    }
+
+    console.log(data.record_date);
+
     // Si hay errores de validación, no continúes
     if (hasValidationErrors) {
       return;
@@ -153,8 +160,8 @@ export default function FuelRegisterForm() {
     try {
       await requestPromise;
       // Solo se resetea si salió bien
-      reset({ vehicle_id: "", driver: "", mileage: 0, gallons: 0 });
-      setShowDateInput(false);
+      // reset({ vehicle_id: "", driver: "", mileage: 0, gallons: 0 });
+      // setShowDateInput(false);
     } catch {
       // Error ya fue manejado por toast.promise
     }
@@ -165,10 +172,7 @@ export default function FuelRegisterForm() {
       {/* Formulario */}
       <Card>
         <CardContent className="pt-6">
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="space-y-4"
-          >
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Vehículo */}
             <div>
               <Label htmlFor="vehicle_id">Vehículo</Label>

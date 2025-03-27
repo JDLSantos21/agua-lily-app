@@ -1,6 +1,5 @@
 "use client";
 
-import { Vehicle } from "@/api/vehicles";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,34 +13,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 
-interface VehicleFormData {
-  license_plate: string;
-  chasis: string;
-  current_tag: string;
-  brand: string;
-  model: string;
-  year: number;
-  description: string;
-}
-
-const defaultFormData: VehicleFormData = {
-  license_plate: "",
-  chasis: "",
-  current_tag: "",
-  brand: "",
-  model: "",
-  year: new Date().getFullYear(),
-  description: "",
-};
-
-interface VehicleDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  vehicle: Vehicle | null;
-  onSuccess: () => Promise<void>;
-}
-
-// onSuccess,
+import {
+  VehicleFormData,
+  VehicleDialogProps,
+  defaultFormData,
+} from "@/types/vehicles";
 
 export function VehicleDialog({
   open,
@@ -149,7 +125,7 @@ export function VehicleDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent 
+      <DialogContent
         className="sm:max-w-[500px]"
         onInteractOutside={(e) => {
           // Prevent interaction outside the dialog when submitting
@@ -288,7 +264,7 @@ export function VehicleDialog({
             >
               Cancelar
             </Button>
-            <Button variant='primary' type="submit" disabled={isSubmitting}>
+            <Button variant="primary" type="submit" disabled={isSubmitting}>
               {isSubmitting
                 ? "Guardando..."
                 : isEditing

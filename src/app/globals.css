@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Liter&family=Oswald:wght@200..700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Liter&family=Oswald:wght@200..700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Liter&family=Oswald:wght@200..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Liter&family=Oswald:wght@200..700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+
+@import url("https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,13 +9,13 @@
 @layer base {
   :root {
     --radius: 0.5rem;
-    
+
     /* Font family variables */
-    --font-heading: 'Oswald', sans-serif;
-    --font-subheading: 'Inter', sans-serif;
-    --font-body: 'Roboto', sans-serif;
-    --font-accent: 'Liter', sans-serif;
-    
+    --font-heading: "Roboto", sans-serif;
+    --font-subheading: "Inter", sans-serif;
+    --font-body: "Roboto", sans-serif;
+    --font-accent: "Liter", sans-serif;
+
     /* Font size variables */
     --text-h1: 2.25rem; /* 36px */
     --text-h2: 1.875rem; /* 30px */
@@ -25,7 +25,10 @@
     --text-base: 1rem; /* 16px */
     --text-sm: 0.875rem; /* 14px */
     --text-xs: 0.75rem; /* 12px */
-    
+
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+
     /* Font weight variables */
     --font-light: 300;
     --font-normal: 400;

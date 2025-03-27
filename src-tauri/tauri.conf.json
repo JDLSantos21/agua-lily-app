@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Agua Lily App",
-  "version": "1.1.2",
+  "version": "1.1.4",
   "identifier": "com.lily.dev",
   "build": {
     "frontendDist": "../out",
@@ -17,8 +17,8 @@
         "fullscreen": false,
         "height": 720,
         "width": 1280,
-        "minWidth": 1100,
-        "minHeight": 600,
+        "minWidth": 1150,
+        "minHeight": 650,
         "resizable": true
       }
     ],

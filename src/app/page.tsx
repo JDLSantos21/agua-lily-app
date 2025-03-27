@@ -2,8 +2,8 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Login from "@/components/Home/Login";
-import { Loader } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
+import { LoaderSpin } from "@/components/Loader";
 
 export default function Home() {
   const { isInitialized, token, role } = useAuthStore();
@@ -19,7 +19,7 @@ export default function Home() {
   if (!isInitialized || token) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <Loader className="animate-spin" size={24} />
+        <LoaderSpin text="Verificando" />
       </div>
     );
   }

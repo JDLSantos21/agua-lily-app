@@ -7,8 +7,6 @@ import {
   TableRow,
   TableHeader,
 } from "@/components/ui/table";
-import moment from "moment";
-moment.locale("es");
 import type { Material } from "@/lib/types";
 import MaterialsDetailsModal from "./material-details-modal";
 import { useState } from "react";
@@ -17,6 +15,7 @@ import { useResponsiveItemsPerPage } from "@/hooks/useResponsiveItemsPerPage";
 import { usePagination } from "@/hooks/usePagination";
 import TablePagination from "@/components/pagination";
 import { useFetchFilteredStock } from "@/hooks/useFetchFilteredStock";
+import { format } from "@formkit/tempo";
 // import {
 //   ContextMenuCheckboxItem,
 //   ContextMenu,
@@ -52,10 +51,9 @@ export default function Material() {
           <TableHeader>
             <TableRow className="border-b">
               <TableHead className="text-left w-[35%]">Material</TableHead>
-              <TableHead className="text-left w-[15%]">Categoría</TableHead>
-              <TableHead className="text-left w-[13%]">Cantidad</TableHead>
-              <TableHead className="text-left w-[20%]">Actualizado</TableHead>
-              <TableHead className="text-left w-[17%]">Creado</TableHead>
+              <TableHead className="text-left w-[20%]">Categoría</TableHead>
+              <TableHead className="text-left w-[15%]">Cantidad</TableHead>
+              <TableHead className="text-left w-[30%]">Actualizado</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -76,10 +74,10 @@ export default function Material() {
                   <TableCell className="p-3">{material.category}</TableCell>
                   <TableCell className="p-3">{material.stock}</TableCell>
                   <TableCell className="p-3">
-                    {moment(material.updated_at).format("L HH:mm")}
-                  </TableCell>
-                  <TableCell className="p-3">
-                    {moment(material.created_at).format("L")}
+                    {format(material.updated_at, {
+                      date: "medium",
+                      time: "short",
+                    })}
                   </TableCell>
                 </TableRow>
               ))

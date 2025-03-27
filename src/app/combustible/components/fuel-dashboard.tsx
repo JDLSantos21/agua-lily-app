@@ -8,10 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import moment from "moment";
 import { FuelChart } from "./chart";
 import FuelDashboardSkeleton from "./fuel-dashboard-skeleton";
 import useFetchDashboard from "@/hooks/useFetchDashboard";
+import { format } from "@formkit/tempo";
 
 export const FuelDashboard = () => {
   const { fuel_records, loading, availability } = useFetchDashboard();
@@ -43,7 +43,10 @@ export const FuelDashboard = () => {
                     <TableCell>{item.current_tag}</TableCell>
                     <TableCell>{item.gallons}</TableCell>
                     <TableCell>
-                      {moment(item.record_date).format("LL")}
+                      {format(item.record_date, {
+                        date: "medium",
+                        time: "short",
+                      })}
                     </TableCell>
                   </TableRow>
                 ))}

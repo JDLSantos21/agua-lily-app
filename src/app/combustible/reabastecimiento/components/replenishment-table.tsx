@@ -7,8 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fetchRecentReplenishments } from "@/api/fuel";
-import moment from "moment";
-moment.locale("es");
+import { format } from "@formkit/tempo";
 
 interface ReplenishmentRecord {
   id: number;
@@ -46,7 +45,7 @@ export default async function ReplenishmentTable() {
             <TableRow key={index}>
               <TableCell>{record.gallons}</TableCell>
               <TableCell>
-                {moment(record.replenishment_date).format("LL")}
+                {format(record.replenishment_date, { date: "long" })}
               </TableCell>
               <TableCell>{record.user}</TableCell>
             </TableRow>

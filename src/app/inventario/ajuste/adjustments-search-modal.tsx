@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { CalendarIcon, Filter, Search } from "lucide-react";
 import { es } from "date-fns/locale";
-import { format } from "date-fns";
 import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -35,6 +34,7 @@ import { Excel } from "../../../../public/excel";
 import { adjustmentFilter } from "@/types/inventory";
 import { toast } from "sonner";
 import { AdjustmentSearchSkeleton } from "@/ui/skeletons";
+import { format } from "@formkit/tempo";
 
 export function AdjustmentsSearchModal() {
   const [open, setOpen] = useState(false);
@@ -56,11 +56,11 @@ export function AdjustmentsSearchModal() {
     }
 
     if (filterData.start_date) {
-      filterData.start_date = format(filterData.start_date, "yyyy-MM-dd");
+      filterData.start_date = format(filterData.start_date, "YYYY-MM-DD");
     }
 
     if (filterData.end_date) {
-      filterData.end_date = format(filterData.end_date, "yyyy-MM-dd");
+      filterData.end_date = format(filterData.end_date, "YYYY-MM-DD");
     }
 
     try {
@@ -118,9 +118,7 @@ export function AdjustmentsSearchModal() {
       Material: adjustment.material_name,
       "Stock Anterior": adjustment.previous_stock,
       "Valor Ajustado": adjustment.quantity,
-      "Fecha de Ajuste": format(new Date(adjustment.created_at), "PPP", {
-        locale: es,
-      }),
+      "Fecha de Ajuste": format(new Date(adjustment.created_at), "DD/MM/YYYY"),
       Motivo: adjustment.reason,
     }));
 
@@ -171,7 +169,7 @@ export function AdjustmentsSearchModal() {
               >
                 <CalendarIcon className="mr-2 h-4 w-4 dark:text-white" />
                 {startDate
-                  ? format(startDate, "PPP", { locale: es })
+                  ? format(startDate, { date: "medium" })
                   : "Fecha Inicial"}
               </Button>
             </PopoverTrigger>
@@ -194,9 +192,7 @@ export function AdjustmentsSearchModal() {
                 className="w-[280px] justify-start text-left font-normal"
               >
                 <CalendarIcon className="mr-2 h-4 w-4 dark:text-white" />
-                {endDate
-                  ? format(endDate, "PPP", { locale: es })
-                  : "Fecha Final"}
+                {endDate ? format(endDate, { date: "medium" }) : "Fecha Final"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
@@ -231,7 +227,7 @@ export function AdjustmentsSearchModal() {
                 <TableHead>Material</TableHead>
                 <TableHead>Stock Anterior</TableHead>
                 <TableHead>Valor Ajustado</TableHead>
-                <TableHead>Fecha de Ajuste</TableHead>
+                <TableHead>Fecha & Hora</TableHead>
                 <TableHead>Motivo</TableHead>
               </TableRow>
             </TableHeader>
@@ -254,8 +250,9 @@ export function AdjustmentsSearchModal() {
                     <TableCell>{adjustment.previous_stock}</TableCell>
                     <TableCell>{adjustment.quantity}</TableCell>
                     <TableCell>
-                      {format(new Date(adjustment.created_at), "PPP", {
-                        locale: es,
+                      {format(adjustment.created_at, {
+                        date: "medium",
+                        time: "short",
                       })}
                     </TableCell>
                     <TableCell>{adjustment.reason}</TableCell>

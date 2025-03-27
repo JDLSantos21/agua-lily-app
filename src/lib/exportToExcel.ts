@@ -1,10 +1,10 @@
 // lib/exportToExcel.ts
 import { FuelRecords } from "@/types/fuel.types";
 import * as XLSX from "xlsx";
-import moment from "moment";
 import { toast } from "sonner";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
+import { format } from "@formkit/tempo";
 
 export const exportToExcel = async (fuelRecords: FuelRecords | null) => {
   if (fuelRecords === null || fuelRecords.length === 0) {
@@ -18,12 +18,15 @@ export const exportToExcel = async (fuelRecords: FuelRecords | null) => {
       Chofer: record.driver,
       Kilometraje: record.mileage,
       Galones: record.gallons,
-      Fecha: moment(record.record_date).format("DD/MM/YYYY HH:mm:ss"),
+      Fecha: format(record.record_date, "DD/MM/YYYY HH:mm:ss"),
     }))
   );
 
   // Generar el nombre por defecto del archivo
-  const defaultFilename = `REG_COMB_${moment().format("YYYYMMDD_HHmmss")}.xlsx`;
+  const defaultFilename = `REG_COMB_${format(
+    new Date(),
+    "YYYYMMDD_HHmmss"
+  )}.xlsx`;
 
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "ConsultaCombustible");

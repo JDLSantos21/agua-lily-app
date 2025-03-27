@@ -12,6 +12,17 @@ export default {
   ],
   theme: {
     extend: {
+      animation: {
+        dots: "dots 1.5s steps(3, end) infinite",
+      },
+      keyframes: {
+        dots: {
+          "0%": { content: '""' },
+          "33%": { content: '"."' },
+          "66%": { content: '".."' },
+          "100%": { content: '"..."' },
+        },
+      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
@@ -25,6 +36,8 @@ export default {
         Oswald: ["Oswald", "sans-serif"],
         Liter: ["Liter", "sans-serif"],
         Inter: ["Inter", "sans-serif"],
+        roboto: ["Roboto", "sans-serif"],
+        comfortaa: ["Comfortaa", "sans-serif"],
       },
       fontSize: {
         h1: "var(--text-h1)",

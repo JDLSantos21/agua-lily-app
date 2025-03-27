@@ -7,10 +7,10 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { FuelRecords } from "@/types/fuel.types";
-import moment from "moment";
 import FuelQueryTableSkeleton from "./fuel-query-table-skeleton";
 import { motion } from "framer-motion";
 import { Info } from "lucide-react";
+import { format } from "@formkit/tempo";
 
 export default function FuelQueryTable({
   fuelRecords,
@@ -23,9 +23,9 @@ export default function FuelQueryTable({
     return <FuelQueryTableSkeleton />;
   }
 
-  console.log(fuelRecords)
+  console.log(fuelRecords);
 
-  if(fuelRecords === null) {
+  if (fuelRecords === null) {
     return (
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -34,17 +34,15 @@ export default function FuelQueryTable({
         className="text-muted-foreground select-none text-lg border p-2 w-96 mx-auto"
       >
         <div className="flex items-center justify-center text-blue-400 space-x-2 text-sm">
-        <Info className="h-6 w-6" />
-        <p>
-
-        Información
-        </p>
+          <Info className="h-6 w-6" />
+          <p>Información</p>
         </div>
         <div className="text-center text-sm py-2 text-gray-600">
-          Realiza una búsqueda para obtener resultados de los registros de combustibles.
+          Realiza una búsqueda para obtener resultados de los registros de
+          combustibles.
         </div>
       </motion.div>
-    )
+    );
   }
   return (
     <Table className="table-fixed">
@@ -68,13 +66,15 @@ export default function FuelQueryTable({
       ) : (
         <TableBody>
           {fuelRecords.map((record) => (
-            <TableRow key={`${record.mileage}-${record.record_date}-${record.gallons}`}>
+            <TableRow
+              key={`${record.mileage}-${record.record_date}-${record.gallons}`}
+            >
               <TableCell>{record.current_tag}</TableCell>
               <TableCell>{record.driver}</TableCell>
               <TableCell>{record.mileage}</TableCell>
               <TableCell>{record.gallons}</TableCell>
               <TableCell>
-                {moment(record.record_date).format("DD/MM/YYYY HH:mm:ss")}
+                {format(record.record_date, { date: "medium", time: "short" })}
               </TableCell>
             </TableRow>
           ))}

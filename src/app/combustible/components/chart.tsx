@@ -52,14 +52,18 @@ export const FuelChart = ({ data }: { data: fuelAvailability }) => {
           </div>
         </div>
         <div className="mt-6 text-center">
-          <p className="text-lg">
-            Estado:{" "}
-            <span className={`font-semibold ${fuelStatusColor}`}>
+          <p className="text-sm">
+            Estado{" "}
+            <span className={`font-semibold text-lg ${fuelStatusColor}`}>
               {fuelStatus}
             </span>
           </p>
           <p className="text-sm text-gray-600 mt-2">
-            Rango Estimado: {Math.round(AVAILABLE_FUEL * 11)} kilometros
+            <span>Rango Estimado</span>{" "}
+            <span className="font-bold">
+              {Math.round(AVAILABLE_FUEL * 11).toLocaleString()}
+            </span>{" "}
+            <span>kilometros</span>
           </p>
         </div>
       </div>

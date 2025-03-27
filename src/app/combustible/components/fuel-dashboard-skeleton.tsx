@@ -61,7 +61,7 @@ export default function FuelDashboardSkeleton() {
             </div>
             <div className="mt-6 text-center flex flex-col justify-center items-center">
               <div className="inline-flex items-center gap-2">
-                <span className="text-lg">Estado:</span>
+                <span className="text-sm text-gray-600 mt-2">Estado</span>
                 <div className="w-20 h-4 bg-gray-300 rounded animate-pulse" />
               </div>
               <div className="mt-2 inline-flex items-center gap-2">

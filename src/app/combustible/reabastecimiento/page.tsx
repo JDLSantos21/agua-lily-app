@@ -6,19 +6,17 @@ import {
   ReplenishmentChartSkeleton,
   ReplenishmentTableSkeleton,
 } from "./components/skeletons";
-import ReplenishmentForm from "./components/replenishment-form";
 
 export default function ReplenishmentPage() {
   return (
-    <div className="container mx-auto py-6">
+    <div className="mx-auto">
       <div>
-        <div className="flex justify-between  xl:flex-row xl:gap-x-5">
-          <div className="w-[60%] xl:w-1/2 mt-3">
+        <div className="flex justify-between xl:flex-row xl:gap-x-5">
+          <div className="w-full xl:w-4/6">
             <Suspense fallback={<ReplenishmentTableSkeleton />}>
               <ReplenishmentTable />
             </Suspense>
           </div>
-          <ReplenishmentForm />
         </div>
         <div className="max-w-[650px] mt-10 mx-auto xl:mx-0">
           <Suspense fallback={<ReplenishmentChartSkeleton />}>

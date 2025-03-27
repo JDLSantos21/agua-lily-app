@@ -2,8 +2,8 @@
 "use client";
 
 import { TableCell, TableRow } from "@/components/ui/table";
-import moment from "moment";
 import { Material } from "@/lib/types";
+import { format } from "@formkit/tempo";
 
 interface MaterialRowProps {
   material: Material;
@@ -28,7 +28,7 @@ export default function MaterialRow({ material, onClick }: MaterialRowProps) {
         />
       </TableCell>
       <TableCell className="text-center">
-        {moment(material.updated_at).format("lll")}
+        {format(material.updated_at, { date: "medium", time: "short" })}
       </TableCell>
     </TableRow>
   );

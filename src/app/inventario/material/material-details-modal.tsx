@@ -16,10 +16,11 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Edit, Loader2, Trash } from "lucide-react";
 import type { Material } from "@/lib/types";
-import moment from "moment";
 import { RoleBased } from "@/components/RoleBased";
 import { deleteMaterial, editMaterial } from "@/api/materials";
 import { toast } from "sonner";
+import { confirm } from "@tauri-apps/plugin-dialog";
+import { format } from "@formkit/tempo";
 
 interface ModalProps {
   material: Material | null;
@@ -48,8 +49,17 @@ ModalProps) {
     setCurrentMaterial((prev) => (prev ? { ...prev, [name]: value } : null));
   };
 
-  const handleMaterialDelete = (id: number) => {
-    if (!confirm("¿Estás seguro de eliminar este material?")) return;
+  const handleMaterialDelete = async (id: number) => {
+    const confirmed = await confirm(
+      "¿Estas seguro de eliminar este material?",
+      "Agua Lily"
+    );
+
+    if (!confirmed) {
+      toast.info("Operación cancelada por el usuario.");
+      return;
+    }
+
     try {
       deleteMaterial(id);
       toast.success("Material eliminado correctamente");
@@ -108,7 +118,7 @@ ModalProps) {
     <Dialog open={!!material} onOpenChange={closeModal}>
       <DialogContent className="max-w-4xl w-full max-h-[90vh] h-[500px] flex flex-col overflow-y-auto ">
         <DialogHeader>
-          <DialogTitle className="text-2xl text-gray-700">
+          <DialogTitle className="text-xl font-heading">
             {currentMaterial?.name.toLocaleUpperCase()}
           </DialogTitle>
           <DialogDescription>Detalles del material</DialogDescription>
@@ -159,12 +169,14 @@ ModalProps) {
                 <Separator className="my-4" />
                 <div className="flex justify-between items-center">
                   <div className="text-sm text-gray-500">
-                    <p>
-                      Creado: {moment(material.created_at).format("L HH:mm")}
-                    </p>
+                    <p>ID del sistema: {material.id}</p>
+                    <p>Creado: {format(material.created_at, "DD/MM/YYYY")}</p>
                     <p>
                       Actualizado:{" "}
-                      {moment(material.updated_at).format("L HH:mm")}
+                      {format(material.updated_at, {
+                        date: "long",
+                        time: "short",
+                      })}
                     </p>
                   </div>
                   <RoleBased allowedRoles={["admin", "administrativo"]}>

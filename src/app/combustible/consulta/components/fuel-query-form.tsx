@@ -84,7 +84,12 @@ export default function FuelQueryForm() {
       </form>
 
       {/* Botón de exportar */}
-      <Button disabled={fuelRecords === null} onClick={() => exportToExcel(fuelRecords)} variant="outline">
+      <Button
+        disabled={fuelRecords === null}
+        onClick={() => exportToExcel(fuelRecords)}
+        variant="outline"
+        className="font-normal"
+      >
         Exportar a Excel
       </Button>
 

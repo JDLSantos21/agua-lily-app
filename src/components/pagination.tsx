@@ -16,6 +16,7 @@ export default function TablePagination({
   totalPages: number;
   handlePageChange: (page: number) => void;
 }) {
+  if (totalPages === 1) return null;
   return (
     <div className="flex justify-center">
       <Pagination>

@@ -147,7 +147,7 @@ export default function NewAjustDialog() {
               htmlFor="quantity"
               className="block text-sm font-medium text-gray-700"
             >
-              Nuevo Stock
+              Nueva Existencia
             </Label>
             <Input
               id="quantity"

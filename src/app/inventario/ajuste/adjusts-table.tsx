@@ -7,8 +7,8 @@ import {
   TableHeader,
 } from "@/components/ui/table";
 import { Adjustment } from "@/types/materials/adjustment";
+import { format } from "@formkit/tempo";
 
-import moment from "moment";
 export default function AdjustTable({
   currentData,
 }: {
@@ -22,7 +22,7 @@ export default function AdjustTable({
           <TableHead className="text-left w-[10%]">Previo</TableHead>
           <TableHead className="text-left w-[10%]">Nuevo</TableHead>
           <TableHead className="text-left w-[23%]">Motivo</TableHead>
-          <TableHead className="text-left w-[27%]">Fecha</TableHead>
+          <TableHead className="text-left w-[27%]">Fecha & Hora</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -44,7 +44,10 @@ export default function AdjustTable({
               </TableCell>
               <TableCell className="h-12 p-3">{adj.reason}</TableCell>
               <TableCell className="h-12 p-3">
-                {moment(adj.created_at).format("LLL")}
+                {format(adj.created_at, {
+                  date: "medium",
+                  time: "short",
+                })}
               </TableCell>
             </TableRow>
           ))

@@ -7,6 +7,30 @@ import {
   CreateAdjustment,
 } from "@/types/inventory";
 
+export const getInventoryReportData = async ({
+  date,
+  user_id,
+}: {
+  date: string;
+  user_id?: string;
+}) => {
+  const params: Record<string, string> = {};
+
+  if (user_id) {
+    params.user_id = user_id;
+  }
+  params.date = date;
+
+  return await fetcher(
+    `/inventory/movements`,
+    {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    },
+    params
+  );
+};
+
 export const registerMovement = async (movementData: setMovement) => {
   try {
     const response = await fetcher("/inventory/movements", {

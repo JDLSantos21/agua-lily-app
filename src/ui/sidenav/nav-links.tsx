@@ -20,29 +20,29 @@ export default function NavLinks() {
       {links.map((link) => {
         const isActive = pathname.startsWith(link.href);
         return (
-          <motion.div
-            key={link.href}
-            initial={{ scale: 1 }}
-            animate={{ scale: isActive ? 1.05 : 1 }}
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.3 }}
-          >
+          <motion.div key={link.href} className="relative group">
             <Link
               href={link.href}
-              className={`flex items-center gap-3 px-4 py-3 font- w-full text-sm transition-all rounded-lg
-                ${
-                  isActive
-                    ? "bg-blue-50 text-blue-600 border-l-4 border-blue-500"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                }`}
+              className={`flex items-center gap-3 px-4 py-3 w-full text-sm transition-all rounded-lg relative text-gray-700 hover:bg-gray-200/50 ${!isActive && "hover:text-gray-600"} ${isActive && "font-bold text-white"} `}
             >
-              <link.icon
-                className={`h-5 w-5 ${
-                  isActive ? "text-blue-500" : "text-gray-400"
-                }`}
-              />
-              <span>{link.name}</span>
+              <div className={`z-10 flex gap-3 `}>
+                <link.icon className={`h-5 w-5`} />
+                <span>{link.name}</span>
+              </div>
             </Link>
+            {isActive && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
+                layoutId="ActiveSection"
+                className={`absolute top-0 h-full w-full z-0 rounded  ${
+                  isActive
+                    ? "bg-blue-600 shadow-md"
+                    : "group-hover:bg-gray-300 hover:text-gray-900"
+                } `}
+              />
+            )}
           </motion.div>
         );
       })}

@@ -56,13 +56,6 @@ export async function fetchFilteredFuelRecords(filters: {
   }
 }
 
-// export interface FuelReplenishment {
-//   gallons: number;
-//   signature: string;
-//   replenishment_date?: string;
-//   user_password: string; // Nueva propiedad para la contraseña
-// }
-
 export async function registerFuelReplenishment(data: ReplenishmentFormData) {
   try {
     return fetcher("/fuel/replenishments", {
@@ -91,6 +84,24 @@ export async function fetchReplenishmentChartData() {
     return fetcher("/fuel/replenishments/chart", {
       method: "GET",
       headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function resetFuelAvailability({
+  user_id,
+  password,
+}: {
+  user_id: number;
+  password: string;
+}) {
+  try {
+    return fetcher("/fuel/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id, password }),
     });
   } catch (error) {
     console.log(error);

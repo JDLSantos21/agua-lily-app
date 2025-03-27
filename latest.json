@@ -1,7 +1,7 @@
 {
-  "version": "v1.1.2",
-  "pub_date": "2025-03-12T00:00:00Z",
-  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSEZxaFVkU2NKTzIrWnMzODAvL0JkdGJmUkk0Y3JyeGxWdmdjMTV3VklGL1hVZDZDZGU0RXEzWFRQYXhEUWlISnFqWlFFNWlXMGFxenF6VGNWeElScHdjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQxODA4NDY1CWZpbGU6QWd1YSBMaWx5IEFwcF8xLjEuMl94NjQtc2V0dXAuZXhlCjd2ekhTZjYvbHNxY0grMDNJODlQWEhQdlB6S1JLWEx1VC9paGpwM2JIMzlSYjlsODJSa3dUL1AxTTRtVG5hdW5jSGV6UkcvTEZocDA0UVBWMHVHQUNBPT0K",
+  "version": "v1.1.4",
+  "pub_date": "2025-03-25T00:00:00Z",
+  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSE44SDlzcWpEeFVDdFNqeGVxWG4rUCt3MWZNbVFBdGViK0VNMWk0NFN1YWZod1d0MzhQejR1eFpnOHcwY2xYTlUyN2VBTDJyWHkvUWQ0RUZ4UlZTalEwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQyOTM2MDcyCWZpbGU6QWd1YSBMaWx5IEFwcF8xLjEuNF94NjQtc2V0dXAuZXhlCms4cjVZbjdIYjdYVFBWZGQvVmU5bitlWkZ0SjhJcU1LMWVVZjJFOG5FODMvckkrRDhiaGltOXA3bTFxOHNTQ2ZFdFVIRW9RY3hFcjVEZnBDclVJSENRPT0K",
   "url": "https://github.com/JDLSantos21/agua-lily-app/releases/latest/download/setup.exe",
-  "notes": "Utilizando autenticacion con JWT y estableciendo limite de tiempo para la sesion."
+  "notes": "Nuevo menus de modulos y se arreglo el problema con las fechas y horas al registrar con fecha personalizada."
 }

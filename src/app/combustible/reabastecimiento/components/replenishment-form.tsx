@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { registerFuelReplenishment } from "@/api/fuel";
 import { useAuthStore } from "@/stores/authStore";
-import { Card, CardDescription } from "@/components/ui/card";
 import { motion } from "framer-motion";
 
 const replenishmentSchema = z.object({
@@ -41,8 +40,7 @@ export default function ReplenishmentForm() {
     },
   });
 
-  const onSubmit = (data: ReplenishmentFormData) => {
-    console.log("onSubmit ejecutado con datos:", data);
+  const onSubmit = () => {
     setShowPasswordPrompt(true); // Mostrar el campo de contraseña
   };
 
@@ -58,6 +56,10 @@ export default function ReplenishmentForm() {
     }
 
     data.user_id = user_id;
+
+    if (data.replenishment_date) {
+      data.replenishment_date = new Date(data.replenishment_date).toISOString();
+    }
 
     let loadingToastId: string | number = 0;
 
@@ -97,13 +99,12 @@ export default function ReplenishmentForm() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, translateY: -50 }}
+      initial={{ opacity: 0, translateY: -20 }}
       animate={{ opacity: 1, translateY: 0 }}
-      transition={{ duration: 0.5 }}
-      className="w-[35%] xl:w-[40%] mt-14"
+      transition={{ duration: 0.3 }}
+      className="w-full"
     >
-      <Card className="p-5">
-        <CardDescription>Registrar reabastecimiento</CardDescription>
+      <div>
         <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-4">
           <div>
             <Label htmlFor="gallons">Galones</Label>
@@ -135,7 +136,11 @@ export default function ReplenishmentForm() {
           </div>
 
           {showPasswordPrompt && (
-            <div>
+            <motion.div
+              initial={{ opacity: 0, translateY: -20 }}
+              animate={{ opacity: 1, translateY: 0 }}
+              transition={{ duration: 0.3 }}
+            >
               <Label htmlFor="user_password">Contraseña</Label>
               <Input
                 autoComplete="current-password"
@@ -148,7 +153,7 @@ export default function ReplenishmentForm() {
                   {errors.user_password.message}
                 </p>
               )}
-            </div>
+            </motion.div>
           )}
 
           <Button
@@ -172,7 +177,7 @@ export default function ReplenishmentForm() {
             </Button>
           )}
         </form>
-      </Card>
+      </div>
     </motion.div>
   );
 }
