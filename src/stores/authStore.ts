@@ -15,6 +15,8 @@ interface AuthState {
   getTokenFromStorage: () => string | null;
 }
 
+const isClient = typeof window !== "undefined";
+
 export const useAuthStore = create<AuthState>((set) => ({
   token: null,
   role: null,
@@ -24,14 +26,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: (token, role, name, id) => {
     console.log("Token recibido en login:", token);
     // Limpiar cualquier token antiguo antes de almacenar el nuevo
-    removeCookies();
+    isClient && removeCookies();
     // Almacenar la información en cookies (7 días de expiración)
-    setCookies(token, role, name, id, 7);
+    isClient && setCookies(token, role, name, id, 7);
     set({ token, role, name, isInitialized: true, user_id: id });
   },
   logout: () => {
     // Eliminar cookies
-    removeCookies();
+    isClient && removeCookies();
 
     set({
       token: null,
@@ -59,7 +61,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     } else {
       console.log("Token no encontrado o expirado, limpiando estado y cookies");
       // Limpiar cookies si el token está presente pero expirado
-      removeCookies();
+      isClient && removeCookies();
 
       set({
         token: null,
@@ -72,6 +74,6 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
   // Función para obtener el token directamente de las cookies
   getTokenFromStorage: () => {
-    return getCookie("token") || null;
+    return isClient ? getCookie("token") : null;
   },
 }));

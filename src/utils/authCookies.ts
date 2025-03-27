@@ -1,3 +1,4 @@
+"use client";
 import { getCookie, setCookie, removeCookie } from "@/lib/clientCookie";
 
 export const removeCookies = () => {
