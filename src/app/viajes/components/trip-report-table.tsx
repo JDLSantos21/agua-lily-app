@@ -19,10 +19,9 @@ import { toast } from "sonner";
 import { formatToDop } from "@/utils/formatCurrency";
 import { format } from "@formkit/tempo";
 import { open as tauriOpen } from "@tauri-apps/plugin-shell";
-import { useDialogStore } from "@/stores/dialogStore";
-import { useTripStore } from "@/stores/tripStore";
+import TripDateChangeModal from "./TripDateChangeModal";
 
-// Tipos para los datos de la API
+// Types for API data
 interface TripData {
   concept: string;
   driver: string;
@@ -33,7 +32,7 @@ interface TripData {
 }
 
 interface DayTrips {
-  [key: string]: TripData; // La clave ahora incluye el driver_id (e.g., "Viaje Estándar-8")
+  [key: string]: TripData;
 }
 
 interface VehicleTrips {
@@ -48,7 +47,7 @@ interface ApiResponse {
   [vehicleId: string]: VehicleTrips;
 }
 
-// Tipos para los datos procesados
+// Types for processed data
 interface DailyTripSummary {
   day: Date;
   dayStr: string;
@@ -66,7 +65,7 @@ interface VehicleSummary {
   totalAmount: number;
   standardTrips: number;
   quickTrips: number;
-  commissionTrips: number; // New property for Comisión por ventas
+  commissionTrips: number;
   dailyTrips: DailyTripSummary[];
 }
 
@@ -81,16 +80,15 @@ export default function TripReportTable({
   singleVehicleMode,
   onExport,
 }: TripReportTableProps) {
-  const { open } = useDialogStore();
-  // Estado local para ordenamiento si no se proporciona desde fuera
+  const [selectedTripId, setSelectedTripId] = useState<number | null>(null);
+  const [isDateChangeModalOpen, setIsDateChangeModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>("");
 
-  // Usar sortOrder proporcionado o el local
-
-  // Procesar los datos de la API
+  // Process the API data
   const processedData = useMemo(() => {
     const vehicleSummaries: VehicleSummary[] = [];
 
-    // Iterar sobre cada vehículo en la respuesta
+    // Iterate over each vehicle in the response
     Object.values(data).forEach((vehicleData) => {
       const vehicleSummary: VehicleSummary = {
         vehicleId: vehicleData.vehicle_id,
@@ -99,18 +97,17 @@ export default function TripReportTable({
         totalAmount: 0,
         standardTrips: 0,
         quickTrips: 0,
-        commissionTrips: 0, // Initialize new property
+        commissionTrips: 0,
         dailyTrips: [],
       };
 
-      // Procesar los viajes por día
+      // Process trips by day
       Object.entries(vehicleData.trips_by_day).forEach(
         ([dateStr, dayTrips]) => {
           const date = new Date(dateStr);
 
-          // Procesar cada grupo de viajes (por concepto y conductor)
-          Object.entries(dayTrips).forEach(([key, tripData]) => {
-            console.log(key);
+          // Process each group of trips (by concept and driver)
+          Object.entries(dayTrips).forEach(([_, tripData]) => {
             const dailySummary: DailyTripSummary = {
               day: date,
               dayStr: dateStr,
@@ -121,11 +118,11 @@ export default function TripReportTable({
               totalAmount: tripData.total_amount,
             };
 
-            // Actualizar totales del vehículo
+            // Update vehicle totals
             vehicleSummary.totalTrips += tripData.trip_count;
             vehicleSummary.totalAmount += tripData.total_amount;
 
-            // Contar por tipo de viaje para el vehículo
+            // Count by trip type for the vehicle
             if (tripData.concept === "Viaje Estándar") {
               vehicleSummary.standardTrips += tripData.trip_count;
             } else if (tripData.concept === "Viaje Rapido") {
@@ -134,20 +131,20 @@ export default function TripReportTable({
               vehicleSummary.commissionTrips += tripData.trip_count;
             }
 
-            // Añadir el resumen diario a la lista
+            // Add the daily summary to the list
             vehicleSummary.dailyTrips.push(dailySummary);
           });
         }
       );
 
-      // Añadir el resumen del vehículo a la lista
+      // Add the vehicle summary to the list
       vehicleSummaries.push(vehicleSummary);
     });
 
     return vehicleSummaries;
   }, [data]);
 
-  // Calcular totales generales
+  // Calculate general totals
   const totals = useMemo(() => {
     return processedData.reduce(
       (acc, vehicle) => {
@@ -160,7 +157,7 @@ export default function TripReportTable({
     );
   }, [processedData]);
 
-  // Función para exportar a Excel
+  // Function to export to Excel
   const exportToExcel = async () => {
     if (onExport) {
       onExport();
@@ -179,7 +176,7 @@ export default function TripReportTable({
       const createStyledSheet = (sheet: any, data: any) => {
         const headerRow = sheet.addRow(Object.keys(data[0]));
 
-        // Estilos para encabezado
+        // Header styles
         headerRow.eachCell((cell: any) => {
           cell.font = { bold: true, color: { argb: "ffffff" } };
           cell.fill = {
@@ -191,10 +188,10 @@ export default function TripReportTable({
           cell.alignment = { vertical: "middle", horizontal: "center" };
         });
 
-        // Datos
+        // Data
         data.forEach((rowObj: any) => {
           const row = sheet.addRow(Object.values(rowObj));
-          row.eachCell((cell: any, colNumber: any) => {
+          row.eachCell((cell: any) => {
             const isTotalRow =
               rowObj.Fecha === "TOTAL" || rowObj.Vehículo === "TOTAL";
             if (isTotalRow) {
@@ -217,7 +214,6 @@ export default function TripReportTable({
       if (singleVehicleMode && processedData.length === 1) {
         const vehicle = processedData[0];
 
-        console.log("Exportando datos para un solo vehículo:", vehicle);
         const dataToExport = vehicle.dailyTrips.map((day) => ({
           Fecha: format(day.day, "DD/MM/YYYY"),
           Conduces: day.conduces.join(", "),
@@ -239,7 +235,7 @@ export default function TripReportTable({
         const sheet = workbook.addWorksheet(`Vehículo ${vehicle.vehicleTag}`);
         createStyledSheet(sheet, dataToExport);
       } else {
-        // Exportar múltiples vehículos
+        // Export multiple vehicles
         processedData.forEach((vehicle) => {
           const dataToExport = vehicle.dailyTrips.map((day) => ({
             Fecha: format(day.day, "DD/MM/YYYY"),
@@ -265,7 +261,7 @@ export default function TripReportTable({
           createStyledSheet(sheet, dataToExport);
         });
 
-        // Hoja de resumen
+        // Summary sheet
         const summaryData = processedData.map((vehicle) => ({
           Vehículo: vehicle.vehicleTag,
           "Viajes Estándar": vehicle.standardTrips,
@@ -303,7 +299,7 @@ export default function TripReportTable({
       });
       const fileName = `Reporte_${processedData.length === 1 ? "Vehiculo" : "Todos_Vehiculos"}_${new Date().toISOString().split("T")[0]}.xlsx`;
 
-      // Abrir el diálogo de guardado con Tauri
+      // Open save dialog with Tauri
       const filePath = await save({
         defaultPath: fileName,
         filters: [
@@ -319,11 +315,10 @@ export default function TripReportTable({
         return;
       }
 
-      // Guardar el archivo usando Tauri
+      // Save the file using Tauri
       const arrayBuffer = await blob.arrayBuffer();
       await writeFile(filePath, new Uint8Array(arrayBuffer));
 
-      console.log(filePath.split("\\"));
       const folderName = filePath.split("\\")[filePath.split("\\").length - 2];
 
       toast(`Archivo guardado`, {
@@ -344,10 +339,17 @@ export default function TripReportTable({
       });
     } catch (error) {
       console.error("Error al exportar a Excel:", error);
+      toast.error("Error al exportar a Excel");
     }
   };
 
-  // Si no hay datos, no mostrar nada
+  const handleOpenDateChangeModal = (tripId: number, currentDate: string) => {
+    setSelectedTripId(tripId);
+    setSelectedDate(currentDate);
+    setIsDateChangeModalOpen(true);
+  };
+
+  // If there's no data, don't show anything
   if (processedData.length === 0) {
     return (
       <div className="text-center py-8">
@@ -356,7 +358,7 @@ export default function TripReportTable({
     );
   }
 
-  // Renderizar tabla para un solo vehículo
+  // Render table for a single vehicle
   if (singleVehicleMode && processedData.length === 1) {
     const vehicle = processedData[0];
 
@@ -388,7 +390,6 @@ export default function TripReportTable({
                 <TableHead className="font-bold">Conduces</TableHead>
                 <TableHead className="font-bold">Concepto</TableHead>
                 <TableHead className="font-bold">Conductor</TableHead>
-                {/* Nueva columna */}
                 <TableHead className="font-bold text-center">
                   Cantidad
                 </TableHead>
@@ -407,12 +408,13 @@ export default function TripReportTable({
                         <Badge
                           key={conduceId}
                           variant="outline"
-                          className="cursor-pointer"
-                          onClick={() => {
-                            console.log(
-                              `agregar funcionalidad con ${conduceId} al viaje para cambiar la fecha del viaje.`
-                            );
-                          }}
+                          className="cursor-pointer hover:bg-blue-100 transition-colors"
+                          onClick={() =>
+                            handleOpenDateChangeModal(
+                              conduceId,
+                              format(day.day, "YYYY-MM-DD")
+                            )
+                          }
                         >
                           #{conduceId}
                         </Badge>
@@ -434,7 +436,6 @@ export default function TripReportTable({
                     {day.concept}
                   </TableCell>
                   <TableCell>{day.driver}</TableCell>
-                  {/* Mostrar el conductor */}
                   <TableCell className="text-center">{day.tripCount}</TableCell>
                   <TableCell className="text-right font-medium">
                     {formatToDop(day.totalAmount)}
@@ -442,7 +443,7 @@ export default function TripReportTable({
                 </TableRow>
               ))}
 
-              {/* Fila de totales */}
+              {/* Totals row */}
               <TableRow className="bg-muted/50">
                 <TableCell colSpan={4} className="font-bold">
                   TOTALES
@@ -457,11 +458,20 @@ export default function TripReportTable({
             </TableBody>
           </Table>
         </div>
+
+        {isDateChangeModalOpen && selectedTripId && (
+          <TripDateChangeModal
+            isOpen={isDateChangeModalOpen}
+            onClose={() => setIsDateChangeModalOpen(false)}
+            tripId={selectedTripId}
+            currentDate={selectedDate}
+          />
+        )}
       </div>
     );
   }
 
-  // Renderizar tabla para múltiples vehículos
+  // Render table for multiple vehicles
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -507,21 +517,27 @@ export default function TripReportTable({
                 </TableCell>
                 <TableCell className="text-center">
                   <Badge
-                    variant={`${vehicle.standardTrips != 0 ? "standardTrip" : "outline"}`}
+                    variant={
+                      vehicle.standardTrips !== 0 ? "standardTrip" : "outline"
+                    }
                   >
                     {vehicle.standardTrips}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-center">
                   <Badge
-                    variant={`${vehicle.quickTrips != 0 ? "quickTrip" : "outline"}`}
+                    variant={vehicle.quickTrips !== 0 ? "quickTrip" : "outline"}
                   >
                     {vehicle.quickTrips}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-center">
                   <Badge
-                    variant={`${vehicle.commissionTrips != 0 ? "comissionTrip" : "outline"}`}
+                    variant={
+                      vehicle.commissionTrips !== 0
+                        ? "comissionTrip"
+                        : "outline"
+                    }
                   >
                     {vehicle.commissionTrips}
                   </Badge>
@@ -535,7 +551,7 @@ export default function TripReportTable({
               </TableRow>
             ))}
 
-            {/* Fila de totales */}
+            {/* Totals row */}
             <TableRow className="bg-muted/50">
               <TableCell className="font-bold">TOTALES</TableCell>
               <TableCell className="text-center font-bold">
