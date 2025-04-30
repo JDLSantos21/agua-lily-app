@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { registerFuelReplenishment } from "@/api/fuel";
 import { useAuthStore } from "@/stores/authStore";
 import { motion } from "framer-motion";
+import { useFuelStore } from "@/stores/fuelStore";
+import { useDialogStore } from "@/stores/dialogStore";
 
 const replenishmentSchema = z.object({
   gallons: z.number().min(1, "La cantidad debe ser mayor a 0"),
@@ -24,6 +26,8 @@ export type ReplenishmentFormData = z.infer<typeof replenishmentSchema>;
 export default function ReplenishmentForm() {
   const { user_id } = useAuthStore();
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+  const { setAvailable, available } = useFuelStore();
+  const { open } = useDialogStore();
 
   const {
     register,
@@ -73,7 +77,8 @@ export default function ReplenishmentForm() {
       // Dismiss el toast de loading y mostrar éxito
       toast.dismiss(loadingToastId);
       toast.success("Reabastecimiento registrado correctamente");
-
+      setAvailable(available + Number(data.gallons)); // Actualizar disponibilidad de combustible
+      open(null);
       // Resetear formulario y cerrar prompt
       reset();
       setShowPasswordPrompt(false);
@@ -83,7 +88,7 @@ export default function ReplenishmentForm() {
         toast.dismiss(loadingToastId);
       }
       const errorMessage =
-        error instanceof Error ? error.message : "Error desconocido";
+        error instanceof Error && "Ocurrió un error inesperado";
       toast.error(errorMessage);
     }
   };

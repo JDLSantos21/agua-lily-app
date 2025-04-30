@@ -8,9 +8,9 @@ import {
 } from "@/components/ui/table";
 import { FuelRecords } from "@/types/fuel.types";
 import FuelQueryTableSkeleton from "./fuel-query-table-skeleton";
-import { motion } from "framer-motion";
 import { Info } from "lucide-react";
 import { format } from "@formkit/tempo";
+import AlertCard from "@/components/alert-card";
 
 export default function FuelQueryTable({
   fuelRecords,
@@ -27,21 +27,12 @@ export default function FuelQueryTable({
 
   if (fuelRecords === null) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-muted-foreground select-none text-lg border p-2 w-96 mx-auto"
-      >
-        <div className="flex items-center justify-center text-blue-400 space-x-2 text-sm">
-          <Info className="h-6 w-6" />
-          <p>Información</p>
-        </div>
-        <div className="text-center text-sm py-2 text-gray-600">
-          Realiza una búsqueda para obtener resultados de los registros de
-          combustibles.
-        </div>
-      </motion.div>
+      <AlertCard
+        description="Realiza una búsqueda para obtener resultados de los registros de
+          combustibles."
+        title="Información"
+        icon={<Info className="h-6 w-6" />}
+      />
     );
   }
   return (

@@ -2,22 +2,54 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Fuel, HandCoins } from "lucide-react";
+import { LayoutDashboard, Package, Fuel, HandCoins, Truck } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuthStore } from "@/stores/authStore";
 
 const links = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Inventario", href: "/inventario", icon: Package },
-  { name: "Combustible", href: "/combustible", icon: Fuel },
-  { name: "Gestión de Activos", href: "/activos", icon: HandCoins },
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    name: "Inventario",
+    href: "/inventario",
+    icon: Package,
+    accessRoles: ["administrativo", "operador", "admin"],
+  },
+  {
+    name: "Combustible",
+    href: "/combustible",
+    icon: Fuel,
+    accessRoles: ["administrativo", "operador", "admin"],
+  },
+  {
+    name: "Gestión de Activos",
+    href: "/activos",
+    icon: HandCoins,
+    accessRoles: ["administrativo", "operador", "admin"],
+  },
+  {
+    name: "Viajes",
+    href: "/viajes",
+    icon: Truck,
+    accessRoles: ["administrativo", "cajero", "admin"],
+  },
 ];
 
 export default function NavLinks() {
+  const { role } = useAuthStore();
   const pathname = usePathname();
 
   return (
     <nav className="flex flex-col space-y-2 px-2">
       {links.map((link) => {
+        if (link.accessRoles && role) {
+          if (!link.accessRoles.includes(role)) {
+            return null;
+          }
+        }
         const isActive = pathname.startsWith(link.href);
         return (
           <motion.div key={link.href} className="relative group">

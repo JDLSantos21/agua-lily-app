@@ -32,7 +32,9 @@ export const InventoryDropdownMenu = () => {
           <DropdownMenuSubTrigger>Materiales</DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
-              <DropdownMenuItem>Nuevo material</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => open("new-material")}>
+                Nuevo material
+              </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>

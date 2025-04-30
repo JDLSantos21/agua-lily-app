@@ -7,6 +7,9 @@ type DialogType =
   | "search-adjustment"
   | "replenishment-dialog"
   | "fuel-reset-dialog"
+  | "trips-report-dialog"
+  | "edit-pending-trip-dialog"
+  | "edit-trip-date-dialog"
   | null;
 
 interface DialogState {

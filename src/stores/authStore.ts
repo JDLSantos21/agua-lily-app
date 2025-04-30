@@ -26,15 +26,20 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: (token, role, name, id) => {
     console.log("Token recibido en login:", token);
     // Limpiar cualquier token antiguo antes de almacenar el nuevo
-    isClient && removeCookies();
+    if (isClient) {
+      removeCookies();
+    }
     // Almacenar la información en cookies (7 días de expiración)
-    isClient && setCookies(token, role, name, id, 7);
+    if (isClient) {
+      setCookies(token, role, name, id, 7);
+    }
     set({ token, role, name, isInitialized: true, user_id: id });
   },
   logout: () => {
     // Eliminar cookies
-    isClient && removeCookies();
-
+    if (isClient) {
+      removeCookies();
+    }
     set({
       token: null,
       role: null,
@@ -61,7 +66,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     } else {
       console.log("Token no encontrado o expirado, limpiando estado y cookies");
       // Limpiar cookies si el token está presente pero expirado
-      isClient && removeCookies();
+      if (isClient) {
+        removeCookies();
+      }
 
       set({
         token: null,

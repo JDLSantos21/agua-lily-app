@@ -1,12 +1,15 @@
 "use client";
-import { fuelAvailability } from "@/types/fuel.types";
+// import { fuelAvailability } from "@/types/fuel.types";
 import { Chart, ArcElement } from "chart.js";
 Chart.register(ArcElement);
 import { Doughnut } from "react-chartjs-2";
+import { useFuelStore } from "@/stores/fuelStore";
 
-export const FuelChart = ({ data }: { data: fuelAvailability }) => {
+export const FuelChart = () => {
+  const { available } = useFuelStore();
+
   const MAX_CAPACITY = 1500;
-  const AVAILABLE_FUEL = Number(data.available) || 0;
+  const AVAILABLE_FUEL = Number(available);
 
   const fuelLevel = (AVAILABLE_FUEL / MAX_CAPACITY) * 100;
 

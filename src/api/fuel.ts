@@ -12,6 +12,17 @@ export const fetchDashboardData = async () => {
   }
 };
 
+export const fetchFuelAvailability = async () => {
+  try {
+    return await fetcher(`/fuel/availability`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const fetchRegisterInitialData = async () => {
   try {
     return await fetcher(`/fuel/register-data`, {

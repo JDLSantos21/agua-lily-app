@@ -30,7 +30,7 @@ const fuelSchema = z.object({
   gallons: z
     .number()
     .min(1, "Los galones no pueden ser 0 ni negativos")
-    .max(200, "Los galones no pueden ser mayores a 200"),
+    .max(300, "Los galones no pueden ser mayores a 200"),
   record_date: z.string().optional().nullable(),
   signature: z.number().optional().nullable(),
 });
@@ -119,8 +119,8 @@ export default function FuelRegisterForm() {
       } else if (lastRecord?.mileage >= data.mileage) {
         toast.error("El kilometraje no puede ser menor al último registro");
         hasValidationErrors = true;
-      } else if (data.mileage - lastRecord?.mileage > 450) {
-        toast.error("La diferencia de kilometraje no puede ser mayor a 450 km");
+      } else if (data.mileage - lastRecord?.mileage > 500) {
+        toast.error("La diferencia de kilometraje no puede ser mayor a 500 km");
         hasValidationErrors = true;
       }
 

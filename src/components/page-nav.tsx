@@ -6,11 +6,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { RoleBased } from "./RoleBased";
 
 interface NavItem {
   title: string;
   href: string;
   icon: React.ReactNode;
+  isDev?: boolean;
+  allowedRoles?: string[];
 }
 
 // const navItems: NavItem[] = [
@@ -56,7 +59,14 @@ export default function PageNav({
               {navItems.map((item) => {
                 const isActive = pathname === item.href;
 
-                return (
+                const isDisabled =
+                  item.isDev && process.env.NODE_ENV !== "development";
+
+                if (isDisabled) {
+                  return null;
+                }
+
+                const link = (
                   <Link
                     key={item.href}
                     href={item.href}
@@ -84,6 +94,14 @@ export default function PageNav({
                       />
                     )}
                   </Link>
+                );
+
+                return item.allowedRoles ? (
+                  <RoleBased key={item.href} allowedRoles={item.allowedRoles}>
+                    {link}
+                  </RoleBased>
+                ) : (
+                  link
                 );
               })}
             </div>

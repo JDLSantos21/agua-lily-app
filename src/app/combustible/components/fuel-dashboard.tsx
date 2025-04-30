@@ -12,9 +12,16 @@ import { FuelChart } from "./chart";
 import FuelDashboardSkeleton from "./fuel-dashboard-skeleton";
 import useFetchDashboard from "@/hooks/useFetchDashboard";
 import { format } from "@formkit/tempo";
+import { useFuelStore } from "@/stores/fuelStore";
+import { useEffect } from "react";
 
 export const FuelDashboard = () => {
-  const { fuel_records, loading, availability } = useFetchDashboard();
+  const { fuel_records, loading } = useFetchDashboard();
+  const { fetchFuelAvailability } = useFuelStore((state) => state);
+
+  useEffect(() => {
+    fetchFuelAvailability();
+  }, []);
 
   if (loading) return <FuelDashboardSkeleton />;
 
@@ -53,7 +60,7 @@ export const FuelDashboard = () => {
               </TableBody>
             </Table>
           </div>
-          {availability && <FuelChart data={availability} />}
+          <FuelChart />
         </div>
       )}
     </div>

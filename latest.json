@@ -1,7 +1,7 @@
 {
-  "version": "v1.1.4",
-  "pub_date": "2025-03-25T00:00:00Z",
-  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSE44SDlzcWpEeFVDdFNqeGVxWG4rUCt3MWZNbVFBdGViK0VNMWk0NFN1YWZod1d0MzhQejR1eFpnOHcwY2xYTlUyN2VBTDJyWHkvUWQ0RUZ4UlZTalEwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQyOTM2MDcyCWZpbGU6QWd1YSBMaWx5IEFwcF8xLjEuNF94NjQtc2V0dXAuZXhlCms4cjVZbjdIYjdYVFBWZGQvVmU5bitlWkZ0SjhJcU1LMWVVZjJFOG5FODMvckkrRDhiaGltOXA3bTFxOHNTQ2ZFdFVIRW9RY3hFcjVEZnBDclVJSENRPT0K",
+  "version": "v1.1.5",
+  "pub_date": "2025-03-27T00:00:00Z",
+  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSEtFWXpMdk5SRFF2REVacVB0eGxiY1RjV0gvdDdvNkFCN01YSll2b2czMHNIeHhvdFJtYUM0YzA4UnQ2M1plaGxJUUFJUHpFbC9ZYjdFYnNSMnpuWWdrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQzMTAzNzAyCWZpbGU6QWd1YSBMaWx5IEFwcF8xLjEuNV94NjQtc2V0dXAuZXhlClIzT2xCK2hxVExnbkZxZGIxRjJETmdGS002YTZET3BoUnVzWnhBZ0s3VjFuY2tnMnZ0eXpCdHN3V3lmTnc0eE5hcUtlQzkxaDhmaExvWHJUckd2Y0FRPT0K",
   "url": "https://github.com/JDLSantos21/agua-lily-app/releases/latest/download/setup.exe",
-  "notes": "Nuevo menus de modulos y se arreglo el problema con las fechas y horas al registrar con fecha personalizada."
+  "notes": "Arreglado problema de resetear al registrar combustible."
 }

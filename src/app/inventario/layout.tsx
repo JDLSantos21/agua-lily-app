@@ -4,6 +4,7 @@ import { InventoryReportDialog } from "./components/inventory-report-dialog";
 import NewAjustDialog from "./components/new-ajusdment-dialog";
 import InventoryNav from "./components/inventory-nav";
 import { AdjustmentsSearchModal } from "./components/adjustments-search-modal";
+import NewMaterialDialog from "./components/new-material-dialog";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,6 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <InventoryReportDialog />
       <NewAjustDialog />
       <AdjustmentsSearchModal />
+      <NewMaterialDialog />
       <div className="w-full flex-none md:w-64 bg-slate-300">
         <SideNav />
       </div>

@@ -1,0 +1,44 @@
+"use client";
+
+import { useEffect } from "react";
+import TripCompleteForm from "./components/trip-complete-form";
+import TripRecordForm from "./components/trip-record-form";
+import { useTripStore } from "@/stores/tripStore";
+import { Skeleton } from "@/components/ui/skeleton";
+
+function TripPageSkeleton() {
+  return (
+    <div className="w-1/2 pl-10">
+      <Skeleton className="h-12 mb-2 w-full" />
+      <Skeleton className="h-12 mb-2 w-full opacity-75" />
+      <Skeleton className="h-12 mb-2 w-full opacity-50" />
+      <Skeleton className="h-12 mb-2 w-full opacity-25" />
+      <Skeleton className="h-12 mb-2 w-full opacity-10" />
+    </div>
+  );
+}
+
+export default function Viaje() {
+  const { getRegisterTripDefaults, loading, registerTripDefaults } =
+    useTripStore();
+
+  useEffect(() => {
+    getRegisterTripDefaults();
+  }, []);
+
+  return (
+    <div className="flex">
+      {loading || !registerTripDefaults ? (
+        <>
+          <TripPageSkeleton />
+          <TripPageSkeleton />
+        </>
+      ) : (
+        <>
+          <TripRecordForm />
+          <TripCompleteForm />
+        </>
+      )}
+    </div>
+  );
+}

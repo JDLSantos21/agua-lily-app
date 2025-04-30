@@ -45,11 +45,14 @@ export const ProtectedRoute = ({
 
 // Mover la jerarquía de roles fuera para reutilizarla
 const ROLE_HIERARCHY: { [key: string]: string[] } = {
-  admin: ["admin", "operador", "administrativo"], // El admin tiene acceso a las rutas de admin y operador
-  operador: ["operador"], // El operador solo tiene acceso a sus propias rutas
-  administrativo: ["administrativo", "operador"],
+  admin: ["admin", "operador", "administrativo", "cajero"], // El admin tiene acceso a las rutas de admin y operador
+  operador: ["operador", "cajero"], // El operador solo tiene acceso a sus propias rutas
+  administrativo: ["administrativo", "operador", "cajero"],
+  cajero: ["cajero"],
 };
 
 // Función para verificar si un rol tiene acceso a una ruta
 const hasAccess = (userRole: string | null, requiredRole: string): boolean =>
-  userRole ? ROLE_HIERARCHY[userRole]?.includes(requiredRole) ?? false : false;
+  userRole
+    ? (ROLE_HIERARCHY[userRole]?.includes(requiredRole) ?? false)
+    : false;

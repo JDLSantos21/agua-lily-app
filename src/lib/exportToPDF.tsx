@@ -4,17 +4,12 @@ import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { toast } from "sonner";
 import { format } from "@formkit/tempo";
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  Image,
-} from "@react-pdf/renderer";
+import { Document, Page, Text, View, Image } from "@react-pdf/renderer";
 import { pdf } from "@react-pdf/renderer";
 import { open } from "@tauri-apps/plugin-shell";
 import { FormatReportData } from "@/utils/FormatReportData";
+import { styles } from "./PDFReportStyles";
+import { Paginate } from "./dataPaginate";
 
 // Definir estilos para el PDF
 // Definir las props del componente InventoryReport
@@ -24,146 +19,6 @@ interface InventoryReportProps {
 }
 
 // Definir estilos para el PDF
-const styles = StyleSheet.create({
-  page: {
-    padding: 30,
-    fontFamily: "Helvetica",
-  },
-  headerContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-    marginBottom: 20,
-  },
-  leftColumn: {
-    width: "50%",
-  },
-  rightColumn: {
-    width: "50%",
-    alignItems: "flex-end",
-  },
-  headerGenericData: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end",
-    marginBottom: 10,
-  },
-  logoTitleContainer: {
-    width: "50%",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  logoContainer: {
-    marginBottom: 10,
-  },
-  logo: {
-    width: 75,
-    height: 75,
-  },
-  title: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#1A3C34",
-    textAlign: "left",
-  },
-  infoText: {
-    fontSize: 10,
-    color: "#555",
-    marginBottom: 4,
-  },
-  table: {
-    border: "1 solid #E0E0E0",
-    borderRadius: 4,
-    overflow: "hidden",
-  },
-  tableHeader: {
-    flexDirection: "row",
-    backgroundColor: "#F5F5F5",
-    borderBottom: "1 solid #E0E0E0",
-    paddingVertical: 8,
-  },
-  tableRow: {
-    flexDirection: "row",
-    borderBottom: "1 solid #E0E0E0",
-    paddingVertical: 6,
-    backgroundColor: "#FFFFFF",
-  },
-  tableCellHeader: {
-    fontSize: 10,
-    fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
-  },
-  tableCell: {
-    fontSize: 10,
-    color: "#444",
-    textAlign: "center",
-    paddingHorizontal: 4,
-  },
-  material: {
-    width: "30%",
-  },
-  quantity: {
-    width: "10%",
-  },
-  type: {
-    textTransform: "capitalize",
-    width: "15%",
-  },
-  time: {
-    width: "15%",
-  },
-  user: {
-    width: "30%",
-  },
-  pageNumber: {
-    position: "absolute",
-    bottom: 20,
-    left: 0,
-    right: 0,
-    textAlign: "center",
-    fontSize: 10,
-    color: "#555",
-  },
-  totalsTable: {
-    marginTop: 20,
-    border: "1 solid #E0E0E0",
-    borderRadius: 4,
-    overflow: "hidden",
-  },
-  totalsHeader: {
-    flexDirection: "row",
-    backgroundColor: "#F5F5F5",
-    borderBottom: "1 solid #E0E0E0",
-    paddingVertical: 8,
-  },
-  totalsRow: {
-    flexDirection: "row",
-    borderBottom: "1 solid #E0E0E0",
-    paddingVertical: 6,
-    backgroundColor: "#FFFFFF",
-  },
-  totalsCellHeader: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#333",
-    textAlign: "center",
-  },
-  totalsCell: {
-    fontSize: 10,
-    color: "#444",
-    textAlign: "center",
-    paddingHorizontal: 4,
-  },
-  totalsMaterial: {
-    width: "50%",
-  },
-  totalsQuantity: {
-    width: "50%",
-  },
-});
 
 // Definir las props del componente InventoryReport
 // Definir las props del componente InventoryReport
@@ -183,14 +38,10 @@ export const InventoryReport: React.FC<InventoryReportProps> = ({
   reportType,
 }) => {
   // Definir cuántos registros por página
-  const recordsPerPage = 20;
-  const totalPages = Math.ceil(data.length / recordsPerPage);
+  const RECORDS_PER_PAGE = 20;
 
-  // Dividir los datos en páginas
-  const pages = [];
-  for (let i = 0; i < data.length; i += recordsPerPage) {
-    pages.push(data.slice(i, i + recordsPerPage));
-  }
+  const pages = Paginate(data, RECORDS_PER_PAGE);
+  const totalPages = pages.length;
 
   // Calcular los totales por material
   const totals: { [material: string]: number } = {};
@@ -331,30 +182,6 @@ export const InventoryReport: React.FC<InventoryReportProps> = ({
     </Document>
   );
 };
-
-// // Función para filtrar datos y preparar el título
-// export const preparePDFData = (
-//   inventoryRecords: InventoryMovement[] | null,
-//   reportType?: "user" | "day",
-//   selectedUser?: string,
-//   selectedDate?: string
-// ) => {
-//   if (!inventoryRecords || inventoryRecords.length === 0) {
-//     toast.error("No hay datos para exportar");
-//     return { filteredData: null, title: "", dateStr: "", defaultFilename: "" };
-//   }
-
-//   let filteredData = inventoryRecords;
-//   let title = "";
-
-//   const dateStr = selectedDate || format(new Date(), "YYYY-MM-DD");
-
-//   const defaultFilename = `INV_${
-//     reportType === "user" ? selectedUser?.replace(/\s/g, "_") : "DIA"
-//   }_${format(new Date(), "YYYYMMDD_HHmmss")}.pdf`;
-
-//   return { filteredData, title, dateStr, defaultFilename };
-// };
 
 // Función para generar el PDF y guardarlo con Tauri
 export const exportToPDF = async ({

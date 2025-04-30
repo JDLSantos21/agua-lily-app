@@ -5,7 +5,7 @@ import { InventoryReportDialog } from "../inventario/components/inventory-report
 
 export default function Dashboard() {
   return (
-    <ProtectedRoute requiredRole="operador">
+    <ProtectedRoute requiredRole="cajero">
       <div>
         <h1>Dashboard</h1>
         <InventoryReportDialog />

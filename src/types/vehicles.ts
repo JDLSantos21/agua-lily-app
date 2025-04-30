@@ -1,4 +1,15 @@
-import { Vehicle } from "@/api/vehicles";
+export interface Vehicle {
+  id: number;
+  license_plate: string;
+  chasis: string;
+  current_tag: string;
+  brand: string;
+  model: string;
+  year: number;
+  description: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface VehicleChartData {
   monthlyData: MonthData[];
