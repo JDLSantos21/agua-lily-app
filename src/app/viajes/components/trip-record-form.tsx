@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Truck, User } from "lucide-react";
+import { Loader2, Truck, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -24,8 +24,9 @@ import {
 import { toast } from "sonner";
 import { registerTrip } from "@/api/trips";
 import { useAuthStore } from "@/stores/authStore";
-import { CreateOutTripPDF } from "./out-trip-pdf";
+// import { CreateOutTripPDF } from "./out-trip-pdf";
 import { useTripStore } from "@/stores/tripStore";
+import { createOutTripInvoice } from "../utils/CreateInvoices";
 
 const formSchema = z.object({
   vehicle_id: z.string().min(1, { message: "Debe seleccionar un vehículo" }),
@@ -90,7 +91,25 @@ export default function TripRecordForm() {
       console.log(response.trip);
 
       // await createTripPDF(response.trip);
-      await CreateOutTripPDF(response.trip);
+      // await CreateOutTripPDF(response.trip);
+
+      const printResult = await createOutTripInvoice(response.trip);
+
+      if (!printResult.success) {
+        let errorDescription =
+          printResult.message ||
+          "Ocurrión un error inesperado, intente de nuevo.";
+        if (errorDescription.includes("Failed to fetch")) {
+          errorDescription = "No se encontro el plugin o no esta iniciado";
+        }
+
+        toast.warning(
+          "El viaje se registró pero hubo un problema al imprimir el conduce",
+          {
+            description: errorDescription,
+          }
+        );
+      }
 
       form.reset({
         vehicle_id: "",
@@ -181,10 +200,17 @@ export default function TripRecordForm() {
             <Button
               type="submit"
               variant="primary"
-              className="self-end"
+              className="self-end w-44"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Registrando..." : "Registrar Conduce"}
+              {isSubmitting ? (
+                <span className="inline-flex items-center">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Registrando
+                </span>
+              ) : (
+                <span>Registrar viaje</span>
+              )}
             </Button>
           </div>
         </form>

@@ -5,6 +5,9 @@ import TripCompleteForm from "./components/trip-complete-form";
 import TripRecordForm from "./components/trip-record-form";
 import { useTripStore } from "@/stores/tripStore";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { labelService } from "@/services/labelService";
+import LabelsGenerateSection from "./components/labels-generate-section";
 
 function TripPageSkeleton() {
   return (
@@ -34,10 +37,15 @@ export default function Viaje() {
           <TripPageSkeleton />
         </>
       ) : (
-        <>
-          <TripRecordForm />
-          <TripCompleteForm />
-        </>
+        <div className="flex flex-col w-full">
+          <div className="flex w-full">
+            <TripRecordForm />
+            <TripCompleteForm />
+          </div>
+          <div className="pt-20">
+            <LabelsGenerateSection />
+          </div>
+        </div>
       )}
     </div>
   );

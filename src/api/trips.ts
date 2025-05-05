@@ -1,3 +1,4 @@
+import { CompletedTrip, TripData } from "@/app/viajes/types/trips";
 import { fetcher } from "./fetcher";
 
 export const getDefaultsData = async () => {
@@ -35,15 +36,17 @@ export const completeTrip = async (data: any) => {
   }
 };
 
+export type TripsQueryParams = {
+  vehicle_id?: string | number;
+  start_date?: string;
+  end_date?: string;
+};
+
 export const getTrips = async ({
   vehicle_id,
   start_date,
   end_date,
-}: {
-  vehicle_id?: string | number;
-  start_date?: string;
-  end_date?: string;
-}) => {
+}: TripsQueryParams) => {
   const params: Record<string, string> = {};
 
   if (vehicle_id) params.vehicle_id = vehicle_id.toString();
@@ -53,13 +56,15 @@ export const getTrips = async ({
   console.log(params);
 
   try {
-    return await fetcher("/trips", {}, params);
+    const response = await fetcher("/trips", {}, params);
+    console.log(response);
+    return response;
   } catch (error) {
     console.log(error);
   }
 };
 
-export const getTripById = async (trip_id: string) => {
+export const getTripById = async (trip_id: string): Promise<CompletedTrip> => {
   try {
     return await fetcher(`/trips/${trip_id}`, {
       method: "GET",
@@ -72,7 +77,7 @@ export const getTripById = async (trip_id: string) => {
 
 export const getPendingTripById = async (trip_id: string) => {
   try {
-    return await fetcher(`/trips/${trip_id}`, {
+    return await fetcher(`/trips/pending/${trip_id}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
@@ -111,6 +116,21 @@ export const getTripsHistory = async (filterData: {
 
   try {
     return await fetcher("/trips/history", {}, params);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const updateTripDate = async (
+  trip_id: string | number,
+  date: string
+) => {
+  try {
+    return await fetcher(`/trips/${trip_id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date }),
+    });
   } catch (error) {
     console.log(error);
   }

@@ -27,11 +27,12 @@ import {
 import { toast } from "sonner";
 import { completeTrip, getPendingTripById } from "@/api/trips";
 import { useAuthStore } from "@/stores/authStore";
-import { createTripPDF } from "./register-trip-pdf";
+// import { createTripPDF } from "./register-trip-pdf";
 import { Label } from "@/components/ui/label";
 import { TbFileSearch } from "react-icons/tb";
 import PendingTripInfoCard from "./pending-trip-info-card";
 import { useTripStore } from "@/stores/tripStore";
+import { createCompletedTripInvoice } from "../utils/CreateInvoices";
 
 export interface PendingTrip {
   id: number;
@@ -111,7 +112,7 @@ export default function TripCompleteForm() {
       });
 
       // await createTripPDF(response.trip);
-      await createTripPDF(response.trip);
+      await createCompletedTripInvoice(response.trip);
 
       form.reset({
         amount: "",

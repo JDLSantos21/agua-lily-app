@@ -10,11 +10,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, CheckIcon, ClockIcon } from "lucide-react";
+import { CheckIcon, ClockIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { updateTripDate } from "@/api/trips";
+import { MdOutlineEditCalendar } from "react-icons/md";
+import { format } from "@formkit/tempo";
 
 interface TripDateChangeModalProps {
   isOpen: boolean;
@@ -40,11 +43,11 @@ export default function TripDateChangeModal({
 
     try {
       setIsSubmitting(true);
-      // Call your API to update the trip date
       console.log(tripId, newDate);
 
+      const response = await updateTripDate(tripId, newDate);
+      console.log("response: ", response);
       toast.success("Fecha actualizada correctamente", {
-        description: `El viaje #${tripId} ha sido actualizado a la fecha ${new Date(newDate).toLocaleDateString()}.`,
         icon: <CheckIcon className="h-4 w-4 text-green-500" />,
       });
 
@@ -66,13 +69,12 @@ export default function TripDateChangeModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <CalendarIcon className="h-5 w-5 text-blue-500" />
-            Cambiar fecha del viaje #{tripId}
+            <MdOutlineEditCalendar className="w-5 h-5" /> Cambiar Fecha
           </DialogTitle>
-          <DialogDescription className="text-sm text-muted-foreground">
+          <DialogDescription className="text-sm">
             La fecha actual del viaje es{" "}
             <span className="font-medium text-foreground">
-              {new Date(currentDate).toLocaleDateString()}
+              {format(currentDate, "DD/MM/YYYY")}
             </span>
           </DialogDescription>
         </DialogHeader>

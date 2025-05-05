@@ -30,26 +30,14 @@ import { TbCalendarMonth } from "react-icons/tb";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useVehiclesQuery } from "@/hooks/useVehiclesQuery";
 import { Vehicle } from "@/types/vehicles";
-
+import { months } from "@/const";
 // Datos para los selects de mes y año
-const months = [
-  { value: "01", label: "Enero" },
-  { value: "02", label: "Febrero" },
-  { value: "03", label: "Marzo" },
-  { value: "04", label: "Abril" },
-  { value: "05", label: "Mayo" },
-  { value: "06", label: "Junio" },
-  { value: "07", label: "Julio" },
-  { value: "08", label: "Agosto" },
-  { value: "09", label: "Septiembre" },
-  { value: "10", label: "Octubre" },
-  { value: "11", label: "Noviembre" },
-  { value: "12", label: "Diciembre" },
-];
 
-const years = Array.from({ length: 10 }, (_, i) => ({
-  value: (2025 - i).toString(),
-  label: (2025 - i).toString(),
+const CURRENT_YEAR = new Date().getFullYear();
+
+const years = Array.from({ length: 5 }, (_, i) => ({
+  value: (CURRENT_YEAR - i).toString(),
+  label: (CURRENT_YEAR - i).toString(),
 }));
 
 export default function TripsFilter() {
@@ -61,7 +49,6 @@ export default function TripsFilter() {
     },
   });
 
-  // const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [dateFilterType, setDateFilterType] = useState<"quincena" | "rango">(
     "quincena"
   );
@@ -74,23 +61,6 @@ export default function TripsFilter() {
   const { setTrips, loading } = useTripStore();
 
   const { data: vehicles, isLoading, error } = useVehiclesQuery();
-
-  // Cargar vehículos al montar el componente
-  // useEffect(() => {
-  //   useTripStore.setState({ loading: true });
-  //   const fetchVehicles = async () => {
-  //     try {
-  //       const data = await getVehicles();
-  //       setVehicles(data || []);
-  //     } catch (error) {
-  //       console.log(error);
-  //       toast.error("No se pudieron cargar los vehículos.");
-  //     } finally {
-  //       useTripStore.setState({ loading: false });
-  //     }
-  //   };
-  //   fetchVehicles();
-  // }, []);
 
   const onSubmit = async (data: any) => {
     useTripStore.setState({ loading: true });
@@ -110,6 +80,9 @@ export default function TripsFilter() {
 
       data.start_date = start_date;
       data.end_date = end_date;
+
+      console.log("no  modificado", start_date);
+      console.log("new dates", new Date(start_date).toISOString());
     } else {
       if (!data.start_date && !data.end_date) {
         toast.error("Por favor, selecciona un rango de fechas.");
@@ -129,12 +102,10 @@ export default function TripsFilter() {
     }
   };
 
-  const CURRENT_YEAR = new Date().getFullYear().toString();
-
   const handleFiltersReset = () => {
     reset();
     setSelectedMonth("");
-    setSelectedYear(CURRENT_YEAR);
+    setSelectedYear(CURRENT_YEAR.toString());
     setSelectedPeriod("primera");
     setDateFilterType("quincena");
   };
@@ -180,7 +151,7 @@ export default function TripsFilter() {
     <div className="relative">
       {loading && <NonInteractiveLoader text="Buscando" />}
       <div>
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <form className="space-y-6 pt-2" onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
             <div className="space-y-2">
               <Controller
