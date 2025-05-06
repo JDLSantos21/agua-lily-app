@@ -9,7 +9,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
       <ReplenishmentFormDialog />
       <FuelResetDialog />
-      <div className="w-full flex-none md:w-64 bg-slate-300">
+      <div className="w-full flex-none md:w-auto">
         <SideNav />
       </div>
       <div className="flex-grow md:overflow-y-auto mx-auto">

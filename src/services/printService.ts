@@ -14,7 +14,7 @@ class PrinterService {
     const { sequence_number, quantity, created_at } = params;
     const label = createLabel(2, 1, 300);
     const date = format(created_at, "DD/MM/YYYY");
-    const time = formatDate(created_at, "HH:mm a");
+    const time = formatDate(created_at, "hh:mm a");
 
     console.log(time);
 

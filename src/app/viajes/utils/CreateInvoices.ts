@@ -6,7 +6,7 @@ export async function createOutTripInvoice(pendingTrip: PendingTrip) {
   if (!pendingTrip) {
     throw new Error("Pending trip is required to create an invoice.");
   }
-  const time = format(pendingTrip.date, "HH:mm A");
+  const time = format(pendingTrip.date, "hh:mm A");
   const date = format(pendingTrip.date, "DD/MM/YYYY");
 
   const invoice = createInvoice()
@@ -49,7 +49,7 @@ export async function createOutTripInvoice(pendingTrip: PendingTrip) {
     .feed(2)
     .initialize();
 
-  return await print(invoice, "http://localhost:5003");
+  return await print(invoice);
 }
 
 export async function createCompletedTripInvoice(trip: CompletedTrip) {
@@ -57,9 +57,9 @@ export async function createCompletedTripInvoice(trip: CompletedTrip) {
     throw new Error("Completed trip data is required.");
   }
 
-  const departureTime = format(trip.date, "HH:mm A");
+  const departureTime = format(trip.date, "hh:mm A");
   const departureDate = format(trip.date, "DD/MM/YYYY");
-  const paymentTime = format(trip.payment_date, "HH:mm A");
+  const paymentTime = format(trip.payment_date, "hh:mm A");
   const paymentDate = format(trip.payment_date, "DD/MM/YYYY");
 
   const invoice = createInvoice()
@@ -121,5 +121,5 @@ export async function createCompletedTripInvoice(trip: CompletedTrip) {
     .feed(2)
     .initialize();
 
-  return await print(invoice, "http://localhost:5003");
+  return await print(invoice);
 }

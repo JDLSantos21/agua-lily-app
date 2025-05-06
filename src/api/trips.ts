@@ -111,9 +111,12 @@ export const getTripsHistory = async (filterData: {
 }) => {
   const params: Record<string, string> = {};
 
-  if (filterData.date) params.date = filterData.date;
+  if (filterData.date) {
+    const date = new Date(filterData.date);
+    params.date = date.toISOString().split("T")[0]; // Formato YYYY-MM-DD
+  }
   if (filterData.status) params.status = filterData.status;
-
+  console.log("testeo de params: ", params);
   try {
     return await fetcher("/trips/history", {}, params);
   } catch (error) {

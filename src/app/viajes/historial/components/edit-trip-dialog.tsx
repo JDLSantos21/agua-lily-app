@@ -1,11 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "@formkit/tempo";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import {
+  CalendarIcon,
+  Loader2,
+  DollarSign,
+  Truck,
+  UserCircle,
+  FileText,
+  Clock,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +42,8 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { TripRegister } from "./trips-history-table";
+import { Badge } from "@/components/ui/badge";
+
 // Form validation schema
 const tripFormSchema = z.object({
   vehicle_tag: z.string().min(1, "El tag del vehículo es requerido"),
@@ -67,33 +77,30 @@ export function EditTripDialog({ trip, onSave, setTrip }: EditTripDialogProps) {
     resolver: zodResolver(tripFormSchema),
     defaultValues: trip
       ? {
-          ...trip,
+          vehicle_tag: trip.vehicle_tag,
+          concept: trip.concept || "",
+          amount: Number(trip.amount || 0),
           date: new Date(trip.date),
-          amount: Number(trip.amount),
+          driver: trip.driver,
         }
       : {
-          vehicle_tag: "test",
-          concept: "",
-          amount: 800,
-          date: new Date(),
-          hour: "",
+          vehicle_tag: "",
           driver: "",
         },
   });
 
   // Update form values when trip changes
-  useState(() => {
+  useEffect(() => {
     if (trip) {
       form.reset({
         vehicle_tag: trip.vehicle_tag,
-        concept: trip.concept,
-        amount: Number(trip.amount),
+        concept: trip.concept || "",
+        amount: Number(trip.amount || 0),
         date: new Date(trip.date),
-        hour: trip.hour,
         driver: trip.driver,
       });
     }
-  });
+  }, [trip, form]);
 
   async function onSubmit(data: TripFormValues) {
     if (!trip) return;
@@ -111,7 +118,6 @@ export function EditTripDialog({ trip, onSave, setTrip }: EditTripDialogProps) {
         concept: data.concept,
         amount: data.amount,
         date: format(data.date, "YYYY-MM-DD"),
-        hour: data.hour,
         driver: data.driver,
       };
 
@@ -126,27 +132,45 @@ export function EditTripDialog({ trip, onSave, setTrip }: EditTripDialogProps) {
 
   return (
     <Dialog open={!!trip} onOpenChange={(open) => setTrip(open ? trip : null)}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Editar viaje</DialogTitle>
-          <DialogDescription>
-            Actualiza los detalles del viaje #{trip?.id}
+      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden">
+        <DialogHeader className="bg-gray-50 p-6 border-b">
+          <div className="flex items-center gap-2">
+            <Badge
+              variant="outline"
+              className="bg-blue-50 text-blue-600 border-blue-200"
+            >
+              #{trip?.id}
+            </Badge>
+            <DialogTitle>Editar viaje</DialogTitle>
+          </div>
+          <DialogDescription className="text-gray-500 text-sm mt-1">
+            Actualiza los detalles del viaje
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="p-6 pt-4 space-y-4"
+          >
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="vehicle_tag"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tag del vehículo</FormLabel>
+                    <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
+                      <Truck className="h-3.5 w-3.5 text-gray-500" />
+                      Tag del vehículo
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="ABC123" {...field} />
+                      <Input
+                        placeholder="ABC123"
+                        {...field}
+                        className="h-9 text-sm"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -156,11 +180,18 @@ export function EditTripDialog({ trip, onSave, setTrip }: EditTripDialogProps) {
                 name="driver"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Conductor</FormLabel>
+                    <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
+                      <UserCircle className="h-3.5 w-3.5 text-gray-500" />
+                      Conductor
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Nombre del conductor" {...field} />
+                      <Input
+                        placeholder="Nombre del conductor"
+                        {...field}
+                        className="h-9 text-sm"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -171,15 +202,18 @@ export function EditTripDialog({ trip, onSave, setTrip }: EditTripDialogProps) {
               name="concept"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Concepto</FormLabel>
+                  <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
+                    <FileText className="h-3.5 w-3.5 text-gray-500" />
+                    Concepto
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Descripción del viaje"
-                      className="resize-none"
+                      className="resize-none text-sm min-h-[60px]"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -189,18 +223,27 @@ export function EditTripDialog({ trip, onSave, setTrip }: EditTripDialogProps) {
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Monto</FormLabel>
+                  <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
+                    <DollarSign className="h-3.5 w-3.5 text-gray-500" />
+                    Monto
+                  </FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="0.00"
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(Number.parseFloat(e.target.value) || 0)
-                      }
-                    />
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                        RD$
+                      </span>
+                      <Input
+                        type="number"
+                        placeholder="0.00"
+                        className="pl-9 h-9 text-sm"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(Number.parseFloat(e.target.value) || 0)
+                        }
+                      />
+                    </div>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -211,14 +254,17 @@ export function EditTripDialog({ trip, onSave, setTrip }: EditTripDialogProps) {
                 name="date"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Fecha</FormLabel>
+                    <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
+                      <CalendarIcon className="h-3.5 w-3.5 text-gray-500" />
+                      Fecha
+                    </FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "pl-3 text-left font-normal",
+                              "h-9 pl-3 text-left font-normal text-sm",
                               !field.value && "text-muted-foreground"
                             )}
                           >
@@ -240,7 +286,7 @@ export function EditTripDialog({ trip, onSave, setTrip }: EditTripDialogProps) {
                         />
                       </PopoverContent>
                     </Popover>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -250,28 +296,42 @@ export function EditTripDialog({ trip, onSave, setTrip }: EditTripDialogProps) {
                 name="hour"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Hora</FormLabel>
+                    <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
+                      <Clock className="h-3.5 w-3.5 text-gray-500" />
+                      Hora
+                    </FormLabel>
                     <FormControl>
-                      <Input type="time" placeholder="HH:MM" {...field} />
+                      <Input
+                        type="time"
+                        placeholder="HH:MM"
+                        {...field}
+                        className="h-9 text-sm"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
             </div>
 
-            <DialogFooter className="pt-4">
+            <DialogFooter className="pt-4 flex gap-2 justify-end">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setTrip(null)}
+                className="h-9 text-sm"
+                disabled={isSubmitting}
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="h-9 text-sm"
+              >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
                     Guardando...
                   </>
                 ) : (

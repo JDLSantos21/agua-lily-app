@@ -1,12 +1,19 @@
-// nav-links.tsx
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Fuel, HandCoins, Truck } from "lucide-react";
-import { motion } from "framer-motion";
+import { LayoutDashboard, Package, Fuel, HandCoins } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { PiCashRegisterDuotone } from "react-icons/pi";
 
-const links = [
+const navLinks = [
   {
     name: "Dashboard",
     href: "/dashboard",
@@ -31,53 +38,98 @@ const links = [
     accessRoles: ["administrativo", "operador", "admin"],
   },
   {
-    name: "Viajes",
+    name: "Caja",
     href: "/viajes",
-    icon: Truck,
+    icon: PiCashRegisterDuotone,
     accessRoles: ["administrativo", "cajero", "admin"],
   },
 ];
 
-export default function NavLinks() {
+interface NavLinksProps {
+  collapsed?: boolean;
+}
+
+export default function NavLinks({ collapsed = false }: NavLinksProps) {
   const { role } = useAuthStore();
   const pathname = usePathname();
 
+  // Filtramos los enlaces según el rol del usuario
+  const filteredLinks = navLinks.filter(
+    (link) => !link.accessRoles || (role && link.accessRoles.includes(role))
+  );
+
   return (
-    <nav className="flex flex-col space-y-2 px-2">
-      {links.map((link) => {
-        if (link.accessRoles && role) {
-          if (!link.accessRoles.includes(role)) {
+    <TooltipProvider delayDuration={300}>
+      <nav className="flex flex-col space-y-1 w-full relative">
+        {/* Indicador animado que se desplaza entre enlaces activos */}
+        <div className="relative">
+          {filteredLinks.map((link, index) => {
+            const isActive = pathname.startsWith(link.href);
+
+            if (isActive) {
+              return (
+                <motion.div
+                  key="active-indicator"
+                  className="absolute left-0 w-1 bg-blue-600 rounded-r-md z-0"
+                  layoutId="activeIndicator"
+                  initial={false}
+                  transition={{
+                    type: "spring",
+                    stiffness: 350,
+                    damping: 30,
+                  }}
+                  style={{
+                    top: `${index * 42 + 10}px`, // 42px es aproximadamente el alto de cada enlace (py-2.5 * 16px)
+                    height: "20px",
+                  }}
+                />
+              );
+            }
             return null;
-          }
-        }
-        const isActive = pathname.startsWith(link.href);
-        return (
-          <motion.div key={link.href} className="relative group">
-            <Link
-              href={link.href}
-              className={`flex items-center gap-3 px-4 py-3 w-full text-sm transition-all rounded-lg relative text-gray-700 hover:bg-gray-200/50 ${!isActive && "hover:text-gray-600"} ${isActive && "font-bold text-white"} `}
-            >
-              <div className={`z-10 flex gap-3 `}>
-                <link.icon className={`h-5 w-5`} />
-                <span>{link.name}</span>
-              </div>
-            </Link>
-            {isActive && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
-                layoutId="ActiveSection"
-                className={`absolute top-0 h-full w-full z-0 rounded  ${
-                  isActive
-                    ? "bg-blue-600 shadow-md"
-                    : "group-hover:bg-gray-300 hover:text-gray-900"
-                } `}
-              />
-            )}
-          </motion.div>
-        );
-      })}
-    </nav>
+          })}
+        </div>
+
+        {/* Enlaces de navegación */}
+        {filteredLinks.map((link) => {
+          const isActive = pathname.startsWith(link.href);
+
+          return (
+            <Tooltip key={link.href}>
+              <TooltipTrigger asChild>
+                <Link
+                  href={link.href}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors duration-200 group relative",
+                    collapsed ? "justify-center" : "",
+                    isActive
+                      ? "bg-blue-50 text-blue-700 font-medium"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  )}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  <link.icon
+                    className={cn(
+                      "h-5 w-5 flex-shrink-0",
+                      isActive
+                        ? "text-blue-700"
+                        : "text-gray-500 group-hover:text-gray-700"
+                    )}
+                  />
+                  {!collapsed && (
+                    <span className="text-sm font-medium">{link.name}</span>
+                  )}
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                className={collapsed ? "bg-gray-800 text-white" : "hidden"}
+              >
+                {link.name}
+              </TooltipContent>
+            </Tooltip>
+          );
+        })}
+      </nav>
+    </TooltipProvider>
   );
 }

@@ -9,12 +9,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
       <TripReportDialog />
       <EditPendingTripDialog />
-      <div className="w-full flex-none md:w-64 bg-slate-300">
+      <div className="w-full flex-none md:w-auto">
         <SideNav />
       </div>
       <div className="flex-grow md:overflow-y-auto mx-auto">
         <TripsNav />
-        <div className="px-6 md:px-12">{children}</div>
+        <div className="px-6 md:px-12 pt-2">{children}</div>
       </div>
     </div>
   );

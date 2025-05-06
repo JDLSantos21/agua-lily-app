@@ -24,7 +24,6 @@ import {
 import { toast } from "sonner";
 import { registerTrip } from "@/api/trips";
 import { useAuthStore } from "@/stores/authStore";
-// import { CreateOutTripPDF } from "./out-trip-pdf";
 import { useTripStore } from "@/stores/tripStore";
 import { createOutTripInvoice } from "../utils/CreateInvoices";
 
@@ -48,7 +47,6 @@ export default function TripRecordForm() {
     },
   });
 
-  // usar el atajo de teclado Ctrl + Enter para enviar el formulario
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === "Enter") {
@@ -62,7 +60,6 @@ export default function TripRecordForm() {
     };
   }, [form]);
 
-  // Cuando se selecciona un vehículo, actualizar conductor y monto automáticamente
   const handleVehicleChange = (vehicleId: string) => {
     const selectedVehicle = registerTripDefaults.find(
       (data) => data.vehicle_id.toString() === vehicleId
@@ -87,11 +84,6 @@ export default function TripRecordForm() {
       toast.success(`Nuevo viaje registrado satifasctoriamente`, {
         description: `Al camión ${response.trip.vehicle_tag}`,
       });
-
-      console.log(response.trip);
-
-      // await createTripPDF(response.trip);
-      // await CreateOutTripPDF(response.trip);
 
       const printResult = await createOutTripInvoice(response.trip);
 
@@ -125,96 +117,94 @@ export default function TripRecordForm() {
   };
 
   return (
-    <div className="w-1/2 pr-10">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="vehicle_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <Truck className="h-4 w-4" />
-                  Vehículo
-                </FormLabel>
-                <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    handleVehicleChange(value);
-                  }}
-                  value={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="h-12">
-                      <SelectValue placeholder="Seleccionar vehículo" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {registerTripDefaults.map((data) => (
-                      <SelectItem
-                        key={data.vehicle_id}
-                        value={data.vehicle_id.toString()}
-                      >
-                        {data.vehicle_tag}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="vehicle_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center gap-2 text-sm">
+                <Truck className="h-4 w-4" />
+                Vehículo
+              </FormLabel>
+              <Select
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  handleVehicleChange(value);
+                }}
+                value={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Seleccionar vehículo" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {registerTripDefaults.map((data) => (
+                    <SelectItem
+                      key={data.vehicle_id}
+                      value={data.vehicle_id.toString()}
+                    >
+                      {data.vehicle_tag}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name="employee_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Conductor
-                </FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="h-12">
-                      <SelectValue placeholder="Seleccionar conductor" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {registerTripDefaults.map((data) => (
-                      <SelectItem
-                        key={data.driver_id}
-                        value={data.driver_id.toString()}
-                      >
-                        {data.driver}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={form.control}
+          name="employee_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center gap-2 text-sm">
+                <User className="h-4 w-4" />
+                Conductor
+              </FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Seleccionar conductor" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {registerTripDefaults.map((data) => (
+                    <SelectItem
+                      key={data.driver_id}
+                      value={data.driver_id.toString()}
+                    >
+                      {data.driver}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <div className="px-0 pt-2 flex flex-col">
-            <Button
-              type="submit"
-              variant="primary"
-              className="self-end w-44"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <span className="inline-flex items-center">
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Registrando
-                </span>
-              ) : (
-                <span>Registrar viaje</span>
-              )}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+        <div className="pt-2">
+          <Button
+            type="submit"
+            variant="primary"
+            className="w-full"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <span className="inline-flex items-center">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Registrando
+              </span>
+            ) : (
+              <span>Registrar viaje</span>
+            )}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }

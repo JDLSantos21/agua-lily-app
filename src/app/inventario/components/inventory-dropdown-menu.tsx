@@ -6,33 +6,53 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuPortal,
+  DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useDialogStore } from "@/stores/dialogStore";
-import { Menu } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 
 export const InventoryDropdownMenu = () => {
   const { open } = useDialogStore();
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="cursor-pointer mt-1.5">
-        <Menu className="h-6 w-6 text-gray-500 hover:text-gray-700" />
+      <DropdownMenuTrigger asChild>
+        <button
+          aria-label="Opciones de inventario"
+          className="p-1 text-gray-400 hover:text-gray-600 focus:outline-none"
+        >
+          <MoreHorizontal className="h-5 w-5" />
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-40">
-        <DropdownMenuLabel>Inventario</DropdownMenuLabel>
-        <DropdownMenuItem onClick={() => open("inventory-report")}>
+
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuLabel className="text-xs font-normal text-gray-500">
+          Opciones
+        </DropdownMenuLabel>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem
+          onClick={() => open("inventory-report")}
+          className="text-xs py-1.5"
+        >
           Generar reporte
         </DropdownMenuItem>
 
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Materiales</DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger className="text-xs py-1.5">
+            Materiales
+          </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
-              <DropdownMenuItem onClick={() => open("new-material")}>
+              <DropdownMenuItem
+                onClick={() => open("new-material")}
+                className="text-xs py-1.5"
+              >
                 Nuevo material
               </DropdownMenuItem>
             </DropdownMenuSubContent>
@@ -40,14 +60,22 @@ export const InventoryDropdownMenu = () => {
         </DropdownMenuSub>
 
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Ajustes</DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger className="text-xs py-1.5">
+            Ajustes
+          </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
-              <DropdownMenuItem onClick={() => open("search-adjustment")}>
+              <DropdownMenuItem
+                onClick={() => open("search-adjustment")}
+                className="text-xs py-1.5"
+              >
                 Buscar Ajustes
               </DropdownMenuItem>
               <RoleBased allowedRoles={["admin", "administrativo"]}>
-                <DropdownMenuItem onClick={() => open("new-adjustment")}>
+                <DropdownMenuItem
+                  onClick={() => open("new-adjustment")}
+                  className="text-xs py-1.5"
+                >
                   Ajustar Material
                 </DropdownMenuItem>
               </RoleBased>

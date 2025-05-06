@@ -13,7 +13,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <NewAjustDialog />
       <AdjustmentsSearchModal />
       <NewMaterialDialog />
-      <div className="w-full flex-none md:w-64 bg-slate-300">
+      <div className="w-full flex-none md:w-auto">
         <SideNav />
       </div>
       <div className="flex-grow md:overflow-y-auto mx-auto">

@@ -1,42 +1,35 @@
 "use client";
 
-import type React from "react";
+import { useMemo } from "react";
 import TripsDropdownMenu from "./trips-dropdown-menu";
-import PageNav from "@/components/page-nav";
+import PageNav, { NavItem } from "@/components/page-nav";
 import { ClipboardList, Home } from "lucide-react";
 import { GoHistory } from "react-icons/go";
 
-interface NavItem {
-  title: string;
-  href: string;
-  icon: React.ReactNode;
-  isDev?: boolean;
-  allowedRoles?: string[];
-}
-
 export default function TripsNav() {
-  const navItems: NavItem[] = [
-    {
-      title: "Inicio",
-      href: "/viajes",
-      icon: <Home className="h-5 w-5" />,
-    },
-    {
-      title: "Reportes",
-      href: "/viajes/reporte",
-      icon: <ClipboardList className="h-5 w-5" />,
-      allowedRoles: ["admin", "supervisor", "administrativo"],
-    },
-    {
-      title: "Historial",
-      href: "/viajes/historial",
-      icon: <GoHistory className="h-5 w-5" />,
-      isDev: true,
-    },
-  ];
-  return (
-    <PageNav navItems={navItems}>
-      <TripsDropdownMenu />
-    </PageNav>
+  // Usar useMemo para evitar recrear el array en cada renderizado
+  const navItems: NavItem[] = useMemo(
+    () => [
+      {
+        title: "Inicio",
+        href: "/viajes",
+        icon: <Home className="h-4 w-4" />,
+      },
+      {
+        title: "Reportes",
+        href: "/viajes/reporte",
+        icon: <ClipboardList className="h-4 w-4" />,
+        allowedRoles: ["admin", "supervisor", "administrativo"],
+      },
+      {
+        title: "Historial",
+        href: "/viajes/historial",
+        icon: <GoHistory className="h-4 w-4" />,
+        isDev: true,
+      },
+    ],
+    []
   );
+
+  return <PageNav navItems={navItems} children={<TripsDropdownMenu />} />;
 }

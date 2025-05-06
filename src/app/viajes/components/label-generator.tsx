@@ -1,18 +1,37 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useGenerateAndPrintLabels, useSessionInfo } from "@/hooks/useLabels";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Printer, AlertCircle, Info, Loader2 } from "lucide-react";
 
 export default function LabelsGenerateSection() {
   const [inputQty, setInputQty] = useState<number | null>(null);
 
+  const labelInput = useRef<HTMLInputElement>(null); // Placeholder for any future ref usage
+
   // Obtener información de la sesión para verificar si está cerrada
   const { data: sessionInfo } = useSessionInfo();
 
+  console.log("sessionInfo", sessionInfo);
+
   // Usar nuestro hook personalizado que maneja la generación e impresión
   const generateLabelMutation = useGenerateAndPrintLabels();
+
+  //focus al input con las teclas control + l
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key === "l") {
+        event.preventDefault();
+        labelInput.current?.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   const handleLabelsGeneration = () => {
     if (inputQty === null || inputQty <= 0) {
@@ -64,6 +83,7 @@ export default function LabelsGenerateSection() {
               </label>
               <Input
                 id="quantity"
+                ref={labelInput}
                 value={inputQty?.toString() || ""}
                 onChange={(e) => {
                   const value =
@@ -74,7 +94,7 @@ export default function LabelsGenerateSection() {
                 type="number"
                 min={1}
                 placeholder="Ingrese cantidad"
-                className="border !text-xl h-12 noControls"
+                className="border h-12 noControls"
                 disabled={
                   generateLabelMutation.isPending || sessionInfo?.is_closed
                 }
@@ -123,18 +143,31 @@ export default function LabelsGenerateSection() {
               {sessionInfo?.is_closed ? "Sesión cerrada" : "Sesión activa"}
             </span>
           </div>
-          {sessionInfo?.current_counter && (
+          {sessionInfo && (
             <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 flex items-center gap-3 min-w-56">
               <div className="bg-blue-500 text-white p-2 rounded-full">
                 <Info size={20} />
               </div>
               <div>
-                <p className="text-blue-700 text-sm font-medium">
-                  Etiqueta actual
-                </p>
-                <p className="text-blue-900 text-2xl font-bold">
-                  {sessionInfo.current_counter.toString().padStart(3, "0")}
-                </p>
+                {sessionInfo?.is_active ? (
+                  <>
+                    <p className="text-blue-700 text-sm font-medium">
+                      Última Etiqueta
+                    </p>
+                    <p className="text-blue-900 text-2xl font-bold">
+                      {sessionInfo.current_counter.toString().padStart(3, "0")}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-blue-700">
+                      Sesión aun no iniciada
+                    </p>
+                    <p className="text-sm text-blue-700">
+                      Genera etiqueta para iniciar
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           )}

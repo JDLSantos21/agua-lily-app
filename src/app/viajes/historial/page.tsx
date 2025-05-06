@@ -2,10 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { MdOutlineKeyboardBackspace } from "react-icons/md";
+import { CalendarIcon, Search, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getTripsHistory } from "@/api/trips";
 import { toast } from "sonner";
@@ -13,7 +13,6 @@ import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import TripsHistoryTable from "./components/trips-history-table";
 import { format } from "@formkit/tempo";
-// import EditTripDialog from "./components/edit-trip-dialog";
 
 export interface TripRegister {
   id: number;
@@ -29,14 +28,17 @@ export interface TripRegister {
 
 const TableSkeleton = () => {
   return (
-    <div className="flex flex-col gap-3 w-full">
-      <Skeleton className="h-12 w-full mb-1" />
-      <Skeleton className="h-12 w-full opacity-75" />
-      <Skeleton className="h-12 w-full opacity-75" />
+    <div className="flex flex-col gap-2 w-full">
+      <div className="flex items-center gap-4 mb-2">
+        <Skeleton className="h-10 w-32" />
+        <Skeleton className="h-10 w-32" />
+      </div>
+      <Skeleton className="h-10 w-full" />
+      <Skeleton className="h-12 w-full opacity-80" />
+      <Skeleton className="h-12 w-full opacity-70" />
       <Skeleton className="h-12 w-full opacity-60" />
-      <Skeleton className="h-12 w-full opacity-45" />
-      <Skeleton className="h-12 w-full opacity-30" />
-      <Skeleton className="h-12 w-full opacity-15" />
+      <Skeleton className="h-12 w-full opacity-50" />
+      <Skeleton className="h-12 w-full opacity-40" />
     </div>
   );
 };
@@ -45,7 +47,6 @@ export default function TripHistory() {
   const router = useRouter();
   const [trips, setTrips] = useState<TripRegister[] | null>(null);
   const [loading, setLoading] = useState(false);
-  // const [selectedTrip, setSelectedTrip] = useState<TripRegister | null>(null);
 
   const { register, handleSubmit } = useForm({
     defaultValues: {
@@ -61,10 +62,6 @@ export default function TripHistory() {
     router.back();
   };
 
-  // const handleTrip = (trip: TripRegister) => {
-  //   setSelectedTrip(trip);
-  // };
-
   async function onSubmit(formData: any) {
     setLoading(true);
     try {
@@ -78,46 +75,59 @@ export default function TripHistory() {
   }
 
   return (
-    <>
-      <div className="w-full flex items-center justify-between mb-5">
-        <Button
-          variant="outline"
-          className="self-start"
-          onClick={() => handleBack()}
-        >
-          <MdOutlineKeyboardBackspace />
-        </Button>
+    <div className="max-w-7xl mx-auto bg-white p-6 rounded-lg">
+      <div className="flex items-center justify-between mb-6 gap-4">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 w-9 p-0 rounded-full"
+            onClick={() => handleBack()}
+          >
+            <MdOutlineKeyboardBackspace className="h-5 w-5" />
+          </Button>
+          <h1 className="text-xl font-semibold text-gray-800">
+            Historial de Viajes
+          </h1>
+        </div>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 bg-gray-50 pl-3 pr-1 py-1 rounded-md border border-gray-200"
         >
-          <div className="flex-1">
-            <Label htmlFor="start_date">Fecha</Label>
-            <Input id="start_date" type="date" {...register("date")} />
+          <div className="flex items-center gap-2">
+            <CalendarIcon className="h-4 w-4 text-gray-500" />
+            <Input
+              id="start_date"
+              type="date"
+              {...register("date")}
+              className="border-0 bg-transparent p-0 h-8 focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
           </div>
-          <Button variant="primary" className="self-end">
-            Buscar
+          <Button
+            variant="default"
+            size="sm"
+            className="h-8"
+            disabled={loading}
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Search className="h-4 w-4" />
+            )}
           </Button>
         </form>
       </div>
 
-      {loading && <TableSkeleton />}
-
-      {!loading && trips && (
-        <TripsHistoryTable data={trips} onHandleTrip={() => console.log} />
+      {loading ? (
+        <TableSkeleton />
+      ) : (
+        <div className="bg-white rounded-md">
+          {trips && (
+            <TripsHistoryTable data={trips} onHandleTrip={() => console.log} />
+          )}
+        </div>
       )}
-
-      {/* Edit Trip Dialog */}
-      {/* <EditTripDialog
-        trip={selectedTrip}
-        setTrip={setSelectedTrip}
-        onSave={(updatedTrip: TripRegister) => {
-          toast.success("Viaje actualizado correctamente");
-          setSelectedTrip(null);
-          onSubmit({ date: format(new Date(updatedTrip.date), "YYYY-MM-DD") });
-        }}
-      /> */}
-    </>
+    </div>
   );
 }

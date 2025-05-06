@@ -1,113 +1,90 @@
 "use client";
 
-import type React from "react";
-
+import { ReactNode, memo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { RoleBased } from "./RoleBased";
+import { motion } from "framer-motion";
 
-interface NavItem {
+export interface NavItem {
   title: string;
   href: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   isDev?: boolean;
   allowedRoles?: string[];
 }
 
-// const navItems: NavItem[] = [
-//   {
-//     title: "Resumen",
-//     href: "/combustible",
-//     icon: <ChartPie className="h-5 w-5" />,
-//   },
-//   {
-//     title: "Registro",
-//     href: "/combustible/registro",
-//     icon: <FilePen className="h-5 w-5" />,
-//   },
+const PageNav = memo(
+  ({ navItems, children }: { navItems: NavItem[]; children?: ReactNode }) => {
+    const pathname = usePathname();
 
-//   {
-//     title: "Consulta",
-//     href: "/combustible/consulta",
-//     icon: <FileSearch className="h-5 w-5" />,
-//   },
-//   {
-//     title: "Reabastecimiento",
-//     href: "/combustible/reabastecimiento",
-//     icon: <Fuel className="h-5 w-5" />,
-//   },
-// ];
-
-export default function PageNav({
-  navItems,
-  children,
-}: {
-  navItems: NavItem[];
-  children: React.ReactNode;
-}) {
-  const pathname = usePathname();
-
-  return (
-    <nav className="bg-white z-10 w-full sticky top-0 h-[100px] flex items-center px-6 md:px-12">
-      <div className="mx-auto w-full">
-        <div className="flex justify-between h-16 w-full">
-          <div className="flex overflow-x-auto hide-scrollbar items-center space-x-10 w-full">
-            <div className="flex space-x-8 items-center">
+    return (
+      <nav className="bg-white z-10 w-full sticky top-0 border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-14">
+            <div className="flex items-center space-x-4">
               {children}
-              {navItems.map((item) => {
-                const isActive = pathname === item.href;
+              <div className="flex space-x-1">
+                {navItems.map((item, index) => {
+                  // Skip development-only items in production
+                  if (item.isDev && process.env.NODE_ENV !== "development") {
+                    return null;
+                  }
 
-                const isDisabled =
-                  item.isDev && process.env.NODE_ENV !== "development";
+                  const isActive = pathname === item.href;
 
-                if (isDisabled) {
-                  return null;
-                }
-
-                const link = (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="relative inline-flex items-center px-1 pt-1 h-10 text-sm font-medium transition-colors group"
-                  >
-                    <span
+                  const linkElement = (
+                    <Link
+                      key={`nav-item-${index}`}
+                      href={item.href}
                       className={cn(
-                        "inline-flex items-center transition-colors duration-200",
+                        "relative flex items-center h-14 px-3 text-sm transition-colors",
                         isActive
-                          ? "text-black"
-                          : "text-gray-600 group-hover:text-gray-300"
+                          ? "text-blue-600"
+                          : "text-gray-500 hover:text-gray-800"
                       )}
                     >
-                      {item.icon}
-                      <span className="ml-2">{item.title}</span>
-                    </span>
+                      <span className="mr-2">{item.icon}</span>
+                      {item.title}
 
-                    {isActive && (
-                      <motion.div
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600/80"
-                        layoutId="activeTab"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                      />
-                    )}
-                  </Link>
-                );
+                      {isActive && (
+                        <motion.div
+                          className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600"
+                          layoutId="activeNavIndicator"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{
+                            duration: 0.3,
+                            ease: "easeInOut",
+                            bounce: 0.2,
+                          }}
+                        />
+                      )}
+                    </Link>
+                  );
 
-                return item.allowedRoles ? (
-                  <RoleBased key={item.href} allowedRoles={item.allowedRoles}>
-                    {link}
-                  </RoleBased>
-                ) : (
-                  link
-                );
-              })}
+                  return item.allowedRoles ? (
+                    <RoleBased
+                      key={`nav-role-${index}`}
+                      allowedRoles={item.allowedRoles}
+                    >
+                      {linkElement}
+                    </RoleBased>
+                  ) : (
+                    linkElement
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </nav>
-  );
-}
+      </nav>
+    );
+  }
+);
+
+PageNav.displayName = "PageNav";
+
+export default PageNav;
