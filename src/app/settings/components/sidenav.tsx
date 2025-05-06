@@ -23,6 +23,14 @@ export default function SettingsSideNav() {
             Impresoras
           </Link>
         </li>
+        <li className="p-2 bg-slate-200 rounded-md">
+          <Link
+            href="/settings/labels"
+            className="text-blue-500 hover:underline"
+          >
+            Etiquetas
+          </Link>
+        </li>
       </ul>
     </div>
   );

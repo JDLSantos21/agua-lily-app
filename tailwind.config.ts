@@ -49,6 +49,10 @@ export default {
         sm: "var(--text-sm)",
         xs: "var(--text-xs)",
       },
+      textColor: {
+        "muted-foreground": "var(--muted-foreground)",
+        muted: "var(--muted)",
+      },
       fontWeight: {
         light: "var(--font-light)",
         normal: "var(--font-normal)",

@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { labelService } from "@/services/labelService";
 import LabelsGenerateSection from "./components/labels-generate-section";
+import LabelGenerator from "./components/label-generator";
 
 function TripPageSkeleton() {
   return (
@@ -43,7 +44,8 @@ export default function Viaje() {
             <TripCompleteForm />
           </div>
           <div className="pt-20">
-            <LabelsGenerateSection />
+            {/* <LabelsGenerateSection /> */}
+            <LabelGenerator />
           </div>
         </div>
       )}

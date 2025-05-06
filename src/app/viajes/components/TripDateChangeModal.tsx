@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { updateTripDate } from "@/api/trips";
 import { MdOutlineEditCalendar } from "react-icons/md";
-import { format } from "@formkit/tempo";
+// import { format } from "@formkit/tempo";
 
 interface TripDateChangeModalProps {
   isOpen: boolean;
@@ -73,9 +73,7 @@ export default function TripDateChangeModal({
           </DialogTitle>
           <DialogDescription className="text-sm">
             La fecha actual del viaje es{" "}
-            <span className="font-medium text-foreground">
-              {format(currentDate, "DD/MM/YYYY")}
-            </span>
+            <span className="font-medium text-foreground">{currentDate}</span>
           </DialogDescription>
         </DialogHeader>
 

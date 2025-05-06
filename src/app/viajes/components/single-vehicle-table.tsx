@@ -1,5 +1,4 @@
 import { memo } from "react";
-import { format } from "@formkit/tempo";
 import { formatToDop } from "@/utils/formatCurrency";
 import {
   Table,
@@ -25,7 +24,6 @@ const SingleVehicleTable = memo(function SingleVehicleTable({
   vehicle,
   onConduceClick,
 }: SingleVehicleTableProps) {
-  console.log("daily: ", vehicle.dailyTrips);
   return (
     <div className="rounded-md border overflow-hidden">
       <Table>
@@ -42,9 +40,7 @@ const SingleVehicleTable = memo(function SingleVehicleTable({
         <TableBody>
           {vehicle.dailyTrips.map((day) => (
             <TableRow key={`${day.dayStr}-${day.concept}-${day.driver}`}>
-              <TableCell className="font-medium">
-                {format(day.day, "DD/MM/YYYY")}
-              </TableCell>
+              <TableCell className="font-medium">{day.dayStr}</TableCell>
               <TableCell>
                 <div className="flex flex-wrap gap-1">
                   {day.conduces.map((conduceId) => (
@@ -52,9 +48,7 @@ const SingleVehicleTable = memo(function SingleVehicleTable({
                       key={conduceId}
                       variant="outline"
                       className="cursor-pointer hover:bg-blue-100 transition-colors"
-                      onClick={() =>
-                        onConduceClick(conduceId, format(day.day, "YYYY-MM-DD"))
-                      }
+                      onClick={() => onConduceClick(conduceId, day.dayStr)}
                     >
                       #{conduceId}
                     </Badge>

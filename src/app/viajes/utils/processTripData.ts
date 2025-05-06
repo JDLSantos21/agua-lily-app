@@ -5,7 +5,6 @@ import {
   ExcelRow,
   SummaryExcelRow,
 } from "../types/trips";
-import { format, tzDate } from "@formkit/tempo";
 import ExcelJS from "exceljs";
 
 /**
@@ -30,9 +29,6 @@ export const processTripData = (data: ApiResponse): VehicleSummary[] => {
     // Process trips by day
     Object.entries(vehicleData.trips_by_day).forEach(([dateStr, dayTrips]) => {
       const date = new Date(dateStr);
-
-      console.log("dateString: ", dateStr);
-      console.log("date: ", date);
 
       // Process each group of trips (by concept and driver)
       Object.entries(dayTrips).forEach(([_, tripData]) => {
@@ -149,7 +145,7 @@ export const prepareSingleVehicleExcelData = (
 ): ExcelRow[] => {
   console.log("vehicle: ", vehicle);
   const dataToExport = vehicle.dailyTrips.map((day) => ({
-    Fecha: format(day.day, "DD/MM/YYYY"),
+    Fecha: day.dayStr,
     Conduces: day.conduces.join(", "),
     Concepto: day.concept,
     Conductor: day.driver,

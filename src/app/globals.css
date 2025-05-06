@@ -27,9 +27,8 @@
     --text-xs: 0.75rem; /* 12px */
 
     /* --muted: oklch(0.97 0 0); */
-    /* --muted-foreground: oklch(0.556 0 0); */
+    --muted-foreground: oklch(0.556 0 0);
     --foreground: 0 0% 3.9%;
-    --muted-foreground: 0 0% 45.1%;
     --muted: 0 0% 96.1%;
 
     /* Font weight variables */

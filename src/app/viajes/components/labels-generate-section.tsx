@@ -19,7 +19,7 @@ export default function LabelsGenerateSection() {
       }
 
       // Generate label
-      const labels = await labelService.generateLabels(quantity, user_id);
+      const labels = await labelService.generateLabels(quantity);
 
       // Extract data for printing
       const { sequence_number, date, created_at, quantity: qty } = labels[0];

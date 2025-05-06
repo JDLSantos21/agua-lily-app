@@ -3,8 +3,7 @@ import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { open as tauriOpen } from "@tauri-apps/plugin-shell";
 import { toast } from "sonner";
-import { RiFileExcel2Fill } from "react-icons/ri";
-import { VehicleSummary, ExcelRow, SummaryExcelRow } from "../types/trips";
+import { VehicleSummary } from "../types/trips";
 import {
   applyExcelStyling,
   prepareSingleVehicleExcelData,
