@@ -46,7 +46,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <h1 className="absolute top-0 right-2 text-sm text-gray-800/40">
-          Version 1.1.4
+          Version 1.1.6
         </h1>
         <UpdateModal />
         <SocketProvider />
