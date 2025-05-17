@@ -16,7 +16,7 @@ import {
 interface ChangePrinterFormProps {
   printers: string[];
   selectedPrinter: string;
-  onPrinterChange: (printer: string) => Promise<void>;
+  onPrinterChange: (printer: string) => Promise<void> | void;
 }
 
 export default function ChangePrinterForm({

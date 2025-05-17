@@ -1,7 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getTrips } from "@/api/trips";
 import { useState } from "react";
-import { useTripStore } from "@/stores/tripStore";
 
 // Exportamos el tipo para que sea accesible desde el componente TripsFilter
 export interface TripsQueryParams {
@@ -19,7 +18,6 @@ export const useTripsQuery = () => {
   const [filterParams, setFilterParams] = useState<TripsQueryParams>({});
   // Nuevo estado para controlar si se ha iniciado una búsqueda
   const [hasSearched, setHasSearched] = useState(false);
-  const { setTrips } = useTripStore();
 
   // Consulta de viajes con los filtros seleccionados
   const {

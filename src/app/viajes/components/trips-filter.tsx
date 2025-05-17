@@ -96,6 +96,7 @@ export default function TripsFilter() {
       setTrips(fetchedTrips);
     } catch (error) {
       toast.error("Ocurrió un error al obtener los viajes, intenta de nuevo.");
+      console.log(error);
       return;
     } finally {
       useTripStore.setState({ loading: false });

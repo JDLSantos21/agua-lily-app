@@ -1,19 +1,18 @@
-"use server";
+// "use server";
 
-import { QIKPOS_SERVER_URL } from "@/api/config";
-import { revalidatePath } from "next/cache";
-import { selectPrinter } from "qikpos"; // Assuming this function exists
+// import { revalidatePath } from "next/cache";
+// import { selectPrinter } from "qikpos";
 
-export async function updatePrinter(printer: string): Promise<void> {
-  try {
-    await selectPrinter(printer, QIKPOS_SERVER_URL);
+// export async function updatePrinter(printer: string): Promise<void> {
+//   try {
+//     await selectPrinter(printer);
 
-    // Revalidate the page to reflect the changes
-    revalidatePath("/settings/printers");
+//     // Revalidate the page to reflect the changes
+//     revalidatePath("/settings/printers");
 
-    return Promise.resolve();
-  } catch (error) {
-    console.error("Error updating printer:", error);
-    return Promise.reject(error);
-  }
-}
+//     return Promise.resolve();
+//   } catch (error) {
+//     console.error("Error updating printer:", error);
+//     return Promise.reject(error);
+//   }
+// }

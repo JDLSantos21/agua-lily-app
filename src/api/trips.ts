@@ -1,4 +1,4 @@
-import { CompletedTrip, TripData } from "@/app/viajes/types/trips";
+import { CompletedTrip } from "@/app/viajes/types/trips";
 import { fetcher } from "./fetcher";
 
 export const getDefaultsData = async () => {

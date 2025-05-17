@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/services/authService";
 import { useAuthStore } from "@/stores/authStore";
+import { motion } from "framer-motion";
 
 // Componentes UI
 import {
@@ -12,14 +13,13 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-// Iconos de lucide-react
-import { User, Lock, LogIn, Loader } from "lucide-react";
-// Alertas con sonner
+import { User, Lock, Loader, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Login() {
@@ -68,66 +68,154 @@ export default function Login() {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto mt-20">
-      <CardHeader>
-        <CardTitle>Bienvenido</CardTitle>
-        <CardDescription>Inicia sesión en el sistema</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <Label htmlFor="username">Usuario</Label>
-            <div className="relative">
-              <User
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                size={18}
-              />
-              <Input
-                id="username"
-                type="text"
-                placeholder="Ingresa tu usuario"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="pl-10"
-                required
-              />
-            </div>
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="password">Contraseña</Label>
-            <div className="relative">
-              <Lock
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                size={18}
-              />
-              <Input
-                id="password"
-                type="password"
-                placeholder="Ingresa tu contraseña"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="pl-10"
-                required
-              />
-            </div>
-          </div>
-          <Button
-            type="submit"
-            variant={"primary"}
-            className="w-full"
-            disabled={loading}
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
+        <div className="flex justify-center mb-6">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
           >
-            {loading ? (
-              <Loader className="animate-spin" size={18} />
-            ) : (
-              <>
-                <LogIn className="mr-2" size={18} />
-                Iniciar sesión
-              </>
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+            {/* Reemplaza la URL con la ruta a tu logo */}
+            <img
+              src="/logo.png"
+              alt="Logo de la empresa"
+              width={120}
+              height={60}
+              className="h-16 w-auto"
+            />
+          </motion.div>
+        </div>
+
+        <Card className="w-full shadow-lg border-0 overflow-hidden">
+          <div className="h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
+          <CardHeader className="space-y-1 pb-6">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.4 }}
+            >
+              <CardTitle className="text-2xl font-bold text-center">
+                Bienvenido
+              </CardTitle>
+              <CardDescription className="text-center pt-1">
+                Inicia sesión para acceder al sistema
+              </CardDescription>
+            </motion.div>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4, duration: 0.4 }}
+                className="space-y-2"
+              >
+                <Label htmlFor="username" className="text-sm font-medium">
+                  Usuario
+                </Label>
+                <div className="relative group">
+                  <User
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200"
+                    size={18}
+                  />
+                  <Input
+                    id="username"
+                    type="text"
+                    placeholder="Ingresa tu usuario"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="pl-10 h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
+                    required
+                  />
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5, duration: 0.4 }}
+                className="space-y-2"
+              >
+                <Label htmlFor="password" className="text-sm font-medium">
+                  Contraseña
+                </Label>
+                <div className="relative group">
+                  <Lock
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200"
+                    size={18}
+                  />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Ingresa tu contraseña"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
+                    required
+                  />
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.4 }}
+                className="pt-2"
+              >
+                <Button
+                  type="submit"
+                  variant="default"
+                  className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white transition-all duration-300 font-medium"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <Loader className="animate-spin" size={20} />
+                  ) : (
+                    <motion.div
+                      className="flex items-center justify-center w-full"
+                      whileHover={{ x: 5 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 10,
+                      }}
+                    >
+                      Iniciar sesión
+                      <ArrowRight className="ml-2" size={18} />
+                    </motion.div>
+                  )}
+                </Button>
+              </motion.div>
+            </form>
+          </CardContent>
+          <CardFooter className="flex justify-center pb-6 pt-2">
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.7 }}
+              transition={{ delay: 0.7, duration: 0.4 }}
+              className="text-xs text-gray-500 text-center"
+            >
+              © 2025 Agua & Hielo Lily S.R.L. Todos los derechos reservados.{" "}
+              <br />
+              Desarrollado por{" "}
+              <a
+                href="https://github.com/JDLSantos21/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                Jose A. De Los Santos
+              </a>
+            </motion.p>
+          </CardFooter>
+        </Card>
+      </motion.div>
+    </div>
   );
 }

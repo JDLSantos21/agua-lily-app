@@ -77,6 +77,10 @@ export default function SideNav() {
     router.push("/settings");
   };
 
+  const handleProfile = () => {
+    router.push("/profile");
+  };
+
   const toggleSidebar = () => {
     const newState = !collapsed;
     setCollapsed(newState);
@@ -209,7 +213,10 @@ export default function SideNav() {
                 <DropdownMenuContent className="w-56" align="end">
                   <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
 
-                  <DropdownMenuItem className="gap-2 cursor-pointer">
+                  <DropdownMenuItem
+                    onClick={() => handleProfile()}
+                    className="gap-2 cursor-pointer"
+                  >
                     <UserCircle className="h-4 w-4 text-gray-500" />
                     Perfil
                   </DropdownMenuItem>

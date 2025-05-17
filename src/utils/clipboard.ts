@@ -5,6 +5,7 @@ export const copyToClipboard = async (text: string) => {
     await navigator.clipboard.writeText(text);
     toast.info("Texto copiado al portapapeles");
   } catch (error) {
+    console.log(error);
     toast.error("Error al copiar al portapapeles");
   }
 };

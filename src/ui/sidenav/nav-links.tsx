@@ -12,6 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { PiCashRegisterDuotone } from "react-icons/pi";
+import { hasSpecialCashierAccess } from "@/utils/usersPermissions";
 
 const navLinks = [
   {
@@ -50,13 +51,24 @@ interface NavLinksProps {
 }
 
 export default function NavLinks({ collapsed = false }: NavLinksProps) {
-  const { role } = useAuthStore();
+  const { role, user_id } = useAuthStore();
   const pathname = usePathname();
 
   // Filtramos los enlaces según el rol del usuario
-  const filteredLinks = navLinks.filter(
-    (link) => !link.accessRoles || (role && link.accessRoles.includes(role))
-  );
+  const filteredLinks = navLinks.filter((link) => {
+    // Si no tiene accessRoles definidos, siempre mostrar
+    if (!link.accessRoles) return true;
+
+    // Verificar primero por roles directos
+    const hasAccess = role && link.accessRoles.includes(role);
+
+    // Para el caso especial de "Caja", verificar si el usuario tiene acceso especial
+    if (!hasAccess && link.name === "Caja" && role === "operador") {
+      return hasSpecialCashierAccess(user_id);
+    }
+
+    return hasAccess;
+  });
 
   return (
     <TooltipProvider delayDuration={300}>

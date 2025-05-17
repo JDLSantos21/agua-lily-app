@@ -69,6 +69,7 @@ export default function TripHistory() {
       setTrips(data);
     } catch (error) {
       toast.error("Ocurrió un error, intente más tarde.");
+      console.log(error);
     } finally {
       setLoading(false);
     }

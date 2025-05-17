@@ -5,7 +5,7 @@ import TripCompleteForm from "./components/trip-complete-form";
 import TripRecordForm from "./components/trip-record-form";
 import { useTripStore } from "@/stores/tripStore";
 import { Skeleton } from "@/components/ui/skeleton";
-import LabelGenerator from "./components/label-generator";
+import LabelGenerator from "./components/label-components/label-generator";
 
 function TripPageSkeleton() {
   return (

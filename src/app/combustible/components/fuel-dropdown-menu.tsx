@@ -51,7 +51,7 @@ export default function FuelDropdownMenu() {
                   Reabastecer combustible
                 </DropdownMenuItem>
 
-                <RoleBased allowedRoles={["admin"]}>
+                <RoleBased allowedRoles={["operador"]}>
                   <DropdownMenuItem
                     onClick={() => open("fuel-reset-dialog")}
                     className="text-xs py-1.5"

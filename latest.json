@@ -1,7 +1,7 @@
 {
-  "version": "v1.1.5",
-  "pub_date": "2025-03-27T00:00:00Z",
-  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSEtFWXpMdk5SRFF2REVacVB0eGxiY1RjV0gvdDdvNkFCN01YSll2b2czMHNIeHhvdFJtYUM0YzA4UnQ2M1plaGxJUUFJUHpFbC9ZYjdFYnNSMnpuWWdrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQzMTAzNzAyCWZpbGU6QWd1YSBMaWx5IEFwcF8xLjEuNV94NjQtc2V0dXAuZXhlClIzT2xCK2hxVExnbkZxZGIxRjJETmdGS002YTZET3BoUnVzWnhBZ0s3VjFuY2tnMnZ0eXpCdHN3V3lmTnc0eE5hcUtlQzkxaDhmaExvWHJUckd2Y0FRPT0K",
+  "version": "v1.1.7",
+  "pub_date": "2025-05-07T00:00:00Z",
+  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSE1NTS9tTnlKbnlMZG1rSEhma0FvTXA1WUlCVnpGZGs3ZmFseDBBcUhabjA0eVpteHBIL25QN3o2RWh6aVFEYk1zQ0FVbmRtYzJtMUV1K2VwYTRHckFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQ2NjUxODU4CWZpbGU6QWd1YSBMaWx5IEFwcF8xLjEuN194NjQtc2V0dXAuZXhlCi91aXpIdzNsTmdPeHhYaFo5bml2Z0oyMzdBc3I4T1pxblAxTGMyV05ONXlBZks0a2VhKzBJLzNtaHE5U1VzRGE0UThOV3puSmhNMEgvcllRRjFkVERRPT0K",
   "url": "https://github.com/JDLSantos21/agua-lily-app/releases/latest/download/setup.exe",
-  "notes": "Arreglado problema de resetear al registrar combustible."
+  "notes": "New login design and improve performance"
 }

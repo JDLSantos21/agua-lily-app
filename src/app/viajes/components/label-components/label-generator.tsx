@@ -1,24 +1,40 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import {
+  useGenerateAndPrintLabels,
+  useSessionInfo,
+  useTodayLabels,
+} from "@/hooks/useLabels";
+import TodayLabelsModal from "./today-labels-modal";
+import SessionStatusIndicator from "./session-status-indicator";
+import PrintMultipleModal from "./print-multiple-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useGenerateAndPrintLabels, useSessionInfo } from "@/hooks/useLabels";
-import { useEffect, useRef, useState } from "react";
+import { List, Printer, Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { Printer, AlertCircle, Info, Loader2 } from "lucide-react";
+import { printerService } from "@/services/printService";
+import { Label } from "@/types/label.types";
 
 export default function LabelsGenerateSection() {
   const [inputQty, setInputQty] = useState<number | null>(null);
+  const [labelsModalOpen, setLabelsModalOpen] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
+  const [selectedLabel, setSelectedLabel] = useState<any>(null);
+  const [printMultipleModalOpen, setPrintMultipleModalOpen] = useState(false);
 
-  const labelInput = useRef<HTMLInputElement>(null); // Placeholder for any future ref usage
+  const labelInput = useRef<HTMLInputElement>(null);
 
-  // Obtener información de la sesión para verificar si está cerrada
+  // Hooks para manejar las etiquetas
   const { data: sessionInfo } = useSessionInfo();
-
-  console.log("sessionInfo", sessionInfo);
-
-  // Usar nuestro hook personalizado que maneja la generación e impresión
+  const {
+    data: todayLabels,
+    isLoading: labelsLoading,
+    refetch: refetchLabels,
+  } = useTodayLabels();
   const generateLabelMutation = useGenerateAndPrintLabels();
 
-  //focus al input con las teclas control + l
+  // Focus al input con las teclas control + l
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === "l") {
@@ -33,9 +49,13 @@ export default function LabelsGenerateSection() {
     };
   }, []);
 
+  // Generar e imprimir etiquetas nuevas
   const handleLabelsGeneration = () => {
     if (inputQty === null || inputQty <= 0) {
-      toast.info("Por favor ingrese una cantidad válida.");
+      toast.warning("Por favor ingrese una cantidad válida.");
+      return;
+    } else if (inputQty > 50) {
+      toast.info("La cantidad máxima de etiquetas a generar es 50.");
       return;
     }
 
@@ -54,12 +74,51 @@ export default function LabelsGenerateSection() {
     setInputQty(null);
   };
 
+  // Reimprimir etiqueta existente
+  const handleReprintLabel = async (label: Label, quantity = 1) => {
+    try {
+      setIsPrinting(true);
+      const { sequence_number, created_at } = label;
+
+      const labelData = {
+        sequence_number,
+        created_at,
+        quantity,
+      };
+
+      await printerService.printBottleLabel(labelData);
+      toast.success(`${quantity} etiqueta(s) reimpresa(s) correctamente`);
+
+      // Cerrar modal si está imprimiendo múltiples
+      if (quantity > 1) {
+        setPrintMultipleModalOpen(false);
+      }
+    } catch (error) {
+      console.error("Error al reimprimir etiqueta:", error);
+      toast.error("Error al reimprimir la etiqueta");
+    } finally {
+      setIsPrinting(false);
+    }
+  };
+
+  // Abrir modal para imprimir múltiples etiquetas
+  const openPrintMultipleModal = (label: Label) => {
+    setSelectedLabel(label);
+    setPrintMultipleModalOpen(true);
+  };
+
   // Handler para la tecla Enter
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
       handleLabelsGeneration();
     }
+  };
+
+  // Manejador para abrir el modal de etiquetas
+  const handleOpenLabelsModal = () => {
+    refetchLabels();
+    setLabelsModalOpen(true);
   };
 
   return (
@@ -126,51 +185,18 @@ export default function LabelsGenerateSection() {
 
         {/* Panel derecho: información de contador */}
         <div className="flex flex-col gap-2">
-          {/* Indicador de estado de sesión */}
-          <div
-            className={`flex items-center justify-center w-36 gap-2 px-3 py-1 rounded-full text-sm ${
-              sessionInfo?.is_closed
-                ? "bg-red-50 text-red-600 border border-red-200"
-                : "bg-green-50 text-green-600 border border-green-200"
-            }`}
+          {/* Componente de estado de sesión */}
+          <SessionStatusIndicator sessionInfo={sessionInfo} />
+
+          {/* Botón para ver etiquetas del día */}
+          <Button
+            variant="outline"
+            className="w-full flex gap-2 items-center border-blue-200 text-blue-600"
+            onClick={handleOpenLabelsModal}
           >
-            <span
-              className={`w-2 h-2 rounded-full ${
-                sessionInfo?.is_closed ? "bg-red-500" : "bg-green-500"
-              }`}
-            ></span>
-            <span>
-              {sessionInfo?.is_closed ? "Sesión cerrada" : "Sesión activa"}
-            </span>
-          </div>
-          {sessionInfo && (
-            <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 flex items-center gap-3 min-w-56">
-              <div className="bg-blue-500 text-white p-2 rounded-full">
-                <Info size={20} />
-              </div>
-              <div>
-                {sessionInfo?.is_active ? (
-                  <>
-                    <p className="text-blue-700 text-sm font-medium">
-                      Última Etiqueta
-                    </p>
-                    <p className="text-blue-900 text-2xl font-bold">
-                      {sessionInfo.current_counter.toString().padStart(3, "0")}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-sm text-blue-700">
-                      Sesión aun no iniciada
-                    </p>
-                    <p className="text-sm text-blue-700">
-                      Genera etiqueta para iniciar
-                    </p>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
+            <List size={18} />
+            <span>Ver etiquetas del día</span>
+          </Button>
         </div>
       </div>
 
@@ -192,6 +218,28 @@ export default function LabelsGenerateSection() {
           </div>
         </div>
       )}
+
+      {/* Modal para ver etiquetas del día */}
+      <TodayLabelsModal
+        isOpen={labelsModalOpen}
+        onOpenChange={setLabelsModalOpen}
+        labels={todayLabels}
+        isLoading={labelsLoading}
+        onRefresh={refetchLabels}
+        onPrintOne={handleReprintLabel}
+        onPrintMultiple={openPrintMultipleModal}
+        isPrinting={isPrinting}
+      />
+
+      {/* Modal para imprimir múltiples etiquetas */}
+      <PrintMultipleModal
+        isOpen={printMultipleModalOpen}
+        onOpenChange={setPrintMultipleModalOpen}
+        onPrint={(quantity) =>
+          selectedLabel && handleReprintLabel(selectedLabel, quantity)
+        }
+        isPrinting={isPrinting}
+      />
     </div>
   );
 }

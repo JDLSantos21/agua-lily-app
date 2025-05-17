@@ -16,7 +16,7 @@ export const useRegisterTripMutation = () => {
   });
 };
 
-export const updateTripMutation = () => {
+export const useUpdateTripMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({

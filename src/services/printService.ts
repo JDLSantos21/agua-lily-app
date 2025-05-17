@@ -5,7 +5,6 @@ import { formatDate } from "date-fns";
 interface PrintLabelParams {
   sequence_number: string;
   quantity: number;
-  date: string;
   created_at: string;
 }
 

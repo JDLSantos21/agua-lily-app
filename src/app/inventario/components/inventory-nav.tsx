@@ -27,5 +27,9 @@ export default function InventoryNav() {
     []
   );
 
-  return <PageNav navItems={navItems} children={<InventoryDropdownMenu />} />;
+  return (
+    <PageNav navItems={navItems}>
+      <InventoryDropdownMenu />
+    </PageNav>
+  );
 }

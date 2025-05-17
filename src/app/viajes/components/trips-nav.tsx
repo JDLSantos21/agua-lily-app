@@ -7,7 +7,6 @@ import { ClipboardList, Home } from "lucide-react";
 import { GoHistory } from "react-icons/go";
 
 export default function TripsNav() {
-  // Usar useMemo para evitar recrear el array en cada renderizado
   const navItems: NavItem[] = useMemo(
     () => [
       {
@@ -31,5 +30,9 @@ export default function TripsNav() {
     []
   );
 
-  return <PageNav navItems={navItems} children={<TripsDropdownMenu />} />;
+  return (
+    <PageNav navItems={navItems}>
+      <TripsDropdownMenu />
+    </PageNav>
+  );
 }
