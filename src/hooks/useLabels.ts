@@ -1,6 +1,6 @@
 // hooks/useLabels.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { labelService, Label, SessionInfo } from "@/services/labelService";
+import { labelService } from "@/services/labelService";
 import { toast } from "sonner";
 import { printerService } from "@/services/printService";
 
@@ -64,6 +64,7 @@ export const useGenerateAndPrintLabels = () => {
 
       // 2. Extraer los datos para impresión
       const { sequence_number, date, created_at, quantity } = labels[0];
+
       const labelData = {
         sequence_number,
         date,
