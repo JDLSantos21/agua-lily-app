@@ -1,248 +1,379 @@
-// src/app/clientes/components/customer-view-dialog.tsx
+// app/clientes/components/customer-view-dialog.tsx
 "use client";
 
-import { useCustomerWithEquipment } from "@/hooks/useCustomers";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import {
-  Building,
-  UserRound,
+  Edit,
+  Trash2,
   Phone,
   Mail,
   MapPin,
+  Building2,
+  User,
   FileText,
-  MonitorSmartphone,
+  Package,
 } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import { Customer, CustomerWithEquipment } from "@/types/customers.types";
+import { useCustomerWithEquipment } from "@/hooks/useCustomers";
 import { LoaderSpin } from "@/components/Loader";
-import { EquipmentList } from "../../equipos/components/equipment-list";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useDialogStore } from "@/stores/dialogStore";
+import { toast } from "sonner";
+import { deleteCustomer, updateCustomerStatus } from "@/api/customers";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 interface CustomerViewDialogProps {
-  customerId: number;
-  open: boolean;
+  customerId: number | null;
   onClose: () => void;
+  onEdit: (customer: Customer) => void;
 }
 
-export function CustomerViewDialog({
+export default function CustomerViewDialog({
   customerId,
-  open,
   onClose,
+  onEdit,
 }: CustomerViewDialogProps) {
-  const { data, isLoading, error } = useCustomerWithEquipment(customerId);
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("details");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isStatusUpdating, setIsStatusUpdating] = useState(false);
+
+  // Fetch customer details with equipment
+  const { data, isLoading, error, refetch } = useCustomerWithEquipment(
+    customerId || 0
+  );
+  const customer = data?.data;
+
+  useEffect(() => {
+    if (customerId) {
+      setIsOpen(true);
+      // Reset to details tab whenever a new customer is viewed
+      setActiveTab("details");
+    } else {
+      setIsOpen(false);
+    }
+  }, [customerId]);
+
+  const handleClose = () => {
+    setIsOpen(false);
+    // Allow animation to complete before fully closing
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
+
+  const handleEdit = () => {
+    if (customer) {
+      onEdit(customer);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!customerId) return;
+    setIsDeleting(true);
+    try {
+      await deleteCustomer(customerId);
+      toast.success("Cliente eliminado exitosamente");
+      handleClose();
+      // Refresh the customer list
+      router.refresh();
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Error al eliminar el cliente");
+      }
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
+  const handleStatusChange = async () => {
+    if (!customer) return;
+
+    const newStatus = customer.status === "activo" ? "inactivo" : "activo";
+    setIsStatusUpdating(true);
+
+    try {
+      await updateCustomerStatus(customerId as number, newStatus);
+      toast.success(`Estado del cliente actualizado a ${newStatus}`);
+      refetch();
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Error al actualizar el estado del cliente");
+      }
+    } finally {
+      setIsStatusUpdating(false);
+    }
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Detalles del Cliente</DialogTitle>
-          <DialogDescription>
-            Información completa del cliente y sus equipos asociados
-          </DialogDescription>
-        </DialogHeader>
-
-        {isLoading ? (
-          <div className="py-12 flex justify-center">
-            <LoaderSpin text="Cargando información del cliente" />
-          </div>
-        ) : error ? (
-          <div className="py-8 text-center text-red-500">
-            <p>Error al cargar los datos del cliente</p>
-            <Button variant="outline" onClick={onClose} className="mt-4">
-              Cerrar
-            </Button>
-          </div>
-        ) : data?.data ? (
-          <ScrollArea className="flex-1">
-            <Tabs defaultValue="info" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="info">Información</TabsTrigger>
-                <TabsTrigger value="equipment">Equipos</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="info" className="space-y-4 py-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Información principal */}
-                  <div className="space-y-4">
-                    <div className="flex items-center">
-                      <h3 className="text-xl font-semibold">
-                        {data.data.is_business
-                          ? data.data.business_name
-                          : data.data.name}
-                      </h3>
-                      <Badge
-                        variant="outline"
-                        className="ml-2 flex items-center gap-1"
-                      >
-                        {data.data.is_business ? (
-                          <>
-                            <Building className="h-3 w-3" />
-                            Empresa
-                          </>
-                        ) : (
-                          <>
-                            <UserRound className="h-3 w-3" />
-                            Personal
-                          </>
-                        )}
-                      </Badge>
-                      <Badge
-                        variant={
-                          data.data.status === "activo"
-                            ? "standardTrip"
-                            : "destructive"
-                        }
-                        className="ml-2 capitalize"
-                      >
-                        {data.data.status}
-                      </Badge>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center text-gray-600">
-                        <Phone className="h-4 w-4 mr-2" />
-                        <span>{data.data.contact_phone}</span>
-                      </div>
-
-                      {data.data.contact_email && (
-                        <div className="flex items-center text-gray-600">
-                          <Mail className="h-4 w-4 mr-2" />
-                          <span>{data.data.contact_email}</span>
-                        </div>
+    <>
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
+          {isLoading ? (
+            <LoaderSpin text="Cargando datos del cliente" />
+          ) : error ? (
+            <DialogDescription className="text-center text-red-500">
+              Error al cargar los datos del cliente
+            </DialogDescription>
+          ) : customer ? (
+            <>
+              <DialogHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <DialogTitle className="text-xl font-bold">
+                      {customer.business_name || customer.name}
+                    </DialogTitle>
+                    <DialogDescription className="mt-1">
+                      {customer.business_name && (
+                        <span className="text-gray-500">{customer.name}</span>
                       )}
-
-                      <div className="flex items-center text-gray-600">
-                        <MapPin className="h-4 w-4 mr-2" />
-                        <span>{data.data.address}</span>
-                      </div>
-
-                      {data.data.is_business && data.data.rnc && (
-                        <div className="flex items-center text-gray-600">
-                          <FileText className="h-4 w-4 mr-2" />
-                          <span>RNC: {data.data.rnc}</span>
-                        </div>
-                      )}
-                    </div>
+                    </DialogDescription>
                   </div>
-
-                  {/* Detalles adicionales */}
-                  <div className="space-y-4">
-                    <h4 className="font-semibold">Información adicional</h4>
-
-                    {data.data.location_reference && (
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium text-gray-500">
-                          Referencia de ubicación
-                        </p>
-                        <p>{data.data.location_reference}</p>
-                      </div>
-                    )}
-
-                    {data.data.notes && (
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium text-gray-500">
-                          Notas
-                        </p>
-                        <p>{data.data.notes}</p>
-                      </div>
-                    )}
-                  </div>
+                  <Badge
+                    variant={
+                      customer.status === "activo" ? "outline" : "destructive"
+                    }
+                    className="uppercase text-xs"
+                  >
+                    {customer.status}
+                  </Badge>
                 </div>
-              </TabsContent>
+              </DialogHeader>
 
-              <TabsContent value="equipment" className="py-4">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold flex items-center gap-2">
-                      <MonitorSmartphone className="h-5 w-5" />
-                      Equipos Asignados (
-                      {data.data.current_equipment?.length || 0})
-                    </h3>
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="mt-2"
+              >
+                <TabsList className="grid grid-cols-3 mb-4">
+                  <TabsTrigger value="details">Detalles</TabsTrigger>
+                  <TabsTrigger value="equipment">
+                    Equipos ({customer.current_equipment?.length || 0})
+                  </TabsTrigger>
+                  <TabsTrigger value="history">Historial</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="details" className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-gray-500" />
+                      <span className="text-sm">{customer.contact_phone}</span>
+                    </div>
+
+                    {customer.contact_email && (
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-gray-500" />
+                        <span className="text-sm">
+                          {customer.contact_email}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-gray-500" />
+                      <span className="text-sm">{customer.address}</span>
+                    </div>
+
+                    {customer.is_business && (
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4 text-gray-500" />
+                        <span className="text-sm">Empresa</span>
+                      </div>
+                    )}
+
+                    {customer.rnc && (
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-gray-500" />
+                        <span className="text-sm">RNC: {customer.rnc}</span>
+                      </div>
+                    )}
+
+                    {customer.location_reference && (
+                      <div className="mt-4">
+                        <h4 className="text-sm font-medium mb-1">
+                          Referencia de ubicación:
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          {customer.location_reference}
+                        </p>
+                      </div>
+                    )}
+
+                    {customer.notes && (
+                      <div className="mt-4">
+                        <h4 className="text-sm font-medium mb-1">Notas:</h4>
+                        <p className="text-sm text-gray-600">
+                          {customer.notes}
+                        </p>
+                      </div>
+                    )}
                   </div>
+                </TabsContent>
 
-                  <Separator />
-
-                  {data.data.current_equipment?.length > 0 ? (
-                    <div className="rounded-md border">
-                      <EquipmentList
-                        equipments={data.data.current_equipment}
-                        minimal={true}
-                      />
+                <TabsContent value="equipment">
+                  {customer.current_equipment?.length > 0 ? (
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-medium">
+                        Equipos asignados actualmente
+                      </h3>
+                      {customer.current_equipment.map((equipment) => (
+                        <div
+                          key={equipment.id}
+                          className="border rounded-md p-3"
+                        >
+                          <div className="flex justify-between">
+                            <div>
+                              <h4 className="font-medium">
+                                {equipment.type} {equipment.brand}
+                              </h4>
+                              <p className="text-sm text-gray-500">
+                                Modelo: {equipment.model}
+                              </p>
+                              {equipment.serial_number && (
+                                <p className="text-sm text-gray-500">
+                                  Serie: {equipment.serial_number}
+                                </p>
+                              )}
+                            </div>
+                            <Badge>{equipment.status}</Badge>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <p>
-                        Este cliente no tiene equipos asignados actualmente.
-                      </p>
+                    <div className="text-center py-6 text-gray-500">
+                      <Package className="h-12 w-12 mx-auto text-gray-300 mb-2" />
+                      <p>Este cliente no tiene equipos asignados</p>
                     </div>
                   )}
+                </TabsContent>
 
-                  {data.data.equipment_history?.length > 0 && (
-                    <div className="mt-8 space-y-3">
-                      <h4 className="font-semibold">Historial de equipos</h4>
-
-                      <div className="rounded-md border">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Equipo</TableHead>
-                              <TableHead>Fecha de asignación</TableHead>
-                              <TableHead>Fecha de remoción</TableHead>
-                              <TableHead>Razón de remoción</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {data.data.equipment_history.map((history: any) => (
-                              <TableRow key={history.id}>
-                                <TableCell>{`${history.type} ${history.brand} ${history.model}`}</TableCell>
-                                <TableCell>
+                <TabsContent value="history">
+                  {customer.equipment_history?.length > 0 ? (
+                    <div className="space-y-3">
+                      <h3 className="text-sm font-medium">
+                        Historial de asignaciones
+                      </h3>
+                      {customer.equipment_history.map((assignment) => (
+                        <div
+                          key={assignment.id}
+                          className="border rounded-md p-3"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h4 className="font-medium">
+                                {assignment.type} {assignment.brand}
+                              </h4>
+                              <p className="text-xs text-gray-500">
+                                Serie: {assignment.serial_number}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Asignado:{" "}
+                                {new Date(
+                                  assignment.assigned_date
+                                ).toLocaleDateString()}
+                              </p>
+                              {assignment.removed_date && (
+                                <p className="text-xs text-gray-500">
+                                  Removido:{" "}
                                   {new Date(
-                                    history.assigned_date
+                                    assignment.removed_date
                                   ).toLocaleDateString()}
-                                </TableCell>
-                                <TableCell>
-                                  {history.removed_date
-                                    ? new Date(
-                                        history.removed_date
-                                      ).toLocaleDateString()
-                                    : "Activo"}
-                                </TableCell>
-                                <TableCell>
-                                  {history.removal_reason || "-"}
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
+                                </p>
+                              )}
+                            </div>
+                            <Badge
+                              variant={
+                                assignment.removed_date
+                                  ? "destructive"
+                                  : "outline"
+                              }
+                            >
+                              {assignment.removed_date ? "Removido" : "Activo"}
+                            </Badge>
+                          </div>
+                          {assignment.notes && (
+                            <p className="text-xs text-gray-600 mt-2">
+                              {assignment.notes}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-gray-500">
+                      <Package className="h-12 w-12 mx-auto text-gray-300 mb-2" />
+                      <p>No hay historial de equipos para este cliente</p>
                     </div>
                   )}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </ScrollArea>
-        ) : (
-          <div className="py-8 text-center text-gray-500">
-            <p>No se encontró información del cliente</p>
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+                </TabsContent>
+              </Tabs>
+
+              <DialogFooter className="flex gap-2 mt-6">
+                <Button
+                  variant="outline"
+                  onClick={handleStatusChange}
+                  disabled={isStatusUpdating}
+                >
+                  {isStatusUpdating
+                    ? "Actualizando..."
+                    : customer.status === "activo"
+                      ? "Desactivar"
+                      : "Activar"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleEdit}
+                  className="gap-1"
+                >
+                  <Edit className="h-4 w-4" />
+                  Editar
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="gap-1"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Eliminar
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <DialogDescription className="text-center">
+              No se encontró el cliente
+            </DialogDescription>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Eliminar cliente"
+        description="¿Está seguro que desea eliminar este cliente? Esta acción no se puede deshacer."
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
+    </>
   );
 }

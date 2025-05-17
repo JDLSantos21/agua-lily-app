@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Fuel, HandCoins } from "lucide-react";
+import { LayoutDashboard, Package, Fuel, HandCoins, User } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import {
   Tooltip,
@@ -42,6 +42,12 @@ const navLinks = [
     name: "Caja",
     href: "/viajes",
     icon: PiCashRegisterDuotone,
+    accessRoles: ["administrativo", "cajero", "admin"],
+  },
+  {
+    name: "Clientes",
+    href: "/clientes",
+    icon: User,
     accessRoles: ["administrativo", "cajero", "admin"],
   },
 ];

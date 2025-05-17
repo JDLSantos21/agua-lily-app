@@ -1,140 +1,153 @@
 // src/app/clientes/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { CustomerFilters } from "./components/customer-filters";
+import { useState } from "react";
 import { CustomerList } from "./components/customer-list";
 import { CustomerStats } from "./components/customer-stats";
-import { CustomerViewDialog } from "./components/customer-view-dialog";
-import { CustomerFormDialog } from "./components/customer-form-dialog";
-import { CustomerFilter } from "@/types/customers.types";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Grid2X2, ListIcon } from "lucide-react";
 import { useCustomers } from "@/hooks/useCustomers";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { CustomerCard } from "./components/customer-card";
+import { CustomerFilters } from "./components/customer-filters";
+import { CustomerFilter } from "@/types/customers.types";
+import { CustomerFormDialog } from "./components/customer-form-dialog";
+import CustomerViewDialog from "./components/customer-view-dialog";
+import { LoaderSpin } from "@/components/Loader";
+import Link from "next/link";
 
 export default function ClientesPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  // Check URL for modal actions
-  const viewId = searchParams.get("view");
-  const editId = searchParams.get("edit");
-
-  const [filters, setFilters] = useState<CustomerFilter>({
-    limit: 10,
-    offset: 0,
-  });
-
-  const { data, isLoading, error } = useCustomers(filters);
-
-  // Dialog states management
-  const [viewDialogOpen, setViewDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  // Estados
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [filters, setFilters] = useState<CustomerFilter>({});
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(
     null
   );
+  const [customerToEdit, setCustomerToEdit] = useState<any>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  // Update URL when opening/closing dialogs
-  useEffect(() => {
-    if (viewId) {
-      setSelectedCustomerId(Number(viewId));
-      setViewDialogOpen(true);
-    } else if (editId) {
-      setSelectedCustomerId(Number(editId));
-      setEditDialogOpen(true);
-    }
-  }, [viewId, editId]);
+  // Obtener datos de clientes
+  const { data, isLoading, error, refetch } = useCustomers(filters);
+  const customers = data?.data || [];
 
+  // Manejar cambio de filtros
+  const handleFilterChange = (newFilters: CustomerFilter) => {
+    setFilters(newFilters);
+  };
+
+  // Manejar visualización de cliente
   const handleViewCustomer = (id: number) => {
     setSelectedCustomerId(id);
-    setViewDialogOpen(true);
-    router.push(`/clientes?view=${id}`, { scroll: false });
   };
 
-  const handleEditCustomer = (id: number) => {
-    setSelectedCustomerId(id);
-    setEditDialogOpen(true);
-    router.push(`/clientes?edit=${id}`, { scroll: false });
+  // Manejar edición de cliente
+  const handleEditCustomer = (customer: any) => {
+    setCustomerToEdit(customer);
+    setIsEditDialogOpen(true);
   };
-
-  const handleCloseViewDialog = () => {
-    setViewDialogOpen(false);
-    router.push("/clientes", { scroll: false });
-  };
-
-  const handleCloseEditDialog = () => {
-    setEditDialogOpen(false);
-    router.push("/clientes", { scroll: false });
-  };
-
-  const handleFilterChange = (newFilters: CustomerFilter) => {
-    setFilters((prev) => ({ ...prev, ...newFilters, offset: 0 }));
-  };
-
-  const handlePageChange = (offset: number) => {
-    setFilters((prev) => ({ ...prev, offset }));
-  };
-
-  if (error) {
-    return (
-      <Alert variant="destructive" className="mb-6">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error</AlertTitle>
-        <AlertDescription>
-          {error instanceof Error
-            ? error.message
-            : "Error al cargar los clientes"}
-        </AlertDescription>
-      </Alert>
-    );
-  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
-        <h1 className="text-2xl font-bold">Clientes</h1>
-        <CustomerStats />
+    <main className="container p-4">
+      <div className="space-y-8">
+        {/* Sección de estadísticas */}
+        <section>
+          <h2 className="text-2xl font-bold mb-4">Panel de Clientes</h2>
+          <CustomerStats />
+          <Link href="/clientes/estadisticas">Estadisticas</Link>
+          <Link href="/clientes/busqueda">Busqueda</Link>
+        </section>
+
+        {/* Filtros y controles */}
+        <section>
+          <div className="flex flex-col md:flex-row gap-4 md:items-center justify-between">
+            <h2 className="text-xl font-bold">Gestión de Clientes</h2>
+
+            <div className="flex gap-2">
+              {/* Botones de vista */}
+              <div className="border rounded-md overflow-hidden flex">
+                <Button
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className="rounded-none"
+                >
+                  <ListIcon className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                  className="rounded-none"
+                >
+                  <Grid2X2 className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Botón de nuevo cliente */}
+              <Button onClick={() => setIsCreateDialogOpen(true)}>
+                Nuevo Cliente
+              </Button>
+            </div>
+          </div>
+
+          {/* Filtros */}
+          <div className="mt-4">
+            <CustomerFilters onChange={handleFilterChange} />
+          </div>
+        </section>
+
+        {/* Lista de clientes */}
+        <section>
+          {isLoading ? (
+            <LoaderSpin text="Cargando clientes..." />
+          ) : error ? (
+            <div className="text-center text-red-500 my-4">
+              Error al cargar los clientes. Por favor, intente nuevamente.
+            </div>
+          ) : viewMode === "list" ? (
+            <CustomerList />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {customers.length === 0 ? (
+                <div className="col-span-full text-center text-gray-500 py-8">
+                  No se encontraron clientes con los filtros aplicados
+                </div>
+              ) : (
+                customers.map((customer) => (
+                  <CustomerCard
+                    key={customer.id}
+                    customer={customer}
+                    onView={handleViewCustomer}
+                    onEdit={handleEditCustomer}
+                    equipmentCount={0} // Aquí podrías pasar el conteo real de equipos
+                  />
+                ))
+              )}
+            </div>
+          )}
+        </section>
       </div>
 
-      <CustomerFilters onFilterChange={handleFilterChange} />
+      {/* Diálogos */}
+      <CustomerFormDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+        onSuccess={refetch}
+      />
 
-      {isLoading ? (
-        <div className="space-y-4">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-12 w-full" />
-        </div>
-      ) : (
-        <CustomerList
-          customers={data?.data || []}
-          pagination={data?.pagination}
-          onPageChange={handlePageChange}
-          onViewCustomer={handleViewCustomer}
-          onEditCustomer={handleEditCustomer}
-        />
-      )}
+      <CustomerFormDialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        customer={customerToEdit}
+        onSuccess={refetch}
+      />
 
-      {/* View Dialog */}
-      {selectedCustomerId && (
-        <CustomerViewDialog
-          customerId={selectedCustomerId}
-          open={viewDialogOpen}
-          onClose={handleCloseViewDialog}
-        />
-      )}
-
-      {/* Edit Dialog */}
-      {selectedCustomerId && (
-        <CustomerFormDialog
-          customerId={selectedCustomerId}
-          open={editDialogOpen}
-          onClose={handleCloseEditDialog}
-        />
-      )}
-    </div>
+      <CustomerViewDialog
+        customerId={selectedCustomerId}
+        onClose={() => setSelectedCustomerId(null)}
+        onEdit={handleEditCustomer}
+      />
+    </main>
   );
 }
