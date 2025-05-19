@@ -1,7 +1,7 @@
-// src/app/clientes/components/customer-filters.tsx
+// src/app/clientes/components/customer-filters.tsx - VERSIÓN MEJORADA
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,65 +12,85 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, X } from "lucide-react";
-import { CustomerFilter } from "@/types/customers.types";
+import { CustomerFilter, CustomerStatus } from "@/types/customers.types";
 import { useDebounce } from "use-debounce";
 
 interface CustomerFiltersProps {
   onChange: (filters: CustomerFilter) => void;
+  initialFilters?: CustomerFilter;
+  className?: string;
 }
 
-export function CustomerFilters({ onChange }: CustomerFiltersProps) {
+export const CustomerFilters = memo(function CustomerFilters({
+  onChange,
+  initialFilters = {},
+  className = "",
+}: CustomerFiltersProps) {
   // Estados para los filtros
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<string>("");
-  const [isBusinessFilter, setIsBusinessFilter] = useState<string>("");
+  const [search, setSearch] = useState(initialFilters.search || "");
+  const [status, setStatus] = useState<string>(
+    initialFilters.status || "todos"
+  );
+  const [isBusinessFilter, setIsBusinessFilter] = useState<string>(
+    initialFilters.is_business !== undefined
+      ? String(initialFilters.is_business)
+      : "todos"
+  );
   const [debouncedSearch] = useDebounce(search, 500);
 
-  // Ejecutar la búsqueda cuando cambian los filtros
-  useEffect(() => {
+  // Aplicar filtros de forma memoizada para evitar re-renders excesivos
+  const applyFilters = useCallback(() => {
     const newFilters: CustomerFilter = {};
 
     if (debouncedSearch) {
       newFilters.search = debouncedSearch;
     }
 
-    if (status) {
-      newFilters.status = status as "activo" | "inactivo";
+    if (status && status !== "todos") {
+      newFilters.status = status as CustomerStatus;
     }
 
-    if (isBusinessFilter) {
+    if (isBusinessFilter && isBusinessFilter !== "todos") {
       newFilters.is_business = isBusinessFilter === "true";
     }
 
     onChange(newFilters);
-  }, [debouncedSearch, status, isBusinessFilter]);
+  }, [debouncedSearch, status, isBusinessFilter, onChange]);
+
+  // Ejecutar la búsqueda cuando cambian los filtros
+  useEffect(() => {
+    applyFilters();
+  }, [debouncedSearch, status, isBusinessFilter, applyFilters]);
 
   // Limpiar todos los filtros
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     setSearch("");
-    setStatus("");
-    setIsBusinessFilter("");
-  };
+    setStatus("todos");
+    setIsBusinessFilter("todos");
+  }, []);
 
   // Verificar si hay filtros activos
   const hasActiveFilters = !!search || !!status || !!isBusinessFilter;
 
   return (
-    <div className="bg-slate-50 p-4 rounded-lg mb-4">
+    <div className={`bg-slate-50 p-4 rounded-lg ${className}`}>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Búsqueda */}
         <div className="relative">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
             placeholder="Buscar cliente..."
             className="pl-8"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            aria-label="Buscar cliente"
           />
           {search && (
             <button
               onClick={() => setSearch("")}
               className="absolute right-2 top-2.5 text-gray-400 hover:text-gray-600"
+              aria-label="Limpiar búsqueda"
+              type="button"
             >
               <X className="h-4 w-4" />
             </button>
@@ -79,11 +99,11 @@ export function CustomerFilters({ onChange }: CustomerFiltersProps) {
 
         {/* Filtro de estado */}
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger>
+          <SelectTrigger aria-label="Filtrar por estado">
             <SelectValue placeholder="Estado" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Todos">Todos</SelectItem>
+            <SelectItem value="todos">Todos los estados</SelectItem>
             <SelectItem value="activo">Activos</SelectItem>
             <SelectItem value="inactivo">Inactivos</SelectItem>
           </SelectContent>
@@ -91,28 +111,31 @@ export function CustomerFilters({ onChange }: CustomerFiltersProps) {
 
         {/* Filtro de tipo */}
         <Select value={isBusinessFilter} onValueChange={setIsBusinessFilter}>
-          <SelectTrigger>
+          <SelectTrigger aria-label="Filtrar por tipo de cliente">
             <SelectValue placeholder="Tipo de cliente" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="All">Todos</SelectItem>
+            <SelectItem value="todos">Todos los tipos</SelectItem>
             <SelectItem value="true">Empresas</SelectItem>
             <SelectItem value="false">Individuales</SelectItem>
           </SelectContent>
         </Select>
 
         {/* Botón para limpiar filtros */}
-        {hasActiveFilters && (
+        {hasActiveFilters ? (
           <Button
             variant="outline"
             onClick={handleClearFilters}
             className="flex items-center gap-1"
+            aria-label="Limpiar todos los filtros"
           >
             <X className="h-4 w-4" />
             Limpiar filtros
           </Button>
+        ) : (
+          <div className="hidden md:block" /> // Espacio vacío para mantener la cuadrícula uniforme
         )}
       </div>
     </div>
   );
-}
+});

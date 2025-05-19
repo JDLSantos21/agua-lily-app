@@ -1,5 +1,10 @@
-// src/hooks/useCustomers.ts
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+// src/hooks/useCustomers.ts - VERSIÓN MEJORADA
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import {
   getCustomers,
   getCustomerById,
@@ -11,43 +16,87 @@ import {
   searchCustomers,
   getCustomerStats,
 } from "@/api/customers";
-import { Customer, CustomerFilter } from "@/types/customers.types";
+import {
+  Customer,
+  CustomerFilter,
+  CustomersResponse,
+  CustomerResponse,
+  CustomerWithEquipmentResponse,
+  CustomerStatsResponse,
+} from "@/types/customers.types";
 import { toast } from "sonner";
 
-// Hook para obtener todos los clientes con filtros opcionales
-export const useCustomers = (filters?: CustomerFilter) => {
+// Claves de cache consistentes para evitar duplicaciones
+const CACHE_KEYS = {
+  all: ["customers"] as const,
+  lists: () => [...CACHE_KEYS.all, "list"] as const,
+  list: (filters: CustomerFilter = {}) =>
+    [...CACHE_KEYS.lists(), filters] as const,
+  details: () => [...CACHE_KEYS.all, "detail"] as const,
+  detail: (id: number) => [...CACHE_KEYS.details(), id] as const,
+  equipment: (id: number) => [...CACHE_KEYS.detail(id), "equipment"] as const,
+  search: (term: string, limit?: number) =>
+    [...CACHE_KEYS.lists(), "search", term, limit] as const,
+  stats: () => [...CACHE_KEYS.all, "stats"] as const,
+};
+
+/**
+ * Hook para obtener todos los clientes con filtros opcionales
+ */
+export const useCustomers = (
+  filters?: CustomerFilter,
+  options?: UseQueryOptions<CustomersResponse>
+) => {
+  console.log(filters);
   return useQuery({
-    queryKey: ["customers", filters],
+    queryKey: CACHE_KEYS.list(filters),
     queryFn: () => getCustomers(filters),
+    ...options,
   });
 };
 
-// Hook para obtener un cliente por su ID
-export const useCustomer = (id: number) => {
+/**
+ * Hook para obtener un cliente por su ID
+ */
+export const useCustomer = (
+  id: number,
+  options?: UseQueryOptions<CustomerResponse>
+) => {
   return useQuery({
-    queryKey: ["customer", id],
+    queryKey: CACHE_KEYS.detail(id),
     queryFn: () => getCustomerById(id),
-    enabled: !!id, // Solo ejecutar si hay un ID
+    enabled: id > 0, // Solo ejecutar si hay un ID válido
+    ...options,
   });
 };
 
-// Hook para obtener un cliente con sus equipos
-export const useCustomerWithEquipment = (id: number) => {
+/**
+ * Hook para obtener un cliente con sus equipos
+ */
+export const useCustomerWithEquipment = (
+  id: number,
+  options?: UseQueryOptions<CustomerWithEquipmentResponse>
+) => {
   return useQuery({
-    queryKey: ["customer", id, "equipment"],
+    queryKey: CACHE_KEYS.equipment(id),
     queryFn: () => getCustomerWithEquipment(id),
-    enabled: !!id, // Solo ejecutar si hay un ID
+    enabled: id > 0, // Solo ejecutar si hay un ID válido
+    ...options,
   });
 };
 
-// Hook para crear un nuevo cliente
+/**
+ * Hook para crear un nuevo cliente
+ */
 export const useCreateCustomer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (customer: Customer) => createCustomer(customer),
+    mutationFn: (customer: Omit<Customer, "id">) => createCustomer(customer),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      // Invalidar todas las listas de clientes para refrescarlas
+      queryClient.invalidateQueries({ queryKey: CACHE_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: CACHE_KEYS.stats() });
       toast.success("Cliente creado exitosamente");
     },
     onError: (error: any) => {
@@ -56,7 +105,9 @@ export const useCreateCustomer = () => {
   });
 };
 
-// Hook para actualizar un cliente existente
+/**
+ * Hook para actualizar un cliente existente
+ */
 export const useUpdateCustomer = () => {
   const queryClient = useQueryClient();
 
@@ -68,9 +119,16 @@ export const useUpdateCustomer = () => {
       id: number;
       customer: Partial<Customer>;
     }) => updateCustomer(id, customer),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["customers"] });
-      queryClient.invalidateQueries({ queryKey: ["customer", variables.id] });
+    onSuccess: (data, variables) => {
+      // Actualizar caché específica y listas
+      queryClient.invalidateQueries({ queryKey: CACHE_KEYS.lists() });
+      queryClient.invalidateQueries({
+        queryKey: CACHE_KEYS.detail(variables.id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: CACHE_KEYS.equipment(variables.id),
+      });
+      queryClient.invalidateQueries({ queryKey: CACHE_KEYS.stats() });
       toast.success("Cliente actualizado exitosamente");
     },
     onError: (error: any) => {
@@ -79,7 +137,9 @@ export const useUpdateCustomer = () => {
   });
 };
 
-// Hook para actualizar solo el estado de un cliente
+/**
+ * Hook para actualizar solo el estado de un cliente
+ */
 export const useUpdateCustomerStatus = () => {
   const queryClient = useQueryClient();
 
@@ -91,10 +151,16 @@ export const useUpdateCustomerStatus = () => {
       id: number;
       status: "activo" | "inactivo";
     }) => updateCustomerStatus(id, status),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["customers"] });
-      queryClient.invalidateQueries({ queryKey: ["customer", variables.id] });
-      toast.success(`Estado del cliente actualizado a '${variables.status}'`);
+    onSuccess: (data, variables) => {
+      // Actualizar caché específica y listas
+      queryClient.invalidateQueries({ queryKey: CACHE_KEYS.lists() });
+      queryClient.invalidateQueries({
+        queryKey: CACHE_KEYS.detail(variables.id),
+      });
+      queryClient.invalidateQueries({ queryKey: CACHE_KEYS.stats() });
+      toast.success(
+        `Cliente ${variables.status === "activo" ? "activado" : "desactivado"} exitosamente`
+      );
     },
     onError: (error: any) => {
       toast.error(error.message || "Error al actualizar el estado del cliente");
@@ -102,14 +168,19 @@ export const useUpdateCustomerStatus = () => {
   });
 };
 
-// Hook para eliminar un cliente
+/**
+ * Hook para eliminar un cliente
+ */
 export const useDeleteCustomer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: number) => deleteCustomer(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["customers"] });
+    onSuccess: (_, id) => {
+      // Invalidar todas las listas y eliminar detalles específicos
+      queryClient.invalidateQueries({ queryKey: CACHE_KEYS.lists() });
+      queryClient.removeQueries({ queryKey: CACHE_KEYS.detail(id as number) });
+      queryClient.invalidateQueries({ queryKey: CACHE_KEYS.stats() });
       toast.success("Cliente eliminado exitosamente");
     },
     onError: (error: any) => {
@@ -118,19 +189,32 @@ export const useDeleteCustomer = () => {
   });
 };
 
-// Hook para buscar clientes por término
-export const useSearchCustomers = (term: string, limit?: number) => {
+/**
+ * Hook para buscar clientes por término
+ */
+export const useSearchCustomers = (
+  term: string,
+  limit?: number,
+  options?: UseQueryOptions<CustomersResponse>
+) => {
   return useQuery({
-    queryKey: ["customers", "search", term, limit],
+    queryKey: CACHE_KEYS.search(term, limit),
     queryFn: () => searchCustomers(term, limit),
-    enabled: !!term, // Solo ejecutar si hay un término de búsqueda
+    enabled: !!term && term.length > 0, // Solo ejecutar si hay un término válido
+    ...options,
   });
 };
 
-// Hook para obtener estadísticas de clientes
-export const useCustomerStats = () => {
+/**
+ * Hook para obtener estadísticas de clientes
+ */
+export const useCustomerStats = (
+  options?: UseQueryOptions<CustomerStatsResponse>
+) => {
   return useQuery({
-    queryKey: ["customers", "stats"],
+    queryKey: CACHE_KEYS.stats(),
     queryFn: () => getCustomerStats(),
+    staleTime: 5 * 60 * 1000, // 5 minutos - las estadísticas no se actualizan tan frecuentemente
+    ...options,
   });
 };

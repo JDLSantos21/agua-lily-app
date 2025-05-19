@@ -1,7 +1,8 @@
-// src/app/clientes/busqueda/page.tsx
+// src/app/clientes/busqueda/page.tsx - VERSIÓN MEJORADA
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useCustomerStore } from "@/stores/customerStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,8 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Building2,
   User,
@@ -21,76 +21,103 @@ import {
   Mail,
   MapPin,
   Search,
+  X,
   Eye,
   Edit,
-  Package,
+  AlertCircle,
 } from "lucide-react";
 import { useSearchCustomers } from "@/hooks/useCustomers";
 import CustomerViewDialog from "../components/customer-view-dialog";
-import { CustomerFormDialog } from "../components/customer-form-dialog";
+import CustomerFormDialog from "../components/customer-form-dialog";
 import { Customer } from "@/types/customers.types";
 import { LoaderSpin } from "@/components/Loader";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Empty } from "@/components/Empty";
+import { Badge } from "@/components/ui/badge";
+import { motion, AnimatePresence } from "framer-motion";
+import { useDebounce } from "use-debounce";
 
 export default function BusquedaPage() {
   // Estados para la búsqueda
   const [searchTerm, setSearchTerm] = useState("");
   const [searchType, setSearchType] = useState<string>("name");
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Estados para diálogos
-  const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(
-    null
-  );
-  const [customerToEdit, setCustomerToEdit] = useState<Customer | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  // Obtener estado y acciones del store
+  const {
+    dialogState,
+    openViewDialog,
+    openFormDialog,
+    openDeleteDialog,
+    closeViewDialog,
+    closeFormDialog,
+    closeDeleteDialog,
+    deleteCustomer,
+  } = useCustomerStore();
 
   // Consulta de búsqueda
   const { data, isLoading, refetch, error } = useSearchCustomers(
-    isSearching ? searchTerm : "",
+    isSearching ? debouncedSearchTerm : "",
     50 // Limitar a 50 resultados máximo
   );
   const customers = data?.data || [];
 
+  // Efecto para búsqueda automática cuando cambia el término debounced
+  useEffect(() => {
+    if (debouncedSearchTerm && debouncedSearchTerm.length >= 2) {
+      setIsSearching(true);
+      refetch();
+    }
+  }, [debouncedSearchTerm, refetch]);
+
   // Manejar búsqueda
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     if (searchTerm.trim().length > 0) {
       setIsSearching(true);
       refetch();
     }
-  };
+  }, [searchTerm, refetch]);
 
   // Manejar tecla Enter en input
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
-  };
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        handleSearch();
+      }
+    },
+    [handleSearch]
+  );
 
   // Limpiar búsqueda
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setSearchTerm("");
     setSearchType("name");
     setIsSearching(false);
-  };
-
-  // Manejar visualización de cliente
-  const handleViewCustomer = (id: number) => {
-    setSelectedCustomerId(id);
-  };
-
-  // Manejar edición de cliente
-  const handleEditCustomer = (customer: Customer) => {
-    setCustomerToEdit(customer);
-    setIsEditDialogOpen(true);
-  };
+  }, []);
 
   return (
     <div className="container p-4 space-y-6">
-      <h1 className="text-2xl font-bold">Búsqueda Avanzada de Clientes</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Búsqueda Avanzada de Clientes</h1>
+        <Button
+          onClick={() => openFormDialog()}
+          className="flex items-center gap-1"
+        >
+          <Edit className="h-4 w-4" />
+          Nuevo Cliente
+        </Button>
+      </div>
 
       {/* Formulario de búsqueda */}
       <Card>
-        <CardContent className="pt-6">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Search className="h-5 w-5" />
+            Buscar Clientes
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-1.5">
               <Label htmlFor="search-type">Buscar por</Label>
@@ -130,13 +157,16 @@ export default function BusquedaPage() {
                     }
                     className="pr-10"
                   />
-                  <button
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    onClick={() => setSearchTerm("")}
-                    hidden={!searchTerm}
-                  >
-                    &times;
-                  </button>
+                  {searchTerm && (
+                    <button
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      onClick={() => setSearchTerm("")}
+                      type="button"
+                      aria-label="Limpiar búsqueda"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
                 <Button
                   onClick={handleSearch}
@@ -160,136 +190,212 @@ export default function BusquedaPage() {
       {/* Resultados de búsqueda */}
       {isSearching && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold">
-            Resultados de búsqueda{" "}
-            {!isLoading && (
-              <span className="text-sm font-normal text-gray-500">
-                ({customers.length} encontrados)
-              </span>
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">
+              Resultados de búsqueda{" "}
+              {!isLoading && (
+                <span className="text-sm font-normal text-gray-500">
+                  ({customers.length} encontrados)
+                </span>
+              )}
+            </h2>
+            {customers.length > 0 && (
+              <div className="text-sm text-gray-500">
+                Mostrando los primeros 50 resultados
+              </div>
             )}
-          </h2>
+          </div>
 
           {isLoading ? (
-            <LoaderSpin text="Buscando clientes..." />
+            <div className="flex justify-center py-12">
+              <LoaderSpin text="Buscando clientes..." />
+            </div>
           ) : error ? (
-            <div className="text-center text-red-500 py-4">
-              Error al realizar la búsqueda
-            </div>
+            <Card className="border-red-200 bg-red-50">
+              <CardContent className="flex items-center gap-3 py-6">
+                <AlertCircle className="h-6 w-6 text-red-500" />
+                <div>
+                  <h3 className="font-medium text-red-600">
+                    Error al realizar la búsqueda
+                  </h3>
+                  <p className="text-sm text-red-500">
+                    {error instanceof Error
+                      ? error.message
+                      : "Ocurrió un error inesperado"}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           ) : customers.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">
-              No se encontraron clientes que coincidan con la búsqueda
-            </div>
+            <Empty
+              title="No se encontraron resultados"
+              description="Intente con otros términos de búsqueda o criterios diferentes"
+              action={
+                <Button variant="outline" onClick={handleClear}>
+                  Limpiar búsqueda
+                </Button>
+              }
+            />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {customers.map((customer) => (
-                <Card key={customer.id} className="overflow-hidden">
-                  <CardContent className="p-0">
-                    <div className="p-4">
-                      <div className="flex justify-between">
-                        <div>
-                          <h3 className="font-semibold">
-                            {customer.business_name || customer.name}
-                          </h3>
-                          {customer.business_name && (
-                            <p className="text-sm text-gray-500">
-                              {customer.name}
-                            </p>
-                          )}
-                        </div>
-                        <Badge
-                          variant={
-                            customer.status === "activo"
-                              ? "outline"
-                              : "destructive"
-                          }
-                          className="uppercase text-xs"
-                        >
-                          {customer.status}
-                        </Badge>
-                      </div>
-
-                      <div className="mt-2 space-y-1">
-                        <div className="flex items-center gap-1.5 text-sm">
-                          {customer.is_business ? (
-                            <>
-                              <Building2 className="h-4 w-4 text-blue-500" />
-                              <span className="text-blue-500">Empresa</span>
-                            </>
-                          ) : (
-                            <>
-                              <User className="h-4 w-4 text-gray-500" />
-                              <span className="text-gray-600">Individual</span>
-                            </>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-1.5 text-sm">
-                          <Phone className="h-3.5 w-3.5 text-gray-500" />
-                          <span>{customer.contact_phone}</span>
-                        </div>
-
-                        {customer.contact_email && (
-                          <div className="flex items-center gap-1.5 text-sm">
-                            <Mail className="h-3.5 w-3.5 text-gray-500" />
-                            <span className="truncate">
-                              {customer.contact_email}
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-1.5 text-sm">
-                          <MapPin className="h-3.5 w-3.5 text-gray-500" />
-                          <span className="truncate">{customer.address}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="border-t flex divide-x">
-                      <Button
-                        variant="ghost"
-                        className="flex-1 rounded-none h-10 gap-1"
-                        onClick={() =>
-                          handleViewCustomer(customer.id as number)
-                        }
-                      >
-                        <Eye className="h-4 w-4" />
-                        Ver
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="flex-1 rounded-none h-10 gap-1"
-                        onClick={() => handleEditCustomer(customer)}
-                      >
-                        <Edit className="h-4 w-4" />
-                        Editar
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <AnimatePresence>
+                {customers.map((customer) => (
+                  <CustomerSearchCard
+                    key={customer.id}
+                    customer={customer}
+                    onView={() => openViewDialog(customer.id as number)}
+                    onEdit={() => openFormDialog(customer)}
+                  />
+                ))}
+              </AnimatePresence>
+            </motion.div>
           )}
         </div>
       )}
 
       {/* Diálogos */}
       <CustomerViewDialog
-        customerId={selectedCustomerId}
-        onClose={() => setSelectedCustomerId(null)}
-        onEdit={handleEditCustomer}
+        customerId={dialogState.viewDialog.customerId}
+        onClose={closeViewDialog}
+        onEdit={(customer) => {
+          closeViewDialog();
+          openFormDialog(customer);
+        }}
+        onDelete={openDeleteDialog}
       />
 
       <CustomerFormDialog
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        customer={customerToEdit}
+        open={dialogState.formDialog.isOpen}
+        onOpenChange={closeFormDialog}
+        customer={dialogState.formDialog.customer}
         onSuccess={() => {
-          // Refrescar la lista si se modificó un cliente
+          // Si estábamos buscando, refrescar los resultados
           if (isSearching) {
             refetch();
           }
         }}
       />
+
+      <ConfirmDialog
+        open={dialogState.deleteDialog.isOpen}
+        title="Eliminar cliente"
+        description={`¿Está seguro que desea eliminar a ${dialogState.deleteDialog.customer?.name || "este cliente"}? Esta acción no se puede deshacer.`}
+        onConfirm={() => {
+          if (dialogState.deleteDialog.customer?.id) {
+            deleteCustomer(dialogState.deleteDialog.customer.id);
+            // Si estábamos buscando, refrescar los resultados
+            if (isSearching) {
+              refetch();
+            }
+          }
+        }}
+        onCancel={closeDeleteDialog}
+      />
     </div>
   );
 }
+
+// Componente de tarjeta para resultados de búsqueda
+interface CustomerSearchCardProps {
+  customer: Customer;
+  onView: () => void;
+  onEdit: () => void;
+}
+
+const CustomerSearchCard = ({
+  customer,
+  onView,
+  onEdit,
+}: CustomerSearchCardProps) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+      layout
+    >
+      <Card className="overflow-hidden h-full">
+        <CardContent className="p-0 flex flex-col h-full">
+          <div className="p-4 flex-grow">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="font-semibold">
+                  {customer.business_name || customer.name}
+                </h3>
+                {customer.business_name && (
+                  <p className="text-sm text-gray-500">{customer.name}</p>
+                )}
+              </div>
+              <Badge
+                variant={
+                  customer.status === "activo" ? "outline" : "destructive"
+                }
+                className="uppercase text-xs"
+              >
+                {customer.status}
+              </Badge>
+            </div>
+
+            <div className="mt-3 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-sm">
+                {customer.is_business ? (
+                  <>
+                    <Building2 className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                    <span className="text-blue-500">Empresa</span>
+                  </>
+                ) : (
+                  <>
+                    <User className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                    <span className="text-gray-600">Individual</span>
+                  </>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1.5 text-sm">
+                <Phone className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
+                <span>{customer.contact_phone}</span>
+              </div>
+
+              {customer.contact_email && (
+                <div className="flex items-center gap-1.5 text-sm">
+                  <Mail className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
+                  <span className="truncate">{customer.contact_email}</span>
+                </div>
+              )}
+
+              <div className="flex items-center gap-1.5 text-sm">
+                <MapPin className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
+                <span className="truncate">{customer.address}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t flex divide-x mt-auto">
+            <Button
+              variant="ghost"
+              className="flex-1 rounded-none h-10 gap-1"
+              onClick={onView}
+            >
+              <Eye className="h-4 w-4" />
+              Ver
+            </Button>
+            <Button
+              variant="ghost"
+              className="flex-1 rounded-none h-10 gap-1"
+              onClick={onEdit}
+            >
+              <Edit className="h-4 w-4" />
+              Editar
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};

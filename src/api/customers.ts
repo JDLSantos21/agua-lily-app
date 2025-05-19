@@ -1,4 +1,4 @@
-// src/api/customers.ts
+// src/api/customers.ts - VERSIÓN MEJORADA
 import { fetcher } from "./fetcher";
 import {
   Customer,
@@ -9,7 +9,18 @@ import {
   CustomerStatsResponse,
 } from "@/types/customers.types";
 
-// Obtener todos los clientes con filtros opcionales
+/**
+ * API para gestión de clientes
+ * --------------------------
+ * Esta API ha sido optimizada para:
+ * 1. Consistencia en parámetros y respuestas
+ * 2. Tipado estricto
+ * 3. Documentación clara
+ */
+
+/**
+ * Obtiene todos los clientes con filtros opcionales
+ */
 export const getCustomers = async (
   filters?: CustomerFilter
 ): Promise<CustomersResponse> => {
@@ -22,7 +33,9 @@ export const getCustomers = async (
   );
 };
 
-// Obtener un cliente por su ID
+/**
+ * Obtiene un cliente por su ID
+ */
 export const getCustomerById = async (
   id: number
 ): Promise<CustomerResponse> => {
@@ -31,7 +44,9 @@ export const getCustomerById = async (
   });
 };
 
-// Obtener un cliente con sus equipos
+/**
+ * Obtiene un cliente con sus equipos asociados
+ */
 export const getCustomerWithEquipment = async (
   id: number
 ): Promise<CustomerWithEquipmentResponse> => {
@@ -40,9 +55,11 @@ export const getCustomerWithEquipment = async (
   });
 };
 
-// Crear un nuevo cliente
+/**
+ * Crea un nuevo cliente
+ */
 export const createCustomer = async (
-  customer: Customer
+  customer: Omit<Customer, "id">
 ): Promise<CustomerResponse> => {
   return await fetcher(`/customers`, {
     method: "POST",
@@ -51,7 +68,9 @@ export const createCustomer = async (
   });
 };
 
-// Actualizar un cliente existente
+/**
+ * Actualiza un cliente existente
+ */
 export const updateCustomer = async (
   id: number,
   customer: Partial<Customer>
@@ -63,7 +82,9 @@ export const updateCustomer = async (
   });
 };
 
-// Actualizar solo el estado de un cliente
+/**
+ * Actualiza solo el estado de un cliente
+ */
 export const updateCustomerStatus = async (
   id: number,
   status: "activo" | "inactivo"
@@ -75,7 +96,9 @@ export const updateCustomerStatus = async (
   });
 };
 
-// Eliminar un cliente
+/**
+ * Elimina un cliente
+ */
 export const deleteCustomer = async (
   id: number
 ): Promise<{ success: boolean; message: string }> => {
@@ -84,7 +107,9 @@ export const deleteCustomer = async (
   });
 };
 
-// Buscar clientes por término
+/**
+ * Busca clientes por término
+ */
 export const searchCustomers = async (
   term: string,
   limit: number = 10
@@ -98,7 +123,9 @@ export const searchCustomers = async (
   );
 };
 
-// Obtener estadísticas de clientes
+/**
+ * Obtiene estadísticas de clientes
+ */
 export const getCustomerStats = async (): Promise<CustomerStatsResponse> => {
   return await fetcher(`/customers/stats`, {
     method: "GET",
