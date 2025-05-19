@@ -3,25 +3,21 @@
 
 import SideNav from "@/ui/sidenav/sidenav";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { useOrderStore } from "@/stores/orderStore";
 import {
   Package,
   SearchIcon,
   CalendarDays,
   BarChart,
-  ListFilter,
   Clock,
   Truck,
-  CheckCircle,
-  AlertTriangle,
-  PlusIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import NewOrderButton from "./components/order-menu-button";
 
 export default function PedidosLayout({
   children,
@@ -74,9 +70,11 @@ export default function PedidosLayout({
                       <TabsTrigger value="/orders" asChild>
                         <Link
                           href="/orders"
-                          className="flex items-center gap-1"
+                          className={`flex items-center gap-1`}
                         >
-                          <Package className="h-4 w-4" />
+                          <Package
+                            className={`h-4 w-4 ${isActive("/orders") ? "text-blue-500" : ""}`}
+                          />
                           <span>Pedidos</span>
                         </Link>
                       </TabsTrigger>
@@ -132,10 +130,7 @@ export default function PedidosLayout({
                     </div>
                   )}
 
-                  <Button size="sm" className="gap-1">
-                    <PlusIcon className="h-4 w-4" />
-                    <span>Nuevo Pedido</span>
-                  </Button>
+                  <NewOrderButton />
                 </div>
               </div>
             </div>

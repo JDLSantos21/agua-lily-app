@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { useOrderStore } from "@/stores/orderStore";
-import { OrderStatus } from "@/types/orders.types";
+import { Order, OrderStatus } from "@/types/orders.types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +28,7 @@ import OrderViewDialog from "./components/order-view-dialog";
 import OrderStatusDialog from "./components/order-status-dialog";
 import OrderAssignDeliveryDialog from "./components/order-assign-dialog";
 import OrderStats from "./components/orders-stats";
+import OrderForm from "./components/order-form";
 
 export default function PedidosPage() {
   // Vista activa: list, grid o stats
@@ -37,6 +38,10 @@ export default function PedidosPage() {
   const [activeStatusFilter, setActiveStatusFilter] = useState<
     OrderStatus | "all"
   >("all");
+
+  // Estado para el formulario de pedidos
+  const [isOrderFormOpen, setIsOrderFormOpen] = useState(false);
+  const [orderToEdit, setOrderToEdit] = useState<Order | null>(null);
 
   // Obtener estado y acciones del store
   const {
@@ -77,6 +82,23 @@ export default function PedidosPage() {
     } else {
       setFilters({ ...filters, order_status: status });
     }
+  };
+
+  // Manejadores para el formulario de pedidos
+  const handleOpenNewOrderForm = () => {
+    setOrderToEdit(null);
+    setIsOrderFormOpen(true);
+  };
+
+  const handleOpenEditOrderForm = (order: Order) => {
+    setOrderToEdit(order);
+    setIsOrderFormOpen(true);
+    closeFormDialog(); // Cerrar diálogo existente si está abierto
+  };
+
+  const handleCloseOrderForm = () => {
+    setIsOrderFormOpen(false);
+    setOrderToEdit(null);
   };
 
   // Renderizado basado en estado de carga
@@ -148,7 +170,7 @@ export default function PedidosPage() {
             </Link>
           </Button>
 
-          <Button>
+          <Button onClick={handleOpenNewOrderForm} variant="primary">
             <PlusIcon className="h-4 w-4 mr-1" />
             <span>Nuevo Pedido</span>
           </Button>
@@ -255,7 +277,7 @@ export default function PedidosPage() {
                     description="No se encontraron pedidos con los filtros aplicados"
                     icon={<Package className="h-10 w-10 text-gray-400" />}
                     action={
-                      <Button>
+                      <Button onClick={handleOpenNewOrderForm}>
                         <FilePlus className="h-4 w-4 mr-1" />
                         Crear Pedido
                       </Button>
@@ -268,7 +290,7 @@ export default function PedidosPage() {
                         key={order.id}
                         order={order}
                         onView={openViewDialog}
-                        onEdit={openFormDialog}
+                        onEdit={handleOpenEditOrderForm}
                         onChangeStatus={openStatusDialog}
                         onAssignDelivery={openAssignDialog}
                         onDelete={openDeleteDialog}
@@ -322,6 +344,12 @@ export default function PedidosPage() {
       </div>
 
       {/* Diálogos */}
+      <OrderForm
+        open={isOrderFormOpen}
+        onOpenChange={handleCloseOrderForm}
+        initialOrder={orderToEdit}
+      />
+
       <OrderViewDialog
         orderId={dialogState.viewDialog.orderId}
         onClose={closeViewDialog}
