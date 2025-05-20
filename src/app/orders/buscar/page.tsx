@@ -1,8 +1,7 @@
-// src/app/pedidos/buscar/page.tsx
+// src/app/orders/buscar/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
-import { useOrderStore } from "@/stores/orderStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,89 +13,168 @@ import { Empty } from "@/components/Empty";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDebounce } from "use-debounce";
+
+// Componentes
 import OrderAssignDeliveryDialog from "../components/order-assign-dialog";
 import OrderStatusDialog from "../components/order-status-dialog";
 import OrderViewDialog from "../components/order-view-dialog";
 import OrderCard from "../components/order-card";
 
+// Hooks de TanStack Query
+import {
+  useSearchOrders,
+  useOrderByTracking,
+  useDeleteOrder,
+} from "@/hooks/useOrders";
+
 export default function BuscarPedidosPage() {
   // Estados para la búsqueda
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState<Order[]>([]);
 
   // Estados para seguimiento directo de pedido
   const [trackingCode, setTrackingCode] = useState("");
-  const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
-  const [isTrackingLoading, setIsTrackingLoading] = useState(false);
   const [trackingError, setTrackingError] = useState<string | null>(null);
 
-  // Obtener estado y acciones del store
+  // Estados para diálogos
+  const [dialogs, setDialogs] = useState({
+    viewDialog: { isOpen: false, orderId: null as number | null },
+    formDialog: { isOpen: false, order: null as Order | null },
+    deleteDialog: { isOpen: false, order: null as Order | null },
+    statusDialog: { isOpen: false, order: null as Order | null },
+    assignDialog: { isOpen: false, order: null as Order | null },
+  });
+
+  // Consultas con TanStack Query
+  const { data: searchResults, isLoading: isSearching } = useSearchOrders(
+    debouncedSearchTerm,
+    10,
+    {
+      enabled: debouncedSearchTerm.length >= 2,
+      placeholderData: (old) => old,
+    }
+  );
+
   const {
-    dialogState,
-    isLoading,
-    error,
-    searchOrdersByTerm,
-    fetchOrderByTracking,
-    openViewDialog,
-    openFormDialog,
-    openStatusDialog,
-    openAssignDialog,
-    openDeleteDialog,
-    closeViewDialog,
-    closeFormDialog,
-    closeStatusDialog,
-    closeAssignDialog,
-    closeDeleteDialog,
-    deleteOrder,
-  } = useOrderStore();
+    data: trackingOrderResponse,
+    isLoading: isTrackingLoading,
+    error: trackingQueryError,
+    refetch: refetchTracking,
+  } = useOrderByTracking(trackingCode, {
+    enabled: false, // No ejecutar automáticamente
+  });
 
-  // Efecto para realizar búsqueda automática cuando cambia el término debounceado
-  useEffect(() => {
-    const performSearch = async () => {
-      if (debouncedSearchTerm && debouncedSearchTerm.length >= 2) {
-        setIsSearching(true);
-        const results = await searchOrdersByTerm(debouncedSearchTerm);
-        setSearchResults(results);
-        setIsSearching(false);
-      } else if (debouncedSearchTerm === "") {
-        setSearchResults([]);
-      }
-    };
-
-    performSearch();
-  }, [debouncedSearchTerm, searchOrdersByTerm]);
+  const deleteOrderMutation = useDeleteOrder();
 
   // Manejar búsqueda por código de seguimiento
   const handleTrackingSearch = async () => {
     if (!trackingCode) return;
 
-    setIsTrackingLoading(true);
     setTrackingError(null);
-
     try {
-      const order = await fetchOrderByTracking(trackingCode);
-      setTrackingOrder(order);
-      if (!order) {
-        setTrackingError(
-          "No se encontró ningún pedido con ese código de seguimiento"
-        );
-      }
+      await refetchTracking();
     } catch (err) {
       setTrackingError(
         "Error al buscar el pedido. Verifique el código e intente nuevamente."
       );
-      setTrackingOrder(null);
-    } finally {
-      setIsTrackingLoading(false);
     }
   };
+
+  // Efecto para manejar errores de tracking
+  useEffect(() => {
+    if (trackingQueryError) {
+      setTrackingError(
+        "No se encontró ningún pedido con ese código de seguimiento"
+      );
+    }
+  }, [trackingQueryError]);
+
+  // Extraer el pedido de tracking de la respuesta
+  const trackingOrder = trackingOrderResponse?.data || null;
 
   // Manejar tecla Enter en input
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleTrackingSearch();
+    }
+  };
+
+  // Funciones para diálogos
+  const openViewDialog = (orderId: number) => {
+    setDialogs((prev) => ({
+      ...prev,
+      viewDialog: { isOpen: true, orderId },
+    }));
+  };
+
+  const closeViewDialog = () => {
+    setDialogs((prev) => ({
+      ...prev,
+      viewDialog: { isOpen: false, orderId: null },
+    }));
+  };
+
+  const openFormDialog = (order: Order) => {
+    setDialogs((prev) => ({
+      ...prev,
+      formDialog: { isOpen: true, order },
+    }));
+  };
+
+  // const closeFormDialog = () => {
+  //   setDialogs((prev) => ({
+  //     ...prev,
+  //     formDialog: { isOpen: false, order: null },
+  //   }));
+  // };
+
+  const openStatusDialog = (order: Order) => {
+    setDialogs((prev) => ({
+      ...prev,
+      statusDialog: { isOpen: true, order },
+    }));
+  };
+
+  const closeStatusDialog = () => {
+    setDialogs((prev) => ({
+      ...prev,
+      statusDialog: { isOpen: false, order: null },
+    }));
+  };
+
+  const openAssignDialog = (order: Order) => {
+    setDialogs((prev) => ({
+      ...prev,
+      assignDialog: { isOpen: true, order },
+    }));
+  };
+
+  const closeAssignDialog = () => {
+    setDialogs((prev) => ({
+      ...prev,
+      assignDialog: { isOpen: false, order: null },
+    }));
+  };
+
+  const openDeleteDialog = (order: Order) => {
+    setDialogs((prev) => ({
+      ...prev,
+      deleteDialog: { isOpen: true, order },
+    }));
+  };
+
+  const closeDeleteDialog = () => {
+    setDialogs((prev) => ({
+      ...prev,
+      deleteDialog: { isOpen: false, order: null },
+    }));
+  };
+
+  const handleDeleteOrder = () => {
+    if (dialogs.deleteDialog.order?.id) {
+      deleteOrderMutation.mutate(dialogs.deleteDialog.order.id, {
+        onSuccess: closeDeleteDialog,
+      });
     }
   };
 
@@ -200,7 +278,7 @@ export default function BuscarPedidosPage() {
                 <div className="flex justify-center py-8">
                   <LoaderSpin text="Buscando..." />
                 </div>
-              ) : searchResults.length === 0 ? (
+              ) : searchResults?.data.length === 0 ? (
                 <Empty
                   title="Sin resultados"
                   description="No se encontraron pedidos que coincidan con su búsqueda"
@@ -209,10 +287,10 @@ export default function BuscarPedidosPage() {
               ) : (
                 <div className="max-h-[500px] overflow-y-auto pr-1 space-y-3">
                   <div className="text-sm text-gray-500 mb-2">
-                    Se encontraron {searchResults.length} resultados
+                    Se encontraron {searchResults?.data.length} resultados
                   </div>
                   <AnimatePresence>
-                    {searchResults.map((order) => (
+                    {searchResults?.data.map((order) => (
                       <motion.div
                         key={order.id}
                         initial={{ opacity: 0, y: 10 }}
@@ -240,7 +318,7 @@ export default function BuscarPedidosPage() {
 
       {/* Diálogos */}
       <OrderViewDialog
-        orderId={dialogState.viewDialog.orderId}
+        orderId={dialogs.viewDialog.orderId}
         onClose={closeViewDialog}
         onEdit={openFormDialog}
         onChangeStatus={openStatusDialog}
@@ -249,26 +327,22 @@ export default function BuscarPedidosPage() {
       />
 
       <OrderStatusDialog
-        open={dialogState.statusDialog.isOpen}
+        open={dialogs.statusDialog.isOpen}
         onOpenChange={closeStatusDialog}
-        order={dialogState.statusDialog.order}
+        order={dialogs.statusDialog.order}
       />
 
       <OrderAssignDeliveryDialog
-        open={dialogState.assignDialog.isOpen}
+        open={dialogs.assignDialog.isOpen}
         onOpenChange={closeAssignDialog}
-        order={dialogState.assignDialog.order}
+        order={dialogs.assignDialog.order}
       />
 
       <ConfirmDialog
-        open={dialogState.deleteDialog.isOpen}
+        open={dialogs.deleteDialog.isOpen}
         title="Eliminar pedido"
-        description={`¿Está seguro que desea eliminar el pedido ${dialogState.deleteDialog.order?.tracking_code || ""}? Esta acción no se puede deshacer.`}
-        onConfirm={() => {
-          if (dialogState.deleteDialog.order?.id) {
-            deleteOrder(dialogState.deleteDialog.order.id);
-          }
-        }}
+        description={`¿Está seguro que desea eliminar el pedido ${dialogs.deleteDialog.order?.tracking_code || ""}? Esta acción no se puede deshacer.`}
+        onConfirm={handleDeleteOrder}
         onCancel={closeDeleteDialog}
       />
     </div>

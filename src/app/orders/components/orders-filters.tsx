@@ -63,6 +63,8 @@ const OrderFilters = memo(function OrderFilters({
 
     if (status && status !== "todos") {
       newFilters.order_status = status as OrderStatus;
+    } else if (status === "todos") {
+      delete newFilters.order_status;
     }
 
     if (startDate) {
@@ -210,7 +212,11 @@ const OrderFilters = memo(function OrderFilters({
                   >
                     Limpiar todo
                   </Button>
-                  <Button size="sm" onClick={() => setIsFiltersOpen(false)}>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => setIsFiltersOpen(false)}
+                  >
                     Aplicar
                   </Button>
                 </div>

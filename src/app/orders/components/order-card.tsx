@@ -103,132 +103,111 @@ const OrderCard = memo(function OrderCard({
     : false;
 
   // Modo compacto para listados con muchas tarjetas
-  if (layout === "compact") {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 5 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
-        className="hover:shadow-md transition-shadow"
-      >
-        <Card className="h-full">
-          <CardHeader className="pb-2 flex justify-between items-start">
-            <div>
-              <CardTitle className="flex items-center gap-1 text-base">
-                {isUrgent && (
-                  <span className="h-2 w-2 bg-red-500 rounded-full animate-pulse" />
-                )}
-                <span className="truncate max-w-[180px]">
-                  {order.customer_display_name || order.customer_name}
-                </span>
-              </CardTitle>
-              <p className="text-xs text-gray-500 mt-0.5">
-                {order.tracking_code}
-              </p>
-            </div>
-            <OrderStatusBadge
-              status={order.order_status || "pendiente"}
-              size="sm"
-            />
-          </CardHeader>
+  <motion.div
+    initial={{ opacity: 0, y: 5 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.2 }}
+    className="hover:bg-muted/50 border-b last:border-none"
+  >
+    <div className="flex items-center justify-between px-4 py-3 text-sm">
+      <div className="flex items-start gap-3 w-full max-w-[320px]">
+        {isUrgent && (
+          <span className="h-2 w-2 bg-red-500 rounded-full animate-pulse mt-1" />
+        )}
+        <div>
+          <div className="font-medium truncate max-w-[220px]">
+            {order.customer_display_name || order.customer_name}
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {order.tracking_code}
+          </div>
+        </div>
+      </div>
 
-          <CardContent className="pb-2 pt-0">
-            <div className="grid grid-cols-2 gap-y-2 text-sm">
-              <div className="flex items-center gap-1 text-gray-600">
-                <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                <span>{format(order.order_date || "", "short")}</span>
-              </div>
+      <div className="hidden md:flex flex-col gap-0.5 text-muted-foreground text-xs w-[180px]">
+        <div className="flex items-center gap-1">
+          <Calendar className="h-3.5 w-3.5" />
+          <span>{format(order.order_date || "", "short")}</span>
+        </div>
+        {order.scheduled_delivery_date && (
+          <div className="flex items-center gap-1">
+            <Truck className="h-3.5 w-3.5" />
+            <span>{format(order.scheduled_delivery_date, "short")}</span>
+          </div>
+        )}
+      </div>
 
-              {order.scheduled_delivery_date && (
-                <div className="flex items-center gap-1 text-gray-600">
-                  <Truck className="h-3.5 w-3.5 text-gray-400" />
-                  <span>{format(order.scheduled_delivery_date, "short")}</span>
-                </div>
-              )}
+      <div className="hidden md:flex items-center gap-1 text-xs text-muted-foreground w-[180px]">
+        <Phone className="h-3.5 w-3.5" />
+        <span className="truncate">{order.customer_phone}</span>
+      </div>
 
-              <div className="flex items-center gap-1 text-gray-600 col-span-2">
-                <Phone className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
-                <span className="truncate">{order.customer_phone}</span>
-              </div>
-            </div>
+      <div className="hidden lg:flex items-center gap-1 text-xs text-muted-foreground w-[120px]">
+        <Package className="h-3 w-3" />
+        <span>
+          {order.items?.length || 0} producto
+          {order.items?.length !== 1 ? "s" : ""}
+        </span>
+      </div>
 
-            {order.items && order.items.length > 0 && (
-              <div className="mt-2">
-                <div className="text-xs text-gray-500 flex items-center gap-1">
-                  <Package className="h-3 w-3" />
-                  <span>
-                    {order.items.length} producto
-                    {order.items.length !== 1 ? "s" : ""}
-                  </span>
-                </div>
-              </div>
-            )}
-          </CardContent>
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={handleView}
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
 
-          <CardFooter className="p-0 flex">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex-1 h-9 rounded-none rounded-bl-lg"
-              onClick={handleView}
-            >
-              <Eye className="h-4 w-4" />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreHorizontal className="h-4 w-4" />
             </Button>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex-1 h-9 rounded-none rounded-br-lg"
-                >
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[180px]">
-                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[180px]">
+            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {onEdit && (
+              <DropdownMenuItem onClick={handleEdit}>
+                <Edit className="mr-2 h-4 w-4" />
+                <span>Editar</span>
+              </DropdownMenuItem>
+            )}
+            {onChangeStatus && (
+              <DropdownMenuItem onClick={handleChangeStatus}>
+                <Clock className="mr-2 h-4 w-4" />
+                <span>Cambiar estado</span>
+              </DropdownMenuItem>
+            )}
+            {onAssignDelivery && (
+              <DropdownMenuItem onClick={handleAssignDelivery}>
+                <Truck className="mr-2 h-4 w-4" />
+                <span>Asignar entrega</span>
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem onClick={copyTrackingCode}>
+              <Clipboard className="mr-2 h-4 w-4" />
+              <span>Copiar código</span>
+            </DropdownMenuItem>
+            {onDelete && (
+              <>
                 <DropdownMenuSeparator />
-                {onEdit && (
-                  <DropdownMenuItem onClick={handleEdit}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    <span>Editar</span>
-                  </DropdownMenuItem>
-                )}
-                {onChangeStatus && (
-                  <DropdownMenuItem onClick={handleChangeStatus}>
-                    <Clock className="mr-2 h-4 w-4" />
-                    <span>Cambiar estado</span>
-                  </DropdownMenuItem>
-                )}
-                {onAssignDelivery && (
-                  <DropdownMenuItem onClick={handleAssignDelivery}>
-                    <Truck className="mr-2 h-4 w-4" />
-                    <span>Asignar entrega</span>
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onClick={copyTrackingCode}>
-                  <Clipboard className="mr-2 h-4 w-4" />
-                  <span>Copiar código</span>
+                <DropdownMenuItem
+                  onClick={handleDelete}
+                  className="text-red-600"
+                >
+                  <Trash className="mr-2 h-4 w-4" />
+                  <span>Eliminar</span>
                 </DropdownMenuItem>
-                {onDelete && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={handleDelete}
-                      className="text-red-600"
-                    >
-                      <Trash className="mr-2 h-4 w-4" />
-                      <span>Eliminar</span>
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </CardFooter>
-        </Card>
-      </motion.div>
-    );
-  }
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  </motion.div>;
 
   return (
     <motion.div
@@ -237,7 +216,7 @@ const OrderCard = memo(function OrderCard({
       transition={{ duration: 0.3 }}
       className="hover:shadow-md transition-shadow"
     >
-      <Card className="h-full">
+      <Card className="h-full flex flex-col justify-between">
         <CardHeader className="pb-3 flex flex-row items-start justify-between">
           <div>
             <div className="flex items-center gap-2">
@@ -336,7 +315,7 @@ const OrderCard = memo(function OrderCard({
           )}
         </CardContent>
 
-        <CardFooter className="pt-0 flex justify-between gap-2 border-t">
+        <CardFooter className="pt-5 flex justify-between gap-2 border-t">
           <Button
             variant="outline"
             size="sm"

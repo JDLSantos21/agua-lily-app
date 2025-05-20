@@ -20,7 +20,23 @@ export default function RootLayout({
   const initializeAuth = useAuthStore((state) => state.initializeAuth);
   const setUpdate = useUpdateStore((state) => state.setUpdate);
 
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            // Configuración optimizada para mejorar rendimiento
+            staleTime: 1000 * 60, // 1 minuto por defecto
+            retry: 1, // Solo reintentar una vez si falla
+            refetchOnWindowFocus: false, // No recargar automáticamente al cambiar el foco
+            refetchOnMount: true, // Recargar datos cuando el componente se monta
+          },
+          mutations: {
+            retry: 0, // No reintentar mutaciones
+          },
+        },
+      })
+  );
 
   useInactivityLogout();
 

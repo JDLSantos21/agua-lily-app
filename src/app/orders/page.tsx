@@ -1,8 +1,7 @@
-// src/app/pedidos/page.tsx
+// src/app/orders/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { useOrderStore } from "@/stores/orderStore";
+import { useState, useCallback, useMemo } from "react";
 import { Order, OrderStatus } from "@/types/orders.types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,6 @@ import {
   SearchIcon,
   BarChartIcon,
   FilePlus,
-  CalendarDays,
   Package,
 } from "lucide-react";
 import { LoaderSpin } from "@/components/Loader";
@@ -30,79 +28,170 @@ import OrderAssignDeliveryDialog from "./components/order-assign-dialog";
 import OrderStats from "./components/orders-stats";
 import OrderForm from "./components/order-form";
 
+// Nuevos imports de TanStack Query
+import { useOrders, useOrderStats, useDeleteOrder } from "@/hooks/useOrders";
+
+// Type para el estado de diálogos
+interface DialogsState {
+  viewOrder: { isOpen: boolean; orderId: number | null };
+  editOrder: { isOpen: boolean; order: Order | null };
+  deleteOrder: { isOpen: boolean; order: Order | null };
+  statusOrder: { isOpen: boolean; order: Order | null };
+  assignOrder: { isOpen: boolean; order: Order | null };
+}
+
 export default function PedidosPage() {
   // Vista activa: list, grid o stats
   const [activeView, setActiveView] = useState<"list" | "grid" | "stats">(
     "grid"
   );
+
+  // Estado para filtros
+  const [filters, setFilters] = useState<{
+    order_status?: OrderStatus;
+    search?: string;
+    start_date?: string;
+    end_date?: string;
+    scheduled_date?: string;
+  }>({});
+
   const [activeStatusFilter, setActiveStatusFilter] = useState<
     OrderStatus | "all"
   >("all");
 
-  // Estado para el formulario de pedidos
-  const [isOrderFormOpen, setIsOrderFormOpen] = useState(false);
-  const [orderToEdit, setOrderToEdit] = useState<Order | null>(null);
+  // Estado para diálogos - centralizado y manejado localmente
+  const [dialogs, setDialogs] = useState<DialogsState>({
+    viewOrder: { isOpen: false, orderId: null },
+    editOrder: { isOpen: false, order: null },
+    deleteOrder: { isOpen: false, order: null },
+    statusOrder: { isOpen: false, order: null },
+    assignOrder: { isOpen: false, order: null },
+  });
 
-  // Obtener estado y acciones del store
+  // Consultas de datos con TanStack Query
   const {
-    orders,
-    pagination,
-    isLoading,
-    error,
-    filters,
-    dialogState,
-    fetchOrders,
-    fetchOrderStats,
-    setFilters,
-    openViewDialog,
-    openFormDialog,
-    openStatusDialog,
-    openAssignDialog,
-    openDeleteDialog,
-    closeViewDialog,
-    closeFormDialog,
-    closeStatusDialog,
-    closeAssignDialog,
-    closeDeleteDialog,
-    deleteOrder,
-  } = useOrderStore();
+    data: ordersResponse,
+    isLoading: isLoadingOrders,
+    error: ordersError,
+  } = useOrders(filters, {
+    // No refetching automático en foco para mejorar rendimiento
+    refetchOnWindowFocus: false,
+  });
 
-  // Cargar datos al montar el componente
-  useEffect(() => {
-    fetchOrders();
-    fetchOrderStats();
-  }, [fetchOrders, fetchOrderStats]);
+  // Solo consultar estadísticas cuando se muestra la vista de estadísticas
+  const { data: statsData, isLoading: isLoadingStats } = useOrderStats({
+    enabled: activeView === "stats" || activeStatusFilter !== "all",
+    refetchOnWindowFocus: false,
+    // Mantener anterior data mientras se recarga
+    placeholderData: (old) => old,
+  });
 
-  // Manejar el cambio de filtro de estado
-  const handleStatusFilterChange = (status: OrderStatus | "all") => {
-    setActiveStatusFilter(status);
+  // Mutación para eliminar pedidos
+  const deleteOrderMutation = useDeleteOrder();
 
-    if (status === "all") {
-      setFilters({ ...filters, order_status: undefined });
-    } else {
-      setFilters({ ...filters, order_status: status });
+  // Funciones para manejar diálogos - optimizadas con useCallback
+  const openViewDialog = useCallback((orderId: number) => {
+    setDialogs((prev) => ({
+      ...prev,
+      viewOrder: { isOpen: true, orderId },
+    }));
+  }, []);
+
+  const closeViewDialog = useCallback(() => {
+    setDialogs((prev) => ({
+      ...prev,
+      viewOrder: { isOpen: false, orderId: null },
+    }));
+  }, []);
+
+  const openEditDialog = useCallback((order: Order) => {
+    setDialogs((prev) => ({
+      ...prev,
+      editOrder: { isOpen: true, order },
+    }));
+  }, []);
+
+  const closeEditDialog = useCallback(() => {
+    setDialogs((prev) => ({
+      ...prev,
+      editOrder: { isOpen: false, order: null },
+    }));
+  }, []);
+
+  const openDeleteDialog = useCallback((order: Order) => {
+    setDialogs((prev) => ({
+      ...prev,
+      deleteOrder: { isOpen: true, order },
+    }));
+  }, []);
+
+  const closeDeleteDialog = useCallback(() => {
+    setDialogs((prev) => ({
+      ...prev,
+      deleteOrder: { isOpen: false, order: null },
+    }));
+  }, []);
+
+  const openStatusDialog = useCallback((order: Order) => {
+    setDialogs((prev) => ({
+      ...prev,
+      statusOrder: { isOpen: true, order },
+    }));
+  }, []);
+
+  const closeStatusDialog = useCallback(() => {
+    setDialogs((prev) => ({
+      ...prev,
+      statusOrder: { isOpen: false, order: null },
+    }));
+  }, []);
+
+  const openAssignDialog = useCallback((order: Order) => {
+    setDialogs((prev) => ({
+      ...prev,
+      assignOrder: { isOpen: true, order },
+    }));
+  }, []);
+
+  const closeAssignDialog = useCallback(() => {
+    setDialogs((prev) => ({
+      ...prev,
+      assignOrder: { isOpen: false, order: null },
+    }));
+  }, []);
+
+  // Manejador de cambio de filtro de estado
+  const handleStatusFilterChange = useCallback(
+    (status: OrderStatus | "all") => {
+      setActiveStatusFilter(status);
+      setFilters((prev) => ({
+        ...prev,
+        order_status: status === "all" ? undefined : status,
+      }));
+    },
+    []
+  );
+
+  // Manejador de eliminación de pedido
+  const handleDeleteOrder = useCallback(() => {
+    if (dialogs.deleteOrder.order?.id) {
+      deleteOrderMutation.mutate(dialogs.deleteOrder.order.id, {
+        onSuccess: () => {
+          closeDeleteDialog();
+        },
+      });
     }
-  };
+  }, [dialogs.deleteOrder.order, deleteOrderMutation, closeDeleteDialog]);
 
-  // Manejadores para el formulario de pedidos
-  const handleOpenNewOrderForm = () => {
-    setOrderToEdit(null);
-    setIsOrderFormOpen(true);
-  };
-
-  const handleOpenEditOrderForm = (order: Order) => {
-    setOrderToEdit(order);
-    setIsOrderFormOpen(true);
-    closeFormDialog(); // Cerrar diálogo existente si está abierto
-  };
-
-  const handleCloseOrderForm = () => {
-    setIsOrderFormOpen(false);
-    setOrderToEdit(null);
-  };
+  // Memoizar la lista de pedidos para evitar re-renderizados
+  const orders = useMemo(() => ordersResponse?.data || [], [ordersResponse]);
+  const pagination = useMemo(
+    () => ordersResponse?.pagination || null,
+    [ordersResponse]
+  );
 
   // Renderizado basado en estado de carga
-  if (error) {
+  if (ordersError) {
     return (
       <Card className="mx-auto max-w-lg mt-10">
         <CardContent className="pt-6">
@@ -115,8 +204,12 @@ export default function PedidosPage() {
               Ha ocurrido un error al intentar cargar los datos. Por favor,
               intente nuevamente.
             </p>
-            <p className="text-sm text-gray-400 mt-2">Detalles: {error}</p>
-            <Button onClick={() => fetchOrders()}>Reintentar</Button>
+            <p className="text-sm text-gray-400 mt-2">
+              Detalles:{" "}
+              {ordersError instanceof Error
+                ? ordersError.message
+                : "Error desconocido"}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -163,14 +256,22 @@ export default function PedidosPage() {
             </Link>
           </Button>
 
-          <Button variant="outline" asChild>
+          {/* <Button variant="outline" asChild>
             <Link href="/orders/calendario" className="flex items-center gap-1">
               <CalendarDays className="h-4 w-4" />
               <span>Calendario</span>
             </Link>
-          </Button>
+          </Button> */}
 
-          <Button onClick={handleOpenNewOrderForm} variant="primary">
+          <Button
+            onClick={() =>
+              setDialogs((prev) => ({
+                ...prev,
+                editOrder: { isOpen: true, order: null },
+              }))
+            }
+            variant="primary"
+          >
             <PlusIcon className="h-4 w-4 mr-1" />
             <span>Nuevo Pedido</span>
           </Button>
@@ -179,7 +280,11 @@ export default function PedidosPage() {
 
       {/* Estadísticas rápidas */}
       <div className="mb-6">
-        <OrderStats simplified />
+        <OrderStats
+          simplified
+          stats={statsData?.data}
+          isLoading={isLoadingStats}
+        />
       </div>
 
       {/* Filtros de estado */}
@@ -241,7 +346,7 @@ export default function PedidosPage() {
 
       {/* Contenido según la vista seleccionada */}
       <div className="mt-6">
-        {isLoading ? (
+        {isLoadingOrders ? (
           <div className="flex justify-center py-12">
             <LoaderSpin text="Cargando pedidos..." />
           </div>
@@ -250,7 +355,10 @@ export default function PedidosPage() {
             {activeView === "stats" ? (
               // Vista de estadísticas
               <div className="space-y-6">
-                <OrderStats />
+                <OrderStats
+                  stats={statsData?.data}
+                  isLoading={isLoadingStats}
+                />
 
                 <Card>
                   <CardContent className="pt-6">
@@ -277,7 +385,15 @@ export default function PedidosPage() {
                     description="No se encontraron pedidos con los filtros aplicados"
                     icon={<Package className="h-10 w-10 text-gray-400" />}
                     action={
-                      <Button onClick={handleOpenNewOrderForm}>
+                      <Button
+                        variant="primary"
+                        onClick={() =>
+                          setDialogs((prev) => ({
+                            ...prev,
+                            editOrder: { isOpen: true, order: null },
+                          }))
+                        }
+                      >
                         <FilePlus className="h-4 w-4 mr-1" />
                         Crear Pedido
                       </Button>
@@ -285,12 +401,12 @@ export default function PedidosPage() {
                   />
                 ) : (
                   <div className="space-y-2">
-                    {orders.map((order) => (
+                    {orders.map((order: Order) => (
                       <OrderCard
                         key={order.id}
                         order={order}
                         onView={openViewDialog}
-                        onEdit={handleOpenEditOrderForm}
+                        onEdit={openEditDialog}
                         onChangeStatus={openStatusDialog}
                         onAssignDelivery={openAssignDialog}
                         onDelete={openDeleteDialog}
@@ -309,7 +425,15 @@ export default function PedidosPage() {
                     description="No se encontraron pedidos con los filtros aplicados"
                     icon={<Package className="h-10 w-10 text-gray-400" />}
                     action={
-                      <Button>
+                      <Button
+                        variant="primary"
+                        onClick={() =>
+                          setDialogs((prev) => ({
+                            ...prev,
+                            editOrder: { isOpen: true, order: null },
+                          }))
+                        }
+                      >
                         <FilePlus className="h-4 w-4 mr-1" />
                         Crear Pedido
                       </Button>
@@ -317,18 +441,18 @@ export default function PedidosPage() {
                   />
                 ) : (
                   <motion.div
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+                    className="grid lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                   >
                     <AnimatePresence>
-                      {orders.map((order) => (
+                      {orders.map((order: Order) => (
                         <OrderCard
                           key={order.id}
                           order={order}
                           onView={openViewDialog}
-                          onEdit={openFormDialog}
+                          onEdit={openEditDialog}
                           onChangeStatus={openStatusDialog}
                           onAssignDelivery={openAssignDialog}
                           onDelete={openDeleteDialog}
@@ -345,41 +469,37 @@ export default function PedidosPage() {
 
       {/* Diálogos */}
       <OrderForm
-        open={isOrderFormOpen}
-        onOpenChange={handleCloseOrderForm}
-        initialOrder={orderToEdit}
+        open={dialogs.editOrder.isOpen}
+        onOpenChange={closeEditDialog}
+        initialOrder={dialogs.editOrder.order}
       />
 
       <OrderViewDialog
-        orderId={dialogState.viewDialog.orderId}
+        orderId={dialogs.viewOrder.orderId}
         onClose={closeViewDialog}
-        onEdit={openFormDialog}
+        onEdit={openEditDialog}
         onChangeStatus={openStatusDialog}
         onAssignDelivery={openAssignDialog}
         onDelete={openDeleteDialog}
       />
 
       <OrderStatusDialog
-        open={dialogState.statusDialog.isOpen}
+        open={dialogs.statusOrder.isOpen}
         onOpenChange={closeStatusDialog}
-        order={dialogState.statusDialog.order}
+        order={dialogs.statusOrder.order}
       />
 
       <OrderAssignDeliveryDialog
-        open={dialogState.assignDialog.isOpen}
+        open={dialogs.assignOrder.isOpen}
         onOpenChange={closeAssignDialog}
-        order={dialogState.assignDialog.order}
+        order={dialogs.assignOrder.order}
       />
 
       <ConfirmDialog
-        open={dialogState.deleteDialog.isOpen}
+        open={dialogs.deleteOrder.isOpen}
         title="Eliminar pedido"
-        description={`¿Está seguro que desea eliminar el pedido ${dialogState.deleteDialog.order?.tracking_code || ""}? Esta acción no se puede deshacer.`}
-        onConfirm={() => {
-          if (dialogState.deleteDialog.order?.id) {
-            deleteOrder(dialogState.deleteDialog.order.id);
-          }
-        }}
+        description={`¿Está seguro que desea eliminar el pedido ${dialogs.deleteOrder.order?.tracking_code || ""}? Esta acción no se puede deshacer.`}
+        onConfirm={handleDeleteOrder}
         onCancel={closeDeleteDialog}
       />
 

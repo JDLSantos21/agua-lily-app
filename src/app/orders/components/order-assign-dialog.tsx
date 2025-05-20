@@ -18,23 +18,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Order } from "@/types/orders.types";
-import { useOrderStore } from "@/stores/orderStore";
 import { Loader2, TruckIcon, UserIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-
-// Simulación de datos - Estos deberían venir de tu API
-// Añade estos hooks y llamadas API según sea necesario
-const MOCK_DRIVERS = [
-  { id: 1, name: "Juan Pérez" },
-  { id: 2, name: "María López" },
-  { id: 3, name: "Carlos García" },
-];
-
-const MOCK_VEHICLES = [
-  { id: 1, tag: "XYZ-123", type: "Camión" },
-  { id: 2, tag: "ABC-456", type: "Van" },
-  { id: 3, tag: "QWE-789", type: "Moto" },
-];
+import { useAssignDelivery } from "@/hooks/useOrders";
+import { useVehiclesQuery } from "@/hooks/useVehiclesQuery";
+import { useEmployeesQuery } from "@/hooks/useEmployees";
 
 interface OrderAssignDeliveryDialogProps {
   open: boolean;
@@ -50,8 +38,9 @@ const OrderAssignDeliveryDialog = memo(function OrderAssignDeliveryDialog({
   const [driverId, setDriverId] = useState<string>("");
   const [vehicleId, setVehicleId] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { assignDelivery } = useOrderStore();
+  const { data: vehicles } = useVehiclesQuery({ enabled: open });
+  const { data: drivers } = useEmployeesQuery("driver", { enabled: open });
+  const { mutateAsync: assignDelivery } = useAssignDelivery();
 
   // Reset state when dialog opens
   useEffect(() => {
@@ -69,9 +58,12 @@ const OrderAssignDeliveryDialog = memo(function OrderAssignDeliveryDialog({
     setIsSubmitting(true);
 
     try {
-      await assignDelivery(order.id, {
-        delivery_driver_id: parseInt(driverId),
-        vehicle_id: parseInt(vehicleId),
+      await assignDelivery({
+        id: order.id,
+        data: {
+          delivery_driver_id: parseInt(driverId),
+          vehicle_id: parseInt(vehicleId),
+        },
       });
 
       onOpenChange(false);
@@ -144,7 +136,7 @@ const OrderAssignDeliveryDialog = memo(function OrderAssignDeliveryDialog({
                   <SelectValue placeholder="Seleccionar conductor" />
                 </SelectTrigger>
                 <SelectContent>
-                  {MOCK_DRIVERS.map((driver) => (
+                  {drivers?.map((driver: Employee) => (
                     <SelectItem key={driver.id} value={driver.id.toString()}>
                       {driver.name}
                     </SelectItem>
@@ -160,9 +152,9 @@ const OrderAssignDeliveryDialog = memo(function OrderAssignDeliveryDialog({
                   <SelectValue placeholder="Seleccionar vehículo" />
                 </SelectTrigger>
                 <SelectContent>
-                  {MOCK_VEHICLES.map((vehicle) => (
+                  {vehicles?.map((vehicle) => (
                     <SelectItem key={vehicle.id} value={vehicle.id.toString()}>
-                      {vehicle.tag} ({vehicle.type})
+                      {vehicle.current_tag}
                     </SelectItem>
                   ))}
                 </SelectContent>

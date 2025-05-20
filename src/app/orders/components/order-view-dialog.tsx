@@ -30,11 +30,11 @@ import {
   OrderItem,
   OrderStatusHistoryEntry,
 } from "@/types/orders.types";
-import { useOrderStore } from "@/stores/orderStore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import OrderStatusBadge from "./order-status-badge";
 import { format } from "@formkit/tempo";
+import { useOrder } from "@/hooks/useOrders";
 
 interface OrderViewDialogProps {
   orderId: number | null;
@@ -56,20 +56,20 @@ const OrderViewDialog = memo(function OrderViewDialog({
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
 
-  const { orderDetails, isLoadingDetails, fetchOrderById } = useOrderStore();
+  const { isLoading: isLoadingDetails, data: orderDetails } = useOrder(
+    orderId || 0
+  );
 
-  const order = orderId ? orderDetails[orderId] : null;
+  const order = orderDetails?.data;
 
-  // Cargar datos del pedido cuando cambia el ID
   useEffect(() => {
     if (orderId) {
       setIsOpen(true);
-      fetchOrderById(orderId);
-      setActiveTab("details"); // Reset a la pestaña de detalles
+      setActiveTab("details");
     } else {
       setIsOpen(false);
     }
-  }, [orderId, fetchOrderById]);
+  }, [orderId]);
 
   // Manejadores de eventos
   const handleClose = () => {
@@ -120,7 +120,10 @@ const OrderViewDialog = memo(function OrderViewDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[700px] max-h-[85vh] overflow-y-auto">
+      <DialogContent
+        aria-describedby={undefined}
+        className="sm:max-w-[700px] max-h-[85vh] overflow-y-auto"
+      >
         <DialogTitle hidden />
         {isLoadingDetails ? (
           <OrderViewSkeleton />

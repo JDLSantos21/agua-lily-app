@@ -52,7 +52,7 @@ export interface OrderStatusHistoryEntry {
 
 export interface OrderFilter {
   search?: string;
-  order_status?: OrderStatus | "all";
+  order_status?: OrderStatus;
   customer_id?: number;
   delivery_driver_id?: number;
   vehicle_id?: number;

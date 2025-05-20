@@ -1,7 +1,7 @@
 // src/app/orders/components/order-form.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,18 +13,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
-import { useOrderStore } from "@/stores/orderStore";
-import {
-  Order,
-  Product,
-  CreateOrderRequest,
-  OrderItem,
-} from "@/types/orders.types";
+import { Order, CreateOrderRequest, OrderItem } from "@/types/orders.types";
 import { toast } from "sonner";
 import CustomerSelector from "./order-form/customer-selector";
 import ProductSelector from "./order-form/product-selector";
 import DeliveryDetails from "./order-form/delivery-details";
 import OrderSummary from "./order-form/order-summary";
+
+// Nuevos imports de TanStack Query
+import { useProducts, useCreateOrder, useUpdateOrder } from "@/hooks/useOrders";
 
 interface OrderFormProps {
   open: boolean;
@@ -42,8 +39,7 @@ export default function OrderForm({
 }: OrderFormProps) {
   // Estado del formulario
   const [currentStep, setCurrentStep] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [saveNewCustomer, setSaveNewCustomer] = useState(false);
 
   // Form data
   const [formData, setFormData] = useState<CreateOrderRequest>({
@@ -58,22 +54,20 @@ export default function OrderForm({
     delivery_notes: null,
   });
 
-  // Opciones adicionales
-  const [saveNewCustomer, setSaveNewCustomer] = useState(false);
+  // Consultas y mutaciones con TanStack Query
+  const { data: productsResponse, isLoading: isLoadingProducts } =
+    useProducts();
 
-  // Obtener funciones del store
-  const {
-    fetchProducts,
-    isLoadingProducts,
-    createOrder,
-    products: storeProducts,
-  } = useOrderStore();
+  const createOrderMutation = useCreateOrder();
+  const updateOrderMutation = useUpdateOrder();
 
-  // Cargar productos al abrir el formulario
+  const isSubmitting =
+    createOrderMutation.isPending || updateOrderMutation.isPending;
+  const products = productsResponse?.data || [];
+
+  // Efecto para inicializar el formulario cuando cambia el pedido inicial
   useEffect(() => {
     if (open) {
-      fetchProducts();
-
       // Si hay un pedido inicial, preparar los datos
       if (initialOrder) {
         setFormData({
@@ -105,66 +99,65 @@ export default function OrderForm({
       // Resetear el paso
       setCurrentStep(0);
     }
-  }, [open, initialOrder, fetchProducts]);
-
-  // Actualizar products cuando cambien en el store
-  useEffect(() => {
-    if (storeProducts.length > 0) {
-      setProducts(storeProducts);
-    }
-  }, [storeProducts]);
+  }, [open, initialOrder]);
 
   // Manejar el cierre del diálogo
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (!isSubmitting) {
       onOpenChange(false);
     }
-  };
+  }, [isSubmitting, onOpenChange]);
 
   // Actualizar datos del cliente
-  const handleCustomerChange = (
-    customerId: number | null,
-    customerData: {
-      name: string;
-      phone: string;
-      address: string;
-    },
-    saveCustomer: boolean
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      customer_id: customerId,
-      customer_name: customerData.name,
-      customer_phone: customerData.phone,
-      customer_address: customerData.address,
-    }));
+  const handleCustomerChange = useCallback(
+    (
+      customerId: number | null,
+      customerData: {
+        name: string;
+        phone: string;
+        address: string;
+      },
+      saveCustomer: boolean
+    ) => {
+      setFormData((prev) => ({
+        ...prev,
+        customer_id: customerId,
+        customer_name: customerData.name,
+        customer_phone: customerData.phone,
+        customer_address: customerData.address,
+      }));
 
-    setSaveNewCustomer(saveCustomer);
-  };
+      setSaveNewCustomer(saveCustomer);
+    },
+    []
+  );
 
   // Actualizar items de productos
-  const handleProductsChange = (items: OrderItem[]) => {
+  const handleProductsChange = useCallback((items: OrderItem[]) => {
     setFormData((prev) => ({
       ...prev,
       items,
     }));
-  };
+  }, []);
 
   // Actualizar detalles de entrega
-  const handleDeliveryChange = (deliveryData: {
-    scheduled_delivery_date?: string;
-    delivery_time_slot?: string | null;
-    notes?: string | null;
-    delivery_notes?: string | null;
-  }) => {
-    setFormData((prev) => ({
-      ...prev,
-      ...deliveryData,
-    }));
-  };
+  const handleDeliveryChange = useCallback(
+    (deliveryData: {
+      scheduled_delivery_date?: string;
+      delivery_time_slot?: string | null;
+      notes?: string | null;
+      delivery_notes?: string | null;
+    }) => {
+      setFormData((prev) => ({
+        ...prev,
+        ...deliveryData,
+      }));
+    },
+    []
+  );
 
   // Manejar envío del formulario
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     // Validar datos antes de enviar
     if (!formData.customer_name || formData.customer_name.trim() === "") {
       toast.error("Debe proporcionar el nombre del cliente");
@@ -190,36 +183,35 @@ export default function OrderForm({
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
-      // Si se marcó guardar el cliente nuevo, implementaríamos aquí
-      // la lógica para guardar el cliente (pendiente)
-      if (!formData.customer_id && saveNewCustomer) {
-        // Aquí iría la lógica para guardar al cliente
-        // Ejemplo: await saveCustomer({...})
-        // TODO: Implementar guardado de cliente nuevo
+      // Si es un pedido existente, actualizarlo
+      console.log("initialOrder", initialOrder);
+      if (initialOrder?.id) {
+        await updateOrderMutation.mutateAsync({
+          id: initialOrder.id,
+          data: formData as Partial<Order>,
+        });
+      } else {
+        // Si no, crear un nuevo pedido
+        await createOrderMutation.mutateAsync(formData);
       }
 
-      // Crear el pedido
-      await createOrder({
-        ...formData,
-        // Aseguramos que las fechas y datos opcionales estén en el formato correcto
-        scheduled_delivery_date: formData.scheduled_delivery_date || undefined,
-      });
-
-      toast.success("Pedido creado exitosamente");
+      // Si todo va bien, cerrar el formulario
       handleClose();
     } catch (error) {
-      console.error("Error al crear pedido:", error);
-      toast.error("Error al crear pedido. Inténtelo de nuevo.");
-    } finally {
-      setIsSubmitting(false);
+      console.error("Error al procesar pedido:", error);
+      // El toast ya se maneja en los hooks de mutación
     }
-  };
+  }, [
+    formData,
+    initialOrder,
+    createOrderMutation,
+    updateOrderMutation,
+    handleClose,
+  ]);
 
   // Navegación entre pasos
-  const nextStep = () => {
+  const nextStep = useCallback(() => {
     if (
       currentStep === 0 &&
       (!formData.customer_name ||
@@ -238,16 +230,16 @@ export default function OrderForm({
     if (currentStep < STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     }
-  };
+  }, [currentStep, formData]);
 
-  const prevStep = () => {
+  const prevStep = useCallback(() => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
-  };
+  }, [currentStep]);
 
   // Verificar si puede continuar al siguiente paso
-  const canContinue = () => {
+  const canContinue = useCallback(() => {
     if (currentStep === 0) {
       return (
         formData.customer_name &&
@@ -259,7 +251,7 @@ export default function OrderForm({
       return formData.items && formData.items.length > 0;
     }
     return true;
-  };
+  }, [currentStep, formData]);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -381,6 +373,8 @@ export default function OrderForm({
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Procesando...
                 </>
+              ) : initialOrder ? (
+                "Actualizar Pedido"
               ) : (
                 "Crear Pedido"
               )}

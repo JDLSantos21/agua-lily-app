@@ -1,11 +1,9 @@
-// src/app/pedidos/layout.tsx
+// src/app/orders/layout.tsx
 "use client";
 
 import SideNav from "@/ui/sidenav/sidenav";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { useOrderStore } from "@/stores/orderStore";
 import {
   Package,
   SearchIcon,
@@ -19,28 +17,23 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NewOrderButton from "./components/order-menu-button";
 
+// Importar useOrderStats hook
+import { useOrderStats } from "@/hooks/useOrders";
+
 export default function PedidosLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { orderStats, fetchOrderStats } = useOrderStore();
 
-  // Cargar estadísticas al montar el componente
-  useEffect(() => {
-    fetchOrderStats();
+  // Usar el hook de TanStack Query con staleTime para evitar peticiones frecuentes
+  const { data: statsResponse } = useOrderStats({
+    staleTime: 5 * 60 * 1000, // 5 minutos - tiempo suficiente para el layout
+    refetchOnWindowFocus: false, // Evitar refetch constante al cambiar el foco
+  });
 
-    // Actualizar estadísticas cada 5 minutos
-    const interval = setInterval(
-      () => {
-        fetchOrderStats();
-      },
-      5 * 60 * 1000
-    );
-
-    return () => clearInterval(interval);
-  }, [fetchOrderStats]);
+  const orderStats = statsResponse?.data;
 
   // Determinar qué sección está activa
   const isActive = (path: string) => {

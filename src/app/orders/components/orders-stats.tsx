@@ -1,5 +1,5 @@
-// src/components/orders/OrderStats.tsx
-import { memo, useEffect, useState } from "react";
+// src/app/orders/components/order-stats.tsx
+import { memo } from "react";
 import {
   Card,
   CardContent,
@@ -16,7 +16,6 @@ import {
   XCircle,
   RefreshCw,
 } from "lucide-react";
-import { useOrderStore } from "@/stores/orderStore";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { type OrderStats } from "@/types/orders.types";
@@ -24,75 +23,21 @@ import { LoaderSpin } from "@/components/Loader";
 
 interface OrderStatsComponentProps {
   simplified?: boolean;
+  stats?: OrderStats | null;
+  isLoading?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
 }
 
 const OrderStats = memo(function OrderStatsComponent({
   simplified = false,
+  stats,
+  isLoading = false,
+  error = null,
+  onRetry,
 }: OrderStatsComponentProps) {
-  const { orderStats, isLoadingStats, error, fetchOrderStats } =
-    useOrderStore();
-
-  // Estado para animación de números
-  const [animatedStats, setAnimatedStats] = useState<OrderStats>({
-    total_pedidos: 0,
-    pedidos_pendientes: 0,
-    pedidos_preparando: 0,
-    pedidos_despachados: 0,
-    pedidos_entregados: 0,
-    pedidos_cancelados: 0,
-    clientes_unicos: 0,
-  });
-
-  // Animar números cuando cambian los datos
-  useEffect(() => {
-    if (orderStats) {
-      // Animar hasta los valores finales
-      const duration = 1000; // Duración de la animación en ms
-      const frameDuration = 1000 / 60; // Duración de un frame en 60fps
-      const totalFrames = Math.round(duration / frameDuration);
-
-      let frame = 0;
-      const counter = setInterval(() => {
-        frame++;
-        const progress = frame / totalFrames;
-
-        setAnimatedStats({
-          total_pedidos: Math.floor(progress * orderStats.total_pedidos),
-          pedidos_pendientes: Math.floor(
-            progress * orderStats.pedidos_pendientes
-          ),
-          pedidos_preparando: Math.floor(
-            progress * orderStats.pedidos_preparando
-          ),
-          pedidos_despachados: Math.floor(
-            progress * orderStats.pedidos_despachados
-          ),
-          pedidos_entregados: Math.floor(
-            progress * orderStats.pedidos_entregados
-          ),
-          pedidos_cancelados: Math.floor(
-            progress * orderStats.pedidos_cancelados
-          ),
-          clientes_unicos: Math.floor(progress * orderStats.clientes_unicos),
-        });
-
-        if (frame === totalFrames) {
-          clearInterval(counter);
-          setAnimatedStats(orderStats);
-        }
-      }, frameDuration);
-
-      return () => clearInterval(counter);
-    }
-  }, [orderStats]);
-
-  // Cargar datos al montar el componente
-  useEffect(() => {
-    fetchOrderStats();
-  }, [fetchOrderStats]);
-
   // Si está cargando, mostrar skeleton
-  if (isLoadingStats) {
+  if (isLoading) {
     return simplified ? (
       <div className="grid grid-cols-3 gap-4">
         {Array(3)
@@ -122,7 +67,7 @@ const OrderStats = memo(function OrderStatsComponent({
         <Button
           variant="outline"
           className="bg-white hover:bg-red-50"
-          onClick={() => fetchOrderStats()}
+          onClick={onRetry}
         >
           <RefreshCw className="h-4 w-4 mr-1" />
           Reintentar
@@ -132,15 +77,11 @@ const OrderStats = memo(function OrderStatsComponent({
   }
 
   // Si no hay datos, mostrar mensaje
-  if (!orderStats) {
+  if (!stats) {
     return (
       <div className="text-center text-gray-500 py-8 bg-gray-50 rounded-md">
         <p>No hay datos de estadísticas disponibles</p>
-        <Button
-          variant="ghost"
-          className="mt-2"
-          onClick={() => fetchOrderStats()}
-        >
+        <Button variant="ghost" className="mt-2" onClick={onRetry}>
           <RefreshCw className="h-4 w-4 mr-1" />
           Cargar estadísticas
         </Button>
@@ -150,24 +91,23 @@ const OrderStats = memo(function OrderStatsComponent({
 
   // Si es simplificado, mostrar versión compacta
   if (simplified) {
-    const stats = [
+    const statItems = [
       {
         title: "Pendientes",
-        value: animatedStats.pedidos_pendientes,
+        value: stats.pedidos_pendientes,
         icon: <Clock className="h-5 w-5 text-yellow-500" />,
         color: "bg-yellow-100 text-yellow-700 border-yellow-200",
       },
       {
         title: "En proceso",
         value:
-          Number(animatedStats.pedidos_preparando) +
-          Number(animatedStats.pedidos_despachados),
+          Number(stats.pedidos_preparando) + Number(stats.pedidos_despachados),
         icon: <Truck className="h-5 w-5 text-blue-500" />,
         color: "bg-blue-100 text-blue-700 border-blue-200",
       },
       {
         title: "Completados",
-        value: animatedStats.pedidos_entregados,
+        value: stats.pedidos_entregados,
         icon: <CheckCircle className="h-5 w-5 text-green-500" />,
         color: "bg-green-100 text-green-700 border-green-200",
       },
@@ -175,7 +115,7 @@ const OrderStats = memo(function OrderStatsComponent({
 
     return (
       <div className="grid grid-cols-3 gap-4">
-        {stats.map((stat, index) => (
+        {statItems.map((stat, index) => (
           <Card key={index} className={`border ${stat.color}`}>
             <CardContent className="p-4 flex justify-between items-center">
               <div>
@@ -191,22 +131,22 @@ const OrderStats = memo(function OrderStatsComponent({
   }
 
   // Calcular porcentajes para barras de progreso
-  const totalPedidos = animatedStats.total_pedidos || 1; // Evitar división por cero
+  const totalPedidos = stats.total_pedidos || 1; // Evitar división por cero
 
   const pctPendientes = Math.round(
-    (animatedStats.pedidos_pendientes / totalPedidos) * 100
+    (stats.pedidos_pendientes / totalPedidos) * 100
   );
   const pctPreparando = Math.round(
-    (animatedStats.pedidos_preparando / totalPedidos) * 100
+    (stats.pedidos_preparando / totalPedidos) * 100
   );
   const pctDespachados = Math.round(
-    (animatedStats.pedidos_despachados / totalPedidos) * 100
+    (stats.pedidos_despachados / totalPedidos) * 100
   );
   const pctEntregados = Math.round(
-    (animatedStats.pedidos_entregados / totalPedidos) * 100
+    (stats.pedidos_entregados / totalPedidos) * 100
   );
   const pctCancelados = Math.round(
-    (animatedStats.pedidos_cancelados / totalPedidos) * 100
+    (stats.pedidos_cancelados / totalPedidos) * 100
   );
 
   // Versión completa
@@ -215,8 +155,8 @@ const OrderStats = memo(function OrderStatsComponent({
       {/* Total de pedidos */}
       <StatCard
         title="Total de pedidos"
-        value={animatedStats.total_pedidos}
-        description={`${animatedStats.clientes_unicos} clientes únicos`}
+        value={stats.total_pedidos}
+        description={`${stats.clientes_unicos} clientes únicos`}
         icon={<Package className="h-5 w-5 text-blue-600" />}
         className="lg:col-span-2"
       />
@@ -224,7 +164,7 @@ const OrderStats = memo(function OrderStatsComponent({
       {/* Pendientes */}
       <StatCard
         title="Pendientes"
-        value={animatedStats.pedidos_pendientes}
+        value={stats.pedidos_pendientes}
         percentage={pctPendientes}
         description={`${pctPendientes}% del total`}
         icon={<Clock className="h-5 w-5 text-yellow-500" />}
@@ -234,7 +174,7 @@ const OrderStats = memo(function OrderStatsComponent({
       {/* Preparando */}
       <StatCard
         title="Preparando"
-        value={animatedStats.pedidos_preparando}
+        value={stats.pedidos_preparando}
         percentage={pctPreparando}
         description={`${pctPreparando}% del total`}
         icon={<Package className="h-5 w-5 text-blue-500" />}
@@ -244,7 +184,7 @@ const OrderStats = memo(function OrderStatsComponent({
       {/* Despachados */}
       <StatCard
         title="Despachados"
-        value={animatedStats.pedidos_despachados}
+        value={stats.pedidos_despachados}
         percentage={pctDespachados}
         description={`${pctDespachados}% del total`}
         icon={<Truck className="h-5 w-5 text-purple-500" />}
@@ -254,7 +194,7 @@ const OrderStats = memo(function OrderStatsComponent({
       {/* Entregados */}
       <StatCard
         title="Entregados"
-        value={animatedStats.pedidos_entregados}
+        value={stats.pedidos_entregados}
         percentage={pctEntregados}
         description={`${pctEntregados}% del total`}
         icon={<CheckCircle className="h-5 w-5 text-green-500" />}
@@ -264,7 +204,7 @@ const OrderStats = memo(function OrderStatsComponent({
       {/* Cancelados */}
       <StatCard
         title="Cancelados"
-        value={animatedStats.pedidos_cancelados}
+        value={stats.pedidos_cancelados}
         percentage={pctCancelados}
         description={`${pctCancelados}% del total`}
         icon={<XCircle className="h-5 w-5 text-red-500" />}

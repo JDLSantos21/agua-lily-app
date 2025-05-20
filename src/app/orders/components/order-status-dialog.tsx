@@ -14,8 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Order, OrderStatus } from "@/types/orders.types";
 import { CheckIcon, Loader2 } from "lucide-react";
-import { useOrderStore } from "@/stores/orderStore";
 import OrderStatusBadge from "./order-status-badge";
+import { useUpdateOrderStatus } from "@/hooks/useOrders";
 
 interface OrderStatusDialogProps {
   open: boolean;
@@ -39,8 +39,7 @@ const OrderStatusDialog = memo(function OrderStatusDialog({
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus | "">("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { updateOrderStatus } = useOrderStore();
+  const { mutateAsync: updateOrderStatus } = useUpdateOrderStatus();
 
   useEffect(() => {
     if (open && order?.order_status) {
@@ -61,9 +60,12 @@ const OrderStatusDialog = memo(function OrderStatusDialog({
     setIsSubmitting(true);
 
     try {
-      await updateOrderStatus(order.id, {
-        status: selectedStatus,
-        notes: notes.trim() || null,
+      await updateOrderStatus({
+        id: order.id,
+        data: {
+          status: selectedStatus,
+          notes: notes.trim() || null,
+        },
       });
 
       onOpenChange(false);
