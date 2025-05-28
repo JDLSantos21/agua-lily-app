@@ -77,11 +77,41 @@ export const updateOrder = async (
   id: number,
   order: Partial<Order>
 ): Promise<{ success: boolean; message: string }> => {
-  return await fetcher(`${API_BASE}/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(order),
-  });
+  console.log("🌐 updateOrder API - Inicio");
+  console.log("🆔 ID:", id);
+  console.log("📝 Datos originales:", order);
+
+  // Crear una copia limpia de los datos
+  const cleanData = { ...order };
+
+  // Remover propiedades que no deberían enviarse al backend
+  delete cleanData.id;
+  delete cleanData.tracking_code;
+  delete cleanData.order_date;
+  delete cleanData.driver_name;
+  delete cleanData.vehicle_tag;
+  delete cleanData.customer_display_name;
+  delete cleanData.status_history;
+
+  console.log("🧹 Datos limpios para enviar:", cleanData);
+
+  try {
+    const response = await fetcher(`${API_BASE}/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cleanData),
+    });
+
+    console.log("✅ Respuesta exitosa:", response);
+    return response;
+  } catch (error) {
+    console.error("❌ Error en updateOrder API:", error);
+    console.error("🔥 Error detallado:", {
+      message: error instanceof Error ? error.message : "Error desconocido",
+      stack: error instanceof Error ? error.stack : "No stack available",
+    });
+    throw error;
+  }
 };
 
 /**

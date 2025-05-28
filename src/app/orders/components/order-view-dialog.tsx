@@ -159,7 +159,7 @@ const OrderViewDialog = memo(function OrderViewDialog({
               </div>
               <div className="flex justify-between items-center pt-1">
                 <DialogDescription className="text-base font-medium">
-                  {order.customer_display_name || order.customer_name}
+                  {order.customer_name}
                 </DialogDescription>
                 <Button
                   variant="outline"
@@ -325,7 +325,7 @@ const OrderDetailsTab = memo(function OrderDetailsTab({
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm">
               <User className="h-4 w-4 text-gray-500" />
-              <span>{order.customer_display_name || order.customer_name}</span>
+              <span>{order.customer_name}</span>
             </div>
 
             <div className="flex items-center gap-2 text-sm">

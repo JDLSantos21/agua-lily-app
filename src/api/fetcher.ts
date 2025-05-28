@@ -74,6 +74,8 @@ export const fetcher = async (
         }
       }
 
+      console.log("Error en la respuesta:", await response.json());
+
       throw new Error(
         errorData.message || "Ocurrió un problema, intente de nuevo más tarde."
       );

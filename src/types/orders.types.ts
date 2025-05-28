@@ -12,7 +12,7 @@ export interface OrderItem {
   product_id: number;
   product_name?: string;
   quantity: number;
-  notes?: string;
+  notes?: string | null;
   unit?: string;
   size?: string;
 }

@@ -61,12 +61,17 @@ export default function OrderEditForm({
   // Inicializar el formulario cuando cambia el pedido
   useEffect(() => {
     if (open && order) {
+      // Determinar el nombre correcto del cliente
+      const customerDisplayName = order.customer_id
+        ? order.customer_name || order.customer_display_name // Si es cliente registrado, usar el nombre de empresa o el de contacto
+        : order.customer_name; // Si no es cliente registrado, usar el nombre directo
+
       setFormData({
         customer_id: order.customer_id || null,
-        customer_name: order.customer_name || "",
+        customer_name: customerDisplayName || "",
         customer_phone: order.customer_phone || "",
         customer_address: order.customer_address || "",
-        items: order.items,
+        items: order.items || [],
         scheduled_delivery_date: order.scheduled_delivery_date,
         delivery_time_slot: order.delivery_time_slot || null,
         notes: order.notes || null,
@@ -162,9 +167,27 @@ export default function OrderEditForm({
     if (!validateForm()) return;
 
     try {
+      // Preparar datos para envío
+      const dataToUpdate: Partial<Order> = {
+        customer_name: formData.customer_name,
+        customer_phone: formData.customer_phone,
+        customer_address: formData.customer_address,
+        items: formData.items?.map((item) => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+          notes: item.notes || null,
+        })),
+        scheduled_delivery_date: formData.scheduled_delivery_date,
+        delivery_time_slot: formData.delivery_time_slot,
+        notes: formData.notes,
+        delivery_notes: formData.delivery_notes,
+      };
+
+      // console.log(dataToUpdate);
+
       await updateOrderMutation.mutateAsync({
         id: order.id,
-        data: formData,
+        data: dataToUpdate,
       });
 
       handleClose();
@@ -175,6 +198,9 @@ export default function OrderEditForm({
 
   // Si no hay un pedido, no mostrar nada
   if (!order) return null;
+
+  // Determinar si es un cliente registrado
+  const isRegisteredCustomer = !!order.customer_id;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -189,6 +215,11 @@ export default function OrderEditForm({
               <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
                 <span className="font-mono">{order.tracking_code}</span>
                 <OrderStatusBadge status={order.order_status || "pendiente"} />
+                {isRegisteredCustomer && (
+                  <Badge variant="outline" className="bg-blue-50 text-blue-600">
+                    Cliente Registrado
+                  </Badge>
+                )}
               </div>
             </div>
             <div className="text-sm text-gray-500">
@@ -231,9 +262,9 @@ export default function OrderEditForm({
                 <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-blue-800">
-                    Estás editando la información del cliente para este pedido.
-                    Si deseas cambiar el estado del pedido, usa la opción
-                    "Cambiar estado" desde la vista de detalles.
+                    {isRegisteredCustomer
+                      ? "Este pedido pertenece a un cliente registrado. Solo puedes editar la dirección de entrega."
+                      : "Estás editando la información del cliente para este pedido. Si deseas cambiar el estado del pedido, usa la opción 'Cambiar estado' desde la vista de detalles."}
                   </p>
                 </div>
               </div>
@@ -246,6 +277,7 @@ export default function OrderEditForm({
               }}
               customerId={formData.customer_id}
               onCustomerChange={handleCustomerChange}
+              isRegisteredCustomer={isRegisteredCustomer}
             />
           </TabsContent>
 

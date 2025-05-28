@@ -1,11 +1,11 @@
-// src/app/orders/components/order-form/customer-edit-card.tsx
+// src/app/orders/components/customer-edit-card.tsx
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { User, Phone, MapPin, Search, InfoIcon } from "lucide-react";
+import { User, Phone, MapPin, Search, InfoIcon, Building } from "lucide-react";
 import { useCustomer } from "@/hooks/useCustomers";
 
 interface CustomerEditCardProps {
@@ -20,12 +20,14 @@ interface CustomerEditCardProps {
     phone: string;
     address: string;
   }) => void;
+  isRegisteredCustomer?: boolean;
 }
 
 export default function CustomerEditCard({
   initialCustomerData,
   customerId,
   onCustomerChange,
+  isRegisteredCustomer = false,
 }: CustomerEditCardProps) {
   // Estados locales
   const [customerName, setCustomerName] = useState(
@@ -43,7 +45,7 @@ export default function CustomerEditCard({
     customerId || 0
   );
 
-  // Actualizar estados cuando cambian datos iniciales o el cliente cargado
+  // Actualizar estados cuando cambian datos iniciales
   useEffect(() => {
     setCustomerName(initialCustomerData.name || "");
     setCustomerPhone(initialCustomerData.phone || "");
@@ -52,20 +54,21 @@ export default function CustomerEditCard({
 
   // Establecer datos del cliente si se carga desde la BD
   useEffect(() => {
-    if (customerData?.data) {
+    if (customerData?.data && isRegisteredCustomer) {
       const customer = customerData.data;
-      // No sobreescribimos si ya existen datos personalizados
-      if (!customerName && customer.business_name) {
-        setCustomerName(customer.business_name);
-      }
-      if (!customerPhone && customer.contact_phone) {
-        setCustomerPhone(customer.contact_phone);
-      }
-      if (!customerAddress && customer.address) {
+
+      // Para clientes registrados, usar business_name si existe, sino name
+      const displayName = customer.business_name || customer.name;
+
+      setCustomerName(displayName);
+      setCustomerPhone(customer.contact_phone);
+
+      // Solo actualizar la dirección si no hay una personalizada
+      if (!customerAddress || customerAddress === customer.address) {
         setCustomerAddress(customer.address);
       }
     }
-  }, [customerData, customerName, customerPhone, customerAddress]);
+  }, [customerData, isRegisteredCustomer, customerAddress]);
 
   // Propagar cambios hacia el componente padre
   useEffect(() => {
@@ -79,15 +82,16 @@ export default function CustomerEditCard({
   return (
     <Card className="border-blue-100">
       <CardContent className="pt-6 space-y-5">
-        {customerId && (
+        {isRegisteredCustomer && (
           <div className="bg-blue-50 p-3 rounded-md text-sm mb-2 flex items-start">
             <InfoIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-blue-600 font-medium">Cliente registrado</p>
               <p className="text-blue-500 mt-1">
                 Este pedido está asociado a un cliente registrado (ID:{" "}
-                {customerId}). Modificar los datos aquí no actualizará la
-                información del cliente en la base de datos.
+                {customerId}). Los datos del cliente no se pueden modificar
+                desde aquí. Solo puedes cambiar la dirección de entrega para
+                este pedido específico.
               </p>
             </div>
           </div>
@@ -96,20 +100,42 @@ export default function CustomerEditCard({
         <div className="space-y-4">
           <div className="grid gap-2">
             <Label htmlFor="customer-name" className="flex items-center gap-1">
-              <User className="h-4 w-4 text-gray-500" />
-              Nombre del cliente *
+              {isRegisteredCustomer ? (
+                <Building className="h-4 w-4 text-gray-500" />
+              ) : (
+                <User className="h-4 w-4 text-gray-500" />
+              )}
+              {isRegisteredCustomer
+                ? "Nombre de la empresa/cliente"
+                : "Nombre del cliente"}{" "}
+              *
             </Label>
             <div className="relative">
               <Input
                 id="customer-name"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="Nombre completo"
+                placeholder={
+                  isRegisteredCustomer
+                    ? "Nombre de la empresa"
+                    : "Nombre completo"
+                }
                 className="pl-10"
                 required
+                disabled={isRegisteredCustomer}
+                readOnly={isRegisteredCustomer}
               />
-              <User className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+              {isRegisteredCustomer ? (
+                <Building className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+              ) : (
+                <User className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+              )}
             </div>
+            {isRegisteredCustomer && (
+              <p className="text-xs text-gray-500">
+                Este campo no se puede editar para clientes registrados
+              </p>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -125,9 +151,16 @@ export default function CustomerEditCard({
                 placeholder="Ej. 829-555-1234"
                 className="pl-10"
                 required
+                disabled={isRegisteredCustomer}
+                readOnly={isRegisteredCustomer}
               />
               <Phone className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
             </div>
+            {isRegisteredCustomer && (
+              <p className="text-xs text-gray-500">
+                Este campo no se puede editar para clientes registrados
+              </p>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -136,36 +169,44 @@ export default function CustomerEditCard({
               className="flex items-center gap-1"
             >
               <MapPin className="h-4 w-4 text-gray-500" />
-              Dirección *
+              Dirección de entrega *
             </Label>
             <div className="relative">
               <Textarea
                 id="customer-address"
                 value={customerAddress}
                 onChange={(e) => setCustomerAddress(e.target.value)}
-                placeholder="Dirección completa para entrega"
+                placeholder={
+                  isRegisteredCustomer
+                    ? "Dirección específica para este pedido (puede ser diferente a la registrada)"
+                    : "Dirección completa para entrega"
+                }
                 rows={3}
                 className="resize-none pl-10 pt-2"
                 required
               />
               <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
             </div>
+            {isRegisteredCustomer && (
+              <p className="text-xs text-blue-600">
+                Puedes modificar la dirección de entrega para este pedido
+                específico
+              </p>
+            )}
           </div>
         </div>
 
-        {customerId && (
+        {isRegisteredCustomer && (
           <Button
             variant="outline"
             size="sm"
             className="mt-2 w-full gap-1"
             onClick={() => {
-              // Esta es una función ficticia, tú puedes implementarla para buscar clientes
-              // o simplemente navegar a la sección correspondiente
               window.open(`/customers/${customerId}`, "_blank");
             }}
           >
             <Search className="h-3.5 w-3.5" />
-            Ver cliente completo en la sección Clientes
+            Ver información completa del cliente
           </Button>
         )}
       </CardContent>
