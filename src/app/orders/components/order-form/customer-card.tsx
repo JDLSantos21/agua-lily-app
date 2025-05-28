@@ -32,7 +32,9 @@ export function CustomerCard({
               <IsBusinessIcon
                 className={`h-4 w-4 ${customer.is_business ? "text-blue-500" : "text-gray-500"}`}
               />
-              <h3 className="font-medium text-sm truncate">{customer.name}</h3>
+              <h3 className="font-medium text-sm truncate">
+                {customer.business_name}
+              </h3>
             </div>
 
             {customer.status === CustomerStatus.INACTIVE && (

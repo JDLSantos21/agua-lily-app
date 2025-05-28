@@ -18,7 +18,6 @@ import {
   Truck,
   MoreVertical,
   Eye,
-  Edit,
   Clipboard,
   MoreHorizontal,
   Trash,
@@ -63,11 +62,12 @@ const OrderCard = memo(function OrderCard({
     }
   };
 
-  const handleEdit = () => {
-    if (onEdit) {
-      onEdit(order);
-    }
-  };
+  // const handleEdit = () => {
+  //   console.log("Edit order:", order);
+  //   if (onEdit) {
+  //     onEdit(order);
+  //   }
+  // };
 
   const handleChangeStatus = () => {
     if (onChangeStatus) {
@@ -116,7 +116,7 @@ const OrderCard = memo(function OrderCard({
         )}
         <div>
           <div className="font-medium truncate max-w-[220px]">
-            {order.customer_display_name || order.customer_name}
+            {order.customer_name}
           </div>
           <div className="text-xs text-muted-foreground">
             {order.tracking_code}
@@ -169,12 +169,12 @@ const OrderCard = memo(function OrderCard({
           <DropdownMenuContent align="end" className="w-[180px]">
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {onEdit && (
+            {/* {onEdit && (
               <DropdownMenuItem onClick={handleEdit}>
                 <Edit className="mr-2 h-4 w-4" />
                 <span>Editar</span>
               </DropdownMenuItem>
-            )}
+            )} */}
             {onChangeStatus && (
               <DropdownMenuItem onClick={handleChangeStatus}>
                 <Clock className="mr-2 h-4 w-4" />
@@ -221,7 +221,7 @@ const OrderCard = memo(function OrderCard({
           <div>
             <div className="flex items-center gap-2">
               <CardTitle className="text-lg font-semibold">
-                {order.customer_display_name || order.customer_name}
+                {order.customer_name}
               </CardTitle>
               {isUrgent && (
                 <span
@@ -334,12 +334,12 @@ const OrderCard = memo(function OrderCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[200px]">
-              {onEdit && (
+              {/* {onEdit && (
                 <DropdownMenuItem onClick={handleEdit}>
                   <Edit className="mr-2 h-4 w-4" />
                   <span>Editar pedido</span>
                 </DropdownMenuItem>
-              )}
+              )} */}
               {onChangeStatus && (
                 <DropdownMenuItem onClick={handleChangeStatus}>
                   <Clock className="mr-2 h-4 w-4" />

@@ -119,7 +119,7 @@ export default function CustomerSelector({
     onCustomerChange(
       customer.id || null,
       {
-        name: customer.name,
+        name: customer.business_name || customer.name,
         phone: customer.contact_phone,
         address: customer.address,
       },
@@ -261,7 +261,8 @@ export default function CustomerSelector({
               <CardContent>
                 <div className="space-y-1 text-sm">
                   <p>
-                    <strong>Nombre:</strong> {selectedCustomer.name}
+                    <strong>Nombre:</strong>{" "}
+                    {selectedCustomer.business_name || selectedCustomer.name}
                   </p>
                   <p>
                     <strong>Teléfono:</strong> {selectedCustomer.contact_phone}

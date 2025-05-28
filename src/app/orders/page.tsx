@@ -27,13 +27,15 @@ import OrderStatusDialog from "./components/order-status-dialog";
 import OrderAssignDeliveryDialog from "./components/order-assign-dialog";
 import OrderStats from "./components/orders-stats";
 import OrderForm from "./components/order-form";
+import OrderEditForm from "./components/order-edit-form";
 
-// Nuevos imports de TanStack Query
+// Hooks de TanStack Query
 import { useOrders, useOrderStats, useDeleteOrder } from "@/hooks/useOrders";
 
 // Type para el estado de diálogos
 interface DialogsState {
   viewOrder: { isOpen: boolean; orderId: number | null };
+  newOrder: { isOpen: boolean };
   editOrder: { isOpen: boolean; order: Order | null };
   deleteOrder: { isOpen: boolean; order: Order | null };
   statusOrder: { isOpen: boolean; order: Order | null };
@@ -62,6 +64,7 @@ export default function PedidosPage() {
   // Estado para diálogos - centralizado y manejado localmente
   const [dialogs, setDialogs] = useState<DialogsState>({
     viewOrder: { isOpen: false, orderId: null },
+    newOrder: { isOpen: false },
     editOrder: { isOpen: false, order: null },
     deleteOrder: { isOpen: false, order: null },
     statusOrder: { isOpen: false, order: null },
@@ -101,6 +104,20 @@ export default function PedidosPage() {
     setDialogs((prev) => ({
       ...prev,
       viewOrder: { isOpen: false, orderId: null },
+    }));
+  }, []);
+
+  const openNewOrderDialog = useCallback(() => {
+    setDialogs((prev) => ({
+      ...prev,
+      newOrder: { isOpen: true },
+    }));
+  }, []);
+
+  const closeNewOrderDialog = useCallback(() => {
+    setDialogs((prev) => ({
+      ...prev,
+      newOrder: { isOpen: false },
     }));
   }, []);
 
@@ -256,22 +273,7 @@ export default function PedidosPage() {
             </Link>
           </Button>
 
-          {/* <Button variant="outline" asChild>
-            <Link href="/orders/calendario" className="flex items-center gap-1">
-              <CalendarDays className="h-4 w-4" />
-              <span>Calendario</span>
-            </Link>
-          </Button> */}
-
-          <Button
-            onClick={() =>
-              setDialogs((prev) => ({
-                ...prev,
-                editOrder: { isOpen: true, order: null },
-              }))
-            }
-            variant="primary"
-          >
+          <Button onClick={openNewOrderDialog} variant="primary">
             <PlusIcon className="h-4 w-4 mr-1" />
             <span>Nuevo Pedido</span>
           </Button>
@@ -385,15 +387,7 @@ export default function PedidosPage() {
                     description="No se encontraron pedidos con los filtros aplicados"
                     icon={<Package className="h-10 w-10 text-gray-400" />}
                     action={
-                      <Button
-                        variant="primary"
-                        onClick={() =>
-                          setDialogs((prev) => ({
-                            ...prev,
-                            editOrder: { isOpen: true, order: null },
-                          }))
-                        }
-                      >
+                      <Button variant="primary" onClick={openNewOrderDialog}>
                         <FilePlus className="h-4 w-4 mr-1" />
                         Crear Pedido
                       </Button>
@@ -425,15 +419,7 @@ export default function PedidosPage() {
                     description="No se encontraron pedidos con los filtros aplicados"
                     icon={<Package className="h-10 w-10 text-gray-400" />}
                     action={
-                      <Button
-                        variant="primary"
-                        onClick={() =>
-                          setDialogs((prev) => ({
-                            ...prev,
-                            editOrder: { isOpen: true, order: null },
-                          }))
-                        }
-                      >
+                      <Button variant="primary" onClick={openNewOrderDialog}>
                         <FilePlus className="h-4 w-4 mr-1" />
                         Crear Pedido
                       </Button>
@@ -468,10 +454,17 @@ export default function PedidosPage() {
       </div>
 
       {/* Diálogos */}
+      {/* Formulario para Nuevo Pedido */}
       <OrderForm
+        open={dialogs.newOrder.isOpen}
+        onOpenChange={closeNewOrderDialog}
+      />
+
+      {/* Formulario para Editar Pedido */}
+      <OrderEditForm
         open={dialogs.editOrder.isOpen}
         onOpenChange={closeEditDialog}
-        initialOrder={dialogs.editOrder.order}
+        order={dialogs.editOrder.order}
       />
 
       <OrderViewDialog

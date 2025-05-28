@@ -1,4 +1,4 @@
-// src/app/orders/order-menu-button.tsx
+// src/app/orders/components/order-menu-button.tsx
 "use client";
 
 import { PlusIcon } from "lucide-react";
@@ -20,11 +20,7 @@ export default function NewOrderButton() {
         <span>Nuevo Pedido</span>
       </Button>
 
-      <OrderForm
-        open={isOrderFormOpen}
-        onOpenChange={setIsOrderFormOpen}
-        initialOrder={null}
-      />
+      <OrderForm open={isOrderFormOpen} onOpenChange={setIsOrderFormOpen} />
     </>
   );
 }

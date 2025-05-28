@@ -1,0 +1,316 @@
+// src/app/orders/components/order-edit-form.tsx
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Info, FileEdit, Package, Truck } from "lucide-react";
+import { Order, OrderItem } from "@/types/orders.types";
+import { toast } from "sonner";
+import ProductSelector from "./order-form/product-selector";
+import DeliveryDetails from "./order-form/delivery-details";
+import OrderStatusBadge from "./order-status-badge";
+import { format } from "date-fns";
+
+// Nuevos imports de TanStack Query
+import { useProducts, useUpdateOrder } from "@/hooks/useOrders";
+import CustomerEditCard from "./customer-edit-card";
+
+interface OrderEditFormProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  order: Order | null;
+}
+
+// Estructura de secciones para editar un pedido
+const TABS = ["info", "products", "delivery"];
+
+export default function OrderEditForm({
+  open,
+  onOpenChange,
+  order,
+}: OrderEditFormProps) {
+  // Estado del formulario
+  const [activeTab, setActiveTab] = useState("info");
+  const [formData, setFormData] = useState<Partial<Order>>({
+    customer_name: "",
+    customer_phone: "",
+    customer_address: "",
+    items: [],
+    scheduled_delivery_date: undefined,
+    delivery_time_slot: null,
+    notes: null,
+    delivery_notes: null,
+  });
+
+  // Consulta productos
+  const { data: productsResponse, isLoading: isLoadingProducts } =
+    useProducts();
+  const updateOrderMutation = useUpdateOrder();
+  const isSubmitting = updateOrderMutation.isPending;
+  const products = productsResponse?.data || [];
+
+  // Inicializar el formulario cuando cambia el pedido
+  useEffect(() => {
+    if (open && order) {
+      setFormData({
+        customer_id: order.customer_id || null,
+        customer_name: order.customer_name || "",
+        customer_phone: order.customer_phone || "",
+        customer_address: order.customer_address || "",
+        items: order.items,
+        scheduled_delivery_date: order.scheduled_delivery_date,
+        delivery_time_slot: order.delivery_time_slot || null,
+        notes: order.notes || null,
+        delivery_notes: order.delivery_notes || null,
+      });
+
+      // Resetear el paso
+      setActiveTab("info");
+    }
+  }, [open, order]);
+
+  // Manejar el cierre del diálogo
+  const handleClose = useCallback(() => {
+    if (!isSubmitting) {
+      onOpenChange(false);
+    }
+  }, [isSubmitting, onOpenChange]);
+
+  // Actualizar datos del cliente
+  const handleCustomerChange = useCallback(
+    (customerData: { name: string; phone: string; address: string }) => {
+      setFormData((prev) => ({
+        ...prev,
+        customer_name: customerData.name,
+        customer_phone: customerData.phone,
+        customer_address: customerData.address,
+      }));
+    },
+    []
+  );
+
+  // Actualizar items de productos
+  const handleProductsChange = useCallback((items: OrderItem[]) => {
+    setFormData((prev) => ({
+      ...prev,
+      items,
+    }));
+  }, []);
+
+  // Actualizar detalles de entrega
+  const handleDeliveryChange = useCallback(
+    (deliveryData: {
+      scheduled_delivery_date?: string;
+      delivery_time_slot?: string | null;
+      notes?: string | null;
+      delivery_notes?: string | null;
+    }) => {
+      setFormData((prev) => ({
+        ...prev,
+        ...deliveryData,
+      }));
+    },
+    []
+  );
+
+  // Validar datos del formulario
+  const validateForm = useCallback(() => {
+    if (!formData.customer_name || formData.customer_name.trim() === "") {
+      toast.error("Debe proporcionar el nombre del cliente");
+      setActiveTab("info");
+      return false;
+    }
+
+    if (!formData.customer_phone || formData.customer_phone.trim() === "") {
+      toast.error("Debe proporcionar el teléfono del cliente");
+      setActiveTab("info");
+      return false;
+    }
+
+    if (!formData.customer_address || formData.customer_address.trim() === "") {
+      toast.error("Debe proporcionar la dirección del cliente");
+      setActiveTab("info");
+      return false;
+    }
+
+    if (!formData.items || formData.items.length === 0) {
+      toast.error("Debe agregar al menos un producto al pedido");
+      setActiveTab("products");
+      return false;
+    }
+
+    return true;
+  }, [formData]);
+
+  // Manejar envío del formulario
+  const handleSubmit = useCallback(async () => {
+    if (!order?.id) {
+      toast.error("No se puede actualizar el pedido: ID no disponible");
+      return;
+    }
+
+    // Validar datos antes de enviar
+    if (!validateForm()) return;
+
+    try {
+      await updateOrderMutation.mutateAsync({
+        id: order.id,
+        data: formData,
+      });
+
+      handleClose();
+    } catch (error) {
+      console.error("Error al actualizar pedido:", error);
+    }
+  }, [order, formData, updateOrderMutation, handleClose, validateForm]);
+
+  // Si no hay un pedido, no mostrar nada
+  if (!order) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="pb-0">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <div>
+              <DialogTitle className="text-xl flex items-center gap-2">
+                <FileEdit className="h-5 w-5 text-blue-500" />
+                Actualizar Pedido
+              </DialogTitle>
+              <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
+                <span className="font-mono">{order.tracking_code}</span>
+                <OrderStatusBadge status={order.order_status || "pendiente"} />
+              </div>
+            </div>
+            <div className="text-sm text-gray-500">
+              Fecha: {format(new Date(order.order_date || ""), "dd/MM/yyyy")}
+            </div>
+          </div>
+        </DialogHeader>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
+          <TabsList className="grid grid-cols-3 mb-4">
+            <TabsTrigger
+              value="info"
+              className="flex items-center gap-1"
+              disabled={isSubmitting}
+            >
+              <Info className="h-4 w-4" />
+              Cliente
+            </TabsTrigger>
+            <TabsTrigger
+              value="products"
+              className="flex items-center gap-1"
+              disabled={isSubmitting}
+            >
+              <Package className="h-4 w-4" />
+              Productos
+            </TabsTrigger>
+            <TabsTrigger
+              value="delivery"
+              className="flex items-center gap-1"
+              disabled={isSubmitting}
+            >
+              <Truck className="h-4 w-4" />
+              Entrega
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="info" className="space-y-4">
+            <div className="bg-blue-50 p-3 rounded-md mb-4">
+              <div className="flex items-start gap-2">
+                <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-blue-800">
+                    Estás editando la información del cliente para este pedido.
+                    Si deseas cambiar el estado del pedido, usa la opción
+                    "Cambiar estado" desde la vista de detalles.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <CustomerEditCard
+              initialCustomerData={{
+                name: formData.customer_name || "",
+                phone: formData.customer_phone || "",
+                address: formData.customer_address || "",
+              }}
+              customerId={formData.customer_id}
+              onCustomerChange={handleCustomerChange}
+            />
+          </TabsContent>
+
+          <TabsContent value="products" className="space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Package className="h-5 w-5 text-gray-500" />
+                Productos del Pedido
+              </h3>
+              <Badge variant="outline" className="bg-blue-50 text-blue-600">
+                {formData.items?.length || 0} productos
+              </Badge>
+            </div>
+            <ProductSelector
+              products={products}
+              selectedItems={formData.items || []}
+              onChange={handleProductsChange}
+              isLoading={isLoadingProducts}
+            />
+          </TabsContent>
+
+          <TabsContent value="delivery" className="space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Truck className="h-5 w-5 text-gray-500" />
+                Detalles de Entrega
+              </h3>
+            </div>
+            <DeliveryDetails
+              initialData={{
+                scheduled_delivery_date: formData.scheduled_delivery_date,
+                delivery_time_slot: formData.delivery_time_slot,
+                notes: formData.notes,
+                delivery_notes: formData.delivery_notes,
+              }}
+              onChange={handleDeliveryChange}
+            />
+          </TabsContent>
+        </Tabs>
+
+        <DialogFooter className="flex justify-between items-center mt-6 gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleClose}
+            disabled={isSubmitting}
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="gap-1"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Guardando cambios...
+              </>
+            ) : (
+              "Guardar Cambios"
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

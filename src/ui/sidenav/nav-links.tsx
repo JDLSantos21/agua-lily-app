@@ -1,14 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  Package,
-  Fuel,
-  HandCoins,
-  User,
-  ShoppingCart,
-} from "lucide-react";
+import { LayoutDashboard, Package, Fuel, HandCoins, User } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import {
   Tooltip,
@@ -20,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { PiCashRegisterDuotone } from "react-icons/pi";
 import { hasSpecialCashierAccess } from "@/utils/usersPermissions";
+import { LuPackagePlus } from "react-icons/lu";
 
 const navLinks = [
   {
@@ -60,7 +54,7 @@ const navLinks = [
   {
     name: "Pedidos",
     href: "/orders",
-    icon: ShoppingCart,
+    icon: LuPackagePlus,
     accessRoles: ["administrativo", "cajero", "admin"],
   },
 ];

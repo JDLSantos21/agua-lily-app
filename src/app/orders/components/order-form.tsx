@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2 } from "lucide-react";
-import { Order, CreateOrderRequest, OrderItem } from "@/types/orders.types";
+import { Loader2, PlusCircle } from "lucide-react";
+import { CreateOrderRequest, OrderItem } from "@/types/orders.types";
 import { toast } from "sonner";
 import CustomerSelector from "./order-form/customer-selector";
 import ProductSelector from "./order-form/product-selector";
@@ -21,22 +21,17 @@ import DeliveryDetails from "./order-form/delivery-details";
 import OrderSummary from "./order-form/order-summary";
 
 // Nuevos imports de TanStack Query
-import { useProducts, useCreateOrder, useUpdateOrder } from "@/hooks/useOrders";
+import { useProducts, useCreateOrder } from "@/hooks/useOrders";
 
 interface OrderFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialOrder?: Order | null;
 }
 
 // Estructura de pasos para crear un pedido
 const STEPS = ["customer", "products", "delivery", "summary"];
 
-export default function OrderForm({
-  open,
-  onOpenChange,
-  initialOrder = null,
-}: OrderFormProps) {
+export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
   // Estado del formulario
   const [currentStep, setCurrentStep] = useState(0);
   const [saveNewCustomer, setSaveNewCustomer] = useState(false);
@@ -59,47 +54,31 @@ export default function OrderForm({
     useProducts();
 
   const createOrderMutation = useCreateOrder();
-  const updateOrderMutation = useUpdateOrder();
 
-  const isSubmitting =
-    createOrderMutation.isPending || updateOrderMutation.isPending;
+  const isSubmitting = createOrderMutation.isPending;
   const products = productsResponse?.data || [];
 
-  // Efecto para inicializar el formulario cuando cambia el pedido inicial
+  // Efecto para resetear el formulario al abrirlo
   useEffect(() => {
     if (open) {
-      // Si hay un pedido inicial, preparar los datos
-      if (initialOrder) {
-        setFormData({
-          customer_id: initialOrder.customer_id || null,
-          customer_name: initialOrder.customer_name || "",
-          customer_phone: initialOrder.customer_phone || "",
-          customer_address: initialOrder.customer_address || "",
-          items: initialOrder.items || [],
-          scheduled_delivery_date: initialOrder.scheduled_delivery_date,
-          delivery_time_slot: initialOrder.delivery_time_slot || null,
-          notes: initialOrder.notes || null,
-          delivery_notes: initialOrder.delivery_notes || null,
-        });
-      } else {
-        // Resetear el formulario
-        setFormData({
-          customer_id: null,
-          customer_name: "",
-          customer_phone: "",
-          customer_address: "",
-          items: [],
-          scheduled_delivery_date: undefined,
-          delivery_time_slot: null,
-          notes: null,
-          delivery_notes: null,
-        });
-      }
+      // Resetear el formulario
+      setFormData({
+        customer_id: null,
+        customer_name: "",
+        customer_phone: "",
+        customer_address: "",
+        items: [],
+        scheduled_delivery_date: undefined,
+        delivery_time_slot: null,
+        notes: null,
+        delivery_notes: null,
+      });
 
       // Resetear el paso
       setCurrentStep(0);
+      setSaveNewCustomer(false);
     }
-  }, [open, initialOrder]);
+  }, [open]);
 
   // Manejar el cierre del diálogo
   const handleClose = useCallback(() => {
@@ -184,17 +163,8 @@ export default function OrderForm({
     }
 
     try {
-      // Si es un pedido existente, actualizarlo
-      console.log("initialOrder", initialOrder);
-      if (initialOrder?.id) {
-        await updateOrderMutation.mutateAsync({
-          id: initialOrder.id,
-          data: formData as Partial<Order>,
-        });
-      } else {
-        // Si no, crear un nuevo pedido
-        await createOrderMutation.mutateAsync(formData);
-      }
+      // Crear un nuevo pedido
+      await createOrderMutation.mutateAsync(formData);
 
       // Si todo va bien, cerrar el formulario
       handleClose();
@@ -202,13 +172,7 @@ export default function OrderForm({
       console.error("Error al procesar pedido:", error);
       // El toast ya se maneja en los hooks de mutación
     }
-  }, [
-    formData,
-    initialOrder,
-    createOrderMutation,
-    updateOrderMutation,
-    handleClose,
-  ]);
+  }, [formData, createOrderMutation, handleClose]);
 
   // Navegación entre pasos
   const nextStep = useCallback(() => {
@@ -257,8 +221,9 @@ export default function OrderForm({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl">
-            {initialOrder ? "Editar Pedido" : "Crear Nuevo Pedido"}
+          <DialogTitle className="text-xl flex items-center gap-1">
+            <PlusCircle className="h-5 w-5 text-green-500" />
+            Crear Nuevo Pedido
           </DialogTitle>
           <DialogDescription>
             Complete todos los datos requeridos para crear un nuevo pedido
@@ -373,8 +338,6 @@ export default function OrderForm({
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Procesando...
                 </>
-              ) : initialOrder ? (
-                "Actualizar Pedido"
               ) : (
                 "Crear Pedido"
               )}
