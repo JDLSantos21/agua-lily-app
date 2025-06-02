@@ -1,5 +1,5 @@
 // src/app/orders/components/customer-edit-card.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -40,21 +40,30 @@ export default function CustomerEditCard({
     initialCustomerData.address || ""
   );
 
-  // Si hay un customer_id, obtener su información
-  const { data: customerData, isLoading: isLoadingCustomer } = useCustomer(
-    customerId || 0
-  );
+  // Ref para controlar si ya se inicializó con datos del cliente registrado
+  const isInitializedRef = useRef(false);
+  const lastNotifiedDataRef = useRef<string>("");
 
-  // Actualizar estados cuando cambian datos iniciales
+  // Si hay un customer_id, obtener su información
+  const { data: customerData } = useCustomer(customerId || 0);
+
+  // Actualizar estados cuando cambian datos iniciales - SOLO una vez al inicio
   useEffect(() => {
-    setCustomerName(initialCustomerData.name || "");
-    setCustomerPhone(initialCustomerData.phone || "");
-    setCustomerAddress(initialCustomerData.address || "");
+    if (!isInitializedRef.current) {
+      setCustomerName(initialCustomerData.name || "");
+      setCustomerPhone(initialCustomerData.phone || "");
+      setCustomerAddress(initialCustomerData.address || "");
+      isInitializedRef.current = true;
+    }
   }, [initialCustomerData]);
 
-  // Establecer datos del cliente si se carga desde la BD
+  // Establecer datos del cliente registrado - SOLO una vez cuando se cargan
   useEffect(() => {
-    if (customerData?.data && isRegisteredCustomer) {
+    if (
+      customerData?.data &&
+      isRegisteredCustomer &&
+      !isInitializedRef.current
+    ) {
       const customer = customerData.data;
 
       // Para clientes registrados, usar business_name si existe, sino name
@@ -62,22 +71,44 @@ export default function CustomerEditCard({
 
       setCustomerName(displayName);
       setCustomerPhone(customer.contact_phone);
+      setCustomerAddress(customer.address);
 
-      // Solo actualizar la dirección si no hay una personalizada
-      if (!customerAddress || customerAddress === customer.address) {
-        setCustomerAddress(customer.address);
-      }
+      isInitializedRef.current = true;
     }
-  }, [customerData, isRegisteredCustomer, customerAddress]);
+  }, [customerData, isRegisteredCustomer]);
 
-  // Propagar cambios hacia el componente padre
+  // Manejar cambios en los inputs - con debounce implícito
+  const handleNameChange = (value: string) => {
+    setCustomerName(value);
+    // Notificar inmediatamente para inputs de texto
+    notifyParentChange(value, customerPhone, customerAddress);
+  };
+
+  const handlePhoneChange = (value: string) => {
+    setCustomerPhone(value);
+    notifyParentChange(customerName, value, customerAddress);
+  };
+
+  const handleAddressChange = (value: string) => {
+    setCustomerAddress(value);
+    notifyParentChange(customerName, customerPhone, value);
+  };
+
+  // Función para notificar cambios al padre - con verificación de cambios
+  const notifyParentChange = (name: string, phone: string, address: string) => {
+    const currentData = JSON.stringify({ name, phone, address });
+
+    // Solo notificar si los datos realmente cambiaron
+    if (currentData !== lastNotifiedDataRef.current) {
+      lastNotifiedDataRef.current = currentData;
+      onCustomerChange({ name, phone, address });
+    }
+  };
+
+  // Resetear inicialización cuando cambia el customerId
   useEffect(() => {
-    onCustomerChange({
-      name: customerName,
-      phone: customerPhone,
-      address: customerAddress,
-    });
-  }, [customerName, customerPhone, customerAddress, onCustomerChange]);
+    isInitializedRef.current = false;
+  }, [customerId]);
 
   return (
     <Card className="border-blue-100">
@@ -114,7 +145,7 @@ export default function CustomerEditCard({
               <Input
                 id="customer-name"
                 value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
+                onChange={(e) => handleNameChange(e.target.value)}
                 placeholder={
                   isRegisteredCustomer
                     ? "Nombre de la empresa"
@@ -147,7 +178,7 @@ export default function CustomerEditCard({
               <Input
                 id="customer-phone"
                 value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
+                onChange={(e) => handlePhoneChange(e.target.value)}
                 placeholder="Ej. 829-555-1234"
                 className="pl-10"
                 required
@@ -175,7 +206,7 @@ export default function CustomerEditCard({
               <Textarea
                 id="customer-address"
                 value={customerAddress}
-                onChange={(e) => setCustomerAddress(e.target.value)}
+                onChange={(e) => handleAddressChange(e.target.value)}
                 placeholder={
                   isRegisteredCustomer
                     ? "Dirección específica para este pedido (puede ser diferente a la registrada)"

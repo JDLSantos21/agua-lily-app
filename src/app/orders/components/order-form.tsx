@@ -310,7 +310,7 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
           {currentStep > 0 && (
             <Button
               type="button"
-              variant="outline"
+              variant="back"
               onClick={prevStep}
               disabled={isSubmitting || currentStep === 0}
             >
@@ -321,6 +321,7 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
 
           {currentStep < STEPS.length - 1 ? (
             <Button
+              variant="next"
               type="button"
               onClick={nextStep}
               disabled={isSubmitting || !canContinue()}
@@ -329,6 +330,7 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
             </Button>
           ) : (
             <Button
+              variant="primary"
               onClick={handleSubmit}
               disabled={isSubmitting}
               className="gap-1"

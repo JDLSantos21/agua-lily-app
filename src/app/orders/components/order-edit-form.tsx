@@ -1,7 +1,7 @@
 // src/app/orders/components/order-edit-form.tsx
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -51,6 +51,9 @@ export default function OrderEditForm({
     delivery_notes: null,
   });
 
+  // Ref para controlar la inicialización y evitar loops
+  const isInitializedRef = useRef(false);
+
   // Consulta productos
   const { data: productsResponse, isLoading: isLoadingProducts } =
     useProducts();
@@ -58,13 +61,18 @@ export default function OrderEditForm({
   const isSubmitting = updateOrderMutation.isPending;
   const products = productsResponse?.data || [];
 
-  // Inicializar el formulario cuando cambia el pedido
+  // Inicializar el formulario cuando cambia el pedido - SOLO UNA VEZ
   useEffect(() => {
-    if (open && order) {
+    if (open && order && !isInitializedRef.current) {
+      console.log(
+        "🔧 Inicializando formulario con datos del pedido:",
+        order.id
+      );
+
       // Determinar el nombre correcto del cliente
       const customerDisplayName = order.customer_id
-        ? order.customer_name || order.customer_display_name // Si es cliente registrado, usar el nombre de empresa o el de contacto
-        : order.customer_name; // Si no es cliente registrado, usar el nombre directo
+        ? order.customer_name || order.customer_display_name
+        : order.customer_name;
 
       setFormData({
         customer_id: order.customer_id || null,
@@ -80,8 +88,22 @@ export default function OrderEditForm({
 
       // Resetear el paso
       setActiveTab("info");
+      isInitializedRef.current = true;
     }
   }, [open, order]);
+
+  // Resetear la inicialización cuando cambia el pedido o se cierra el diálogo
+  useEffect(() => {
+    if (!open) {
+      isInitializedRef.current = false;
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (order?.id) {
+      isInitializedRef.current = false;
+    }
+  }, [order?.id]);
 
   // Manejar el cierre del diálogo
   const handleClose = useCallback(() => {
@@ -90,9 +112,10 @@ export default function OrderEditForm({
     }
   }, [isSubmitting, onOpenChange]);
 
-  // Actualizar datos del cliente
+  // Actualizar datos del cliente - con memoización para evitar re-renders
   const handleCustomerChange = useCallback(
     (customerData: { name: string; phone: string; address: string }) => {
+      console.log("👤 Actualizando datos del cliente:", customerData);
       setFormData((prev) => ({
         ...prev,
         customer_name: customerData.name,
@@ -103,15 +126,16 @@ export default function OrderEditForm({
     []
   );
 
-  // Actualizar items de productos
+  // Actualizar items de productos - con memoización
   const handleProductsChange = useCallback((items: OrderItem[]) => {
+    console.log("📦 Actualizando productos:", items.length);
     setFormData((prev) => ({
       ...prev,
       items,
     }));
   }, []);
 
-  // Actualizar detalles de entrega
+  // Actualizar detalles de entrega - con memoización
   const handleDeliveryChange = useCallback(
     (deliveryData: {
       scheduled_delivery_date?: string;
@@ -119,6 +143,7 @@ export default function OrderEditForm({
       notes?: string | null;
       delivery_notes?: string | null;
     }) => {
+      console.log("🚚 Actualizando detalles de entrega:", deliveryData);
       setFormData((prev) => ({
         ...prev,
         ...deliveryData,
@@ -167,6 +192,8 @@ export default function OrderEditForm({
     if (!validateForm()) return;
 
     try {
+      console.log("💾 Enviando actualización del pedido:", order.id);
+
       // Preparar datos para envío
       const dataToUpdate: Partial<Order> = {
         customer_name: formData.customer_name,
@@ -182,8 +209,6 @@ export default function OrderEditForm({
         notes: formData.notes,
         delivery_notes: formData.delivery_notes,
       };
-
-      // console.log(dataToUpdate);
 
       await updateOrderMutation.mutateAsync({
         id: order.id,
@@ -270,6 +295,7 @@ export default function OrderEditForm({
               </div>
             </div>
             <CustomerEditCard
+              key={`customer-${order.id}-${formData.customer_id}`} // Key único para forzar re-mount
               initialCustomerData={{
                 name: formData.customer_name || "",
                 phone: formData.customer_phone || "",
@@ -328,6 +354,7 @@ export default function OrderEditForm({
             Cancelar
           </Button>
           <Button
+            variant="primary"
             onClick={handleSubmit}
             disabled={isSubmitting}
             className="gap-1"

@@ -180,6 +180,7 @@ const OrderStatusDialog = memo(function OrderStatusDialog({
             Cancelar
           </Button>
           <Button
+            variant="primary"
             onClick={handleSubmit}
             disabled={!canSubmit}
             className="gap-1"

@@ -1,3 +1,4 @@
+// src/api/fetcher.ts
 import { API_URL } from "./config";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -42,13 +43,25 @@ export const fetcher = async (
       headers,
     });
 
+    // Clonar la respuesta para poder leerla múltiples veces si es necesario
+    const responseClone = response.clone();
+
     if (!response.ok) {
-      // Si es un error 401, verificar si el token ha expirado
-      const errorData = await response.json();
+      let errorData;
+
+      try {
+        // Intentar leer como JSON
+        errorData = await responseClone.json();
+      } catch (jsonError) {
+        // Si no se puede leer como JSON, crear un error genérico
+        errorData = {
+          message: `HTTP Error ${response.status}: ${response.statusText}`,
+        };
+      }
 
       if (response.status === 401) {
         if (errorData.message === "NO_TOKEN_FOUND") {
-          console.log("No se ha encontrando el token, cerrando sesión");
+          console.log("No se ha encontrado el token, cerrando sesión");
           useAuthStore.getState().logout();
           throw new Error(
             "Sesión expirada. Por favor, inicia sesión nuevamente."
@@ -74,14 +87,13 @@ export const fetcher = async (
         }
       }
 
-      console.log("Error en la respuesta:", await response.json());
-
       throw new Error(
         errorData.message || "Ocurrió un problema, intente de nuevo más tarde."
       );
     }
 
-    return response.json();
+    // Leer la respuesta exitosa
+    return await response.json();
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(error.message);

@@ -173,6 +173,7 @@ const OrderAssignDeliveryDialog = memo(function OrderAssignDeliveryDialog({
             Cancelar
           </Button>
           <Button
+            variant="primary"
             onClick={handleSubmit}
             disabled={!canSubmit}
             className="gap-1"

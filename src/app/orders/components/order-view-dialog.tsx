@@ -150,26 +150,23 @@ const OrderViewDialog = memo(function OrderViewDialog({
                   >
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
-                  Pedido {order.tracking_code}
+                  Pedido {order.tracking_code}{" "}
+                  <span
+                    className="text-gray-500 hover:text-gray-800 cursor-pointer"
+                    onClick={copyTrackingCode}
+                  >
+                    <Clipboard className="w-5 h-5" />
+                  </span>
                 </DialogTitle>
-                <OrderStatusBadge
-                  status={order.order_status || "pendiente"}
-                  size="lg"
-                />
               </div>
               <div className="flex justify-between items-center pt-1">
                 <DialogDescription className="text-base font-medium">
                   {order.customer_name}
                 </DialogDescription>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs h-7 gap-1"
-                  onClick={copyTrackingCode}
-                >
-                  <Clipboard className="h-3 w-3" />
-                  Copiar código
-                </Button>
+                <OrderStatusBadge
+                  status={order.order_status || "pendiente"}
+                  size="lg"
+                />
               </div>
             </DialogHeader>
 
