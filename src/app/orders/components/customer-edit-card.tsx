@@ -4,8 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { User, Phone, MapPin, Search, InfoIcon, Building } from "lucide-react";
+// import { Button } from "@/components/ui/button";
+import { User, Phone, MapPin, Building } from "lucide-react";
 import { useCustomer } from "@/hooks/useCustomers";
 
 interface CustomerEditCardProps {
@@ -113,7 +113,7 @@ export default function CustomerEditCard({
   return (
     <Card className="border-blue-100">
       <CardContent className="pt-6 space-y-5">
-        {isRegisteredCustomer && (
+        {/* {isRegisteredCustomer && (
           <div className="bg-blue-50 p-3 rounded-md text-sm mb-2 flex items-start">
             <InfoIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
             <div>
@@ -126,7 +126,7 @@ export default function CustomerEditCard({
               </p>
             </div>
           </div>
-        )}
+        )} */}
 
         <div className="space-y-4">
           <div className="grid gap-2">
@@ -220,14 +220,13 @@ export default function CustomerEditCard({
             </div>
             {isRegisteredCustomer && (
               <p className="text-xs text-blue-600">
-                Puedes modificar la dirección de entrega para este pedido
-                específico
+                Solo se modificará la dirección para este pedido en especifico.
               </p>
             )}
           </div>
         </div>
 
-        {isRegisteredCustomer && (
+        {/* {isRegisteredCustomer && (
           <Button
             variant="outline"
             size="sm"
@@ -239,7 +238,7 @@ export default function CustomerEditCard({
             <Search className="h-3.5 w-3.5" />
             Ver información completa del cliente
           </Button>
-        )}
+        )} */}
       </CardContent>
     </Card>
   );

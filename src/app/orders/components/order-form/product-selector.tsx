@@ -33,7 +33,7 @@ export default function ProductSelector({
 
   // Estado para el producto seleccionado para añadir
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [quantity, setQuantity] = useState<number>(1);
+  const [quantity, setQuantity] = useState<number | null>(null);
   const [notes, setNotes] = useState<string>("");
 
   // Actualizar productos filtrados cuando cambia la búsqueda o la lista de productos
@@ -62,7 +62,7 @@ export default function ProductSelector({
 
   // Añadir producto a la lista de seleccionados
   const handleAddProduct = () => {
-    if (selectedProduct && quantity > 0) {
+    if (selectedProduct && quantity && quantity > 0) {
       const newItem: OrderItem = {
         product_id: selectedProduct.id,
         product_name: selectedProduct.name,
@@ -236,25 +236,24 @@ export default function ProductSelector({
                           variant="outline"
                           size="sm"
                           className="h-8 w-8 p-0"
-                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                          onClick={() =>
+                            setQuantity((prev) => Math.max(1, (prev || 1) - 1))
+                          }
                         >
                           <Minus className="h-3 w-3" />
                         </Button>
                         <Input
                           id="quantity"
                           type="number"
-                          min="1"
-                          value={quantity}
-                          onChange={(e) =>
-                            setQuantity(parseInt(e.target.value) || 1)
-                          }
-                          className="h-8 text-center mx-2 w-16"
+                          value={quantity || ""}
+                          onChange={(e) => setQuantity(Number(e.target.value))}
+                          className="h-8 text-center mx-2 w-16 noControls"
                         />
                         <Button
                           variant="outline"
                           size="sm"
                           className="h-8 w-8 p-0"
-                          onClick={() => setQuantity(quantity + 1)}
+                          onClick={() => setQuantity((prev) => (prev || 0) + 1)}
                         >
                           <Plus className="h-3 w-3" />
                         </Button>
@@ -278,9 +277,10 @@ export default function ProductSelector({
                     <Button
                       className="w-full"
                       size="sm"
+                      variant="primary"
                       onClick={handleAddProduct}
                     >
-                      Añadir a Pedido
+                      Añadir al Pedido
                     </Button>
                   </div>
                 </div>

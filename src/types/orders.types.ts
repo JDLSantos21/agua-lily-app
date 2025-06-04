@@ -162,6 +162,8 @@ export interface CreateOrderRequest {
   delivery_notes?: string | null;
   notes?: string | null;
   items: OrderItem[];
+  save_customer?: boolean;
+  customer_has_whatsapp?: boolean;
 }
 
 export interface UpdateOrderStatusRequest {

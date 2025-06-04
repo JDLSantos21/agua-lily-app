@@ -49,13 +49,13 @@ const navLinks = [
     name: "Clientes",
     href: "/clientes",
     icon: User,
-    accessRoles: ["administrativo", "cajero", "admin"],
+    accessRoles: ["administrativo", "operador", "admin"],
   },
   {
     name: "Pedidos",
     href: "/orders",
     icon: LuPackagePlus,
-    accessRoles: ["administrativo", "cajero", "admin"],
+    accessRoles: ["administrativo", "operador", "admin"],
   },
 ];
 

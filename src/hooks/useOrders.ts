@@ -57,12 +57,26 @@ export const useOrders = (
   filters?: OrderFilter,
   options?: Partial<UseQueryOptions<OrdersResponse>>
 ) => {
-  if (filters?.order_status === undefined) {
-    delete filters?.order_status;
-  }
+  // Limpiar filtros vacíos para evitar consultas innecesarias
+  const cleanFilters = filters ? { ...filters } : {};
+
+  // Remover campos undefined para normalizar la cache key
+  Object.keys(cleanFilters).forEach((key) => {
+    if (
+      cleanFilters[key as keyof OrderFilter] === undefined ||
+      cleanFilters[key as keyof OrderFilter] === ""
+    ) {
+      delete cleanFilters[key as keyof OrderFilter];
+    }
+  });
+
   return useQuery({
-    queryKey: CACHE_KEYS.list(filters),
-    queryFn: () => getOrders(filters),
+    queryKey: CACHE_KEYS.list(cleanFilters),
+    queryFn: () => getOrders(cleanFilters),
+    // Mantener data anterior mientras se carga nueva página
+    placeholderData: (old) => old,
+    // Cache por 30 segundos para evitar refetches frecuentes
+    staleTime: 30 * 1000,
     ...options,
   });
 };

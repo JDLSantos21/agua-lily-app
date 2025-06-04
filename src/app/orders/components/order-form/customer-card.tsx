@@ -71,7 +71,7 @@ export function CustomerCard({
 
         <div className="mt-2 flex justify-end">
           <Button
-            variant={isSelected ? "default" : "outline"}
+            variant={isSelected ? "primary" : "outline"}
             size="sm"
             className="text-xs h-7"
             onClick={(e) => {

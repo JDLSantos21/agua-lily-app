@@ -14,6 +14,7 @@ export default function NewOrderButton() {
       <Button
         size="sm"
         className="gap-1"
+        variant="outline"
         onClick={() => setIsOrderFormOpen(true)}
       >
         <PlusIcon className="h-4 w-4" />

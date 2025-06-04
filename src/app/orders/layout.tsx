@@ -122,8 +122,7 @@ export default function PedidosLayout({
                       />
                     </div>
                   )}
-
-                  <NewOrderButton />
+                  {pathname !== "/orders" && <NewOrderButton />}
                 </div>
               </div>
             </div>
@@ -142,6 +141,7 @@ interface StatusBadgeProps {
   count: number;
   status: "pendiente" | "preparando" | "despachado" | "entregado" | "cancelado";
   icon?: React.ReactNode;
+  active?: boolean;
 }
 
 function StatusBadge({ count, status, icon }: StatusBadgeProps) {
@@ -164,7 +164,7 @@ function StatusBadge({ count, status, icon }: StatusBadgeProps) {
   };
 
   return (
-    <Link href={`/pedidos?status=${status}`}>
+    <div>
       <Badge
         variant="outline"
         className={`${getBadgeStyles()} cursor-pointer transition-colors px-2 py-1`}
@@ -172,6 +172,6 @@ function StatusBadge({ count, status, icon }: StatusBadgeProps) {
         {icon && <span className="mr-1">{icon}</span>}
         <span>{count}</span>
       </Badge>
-    </Link>
+    </div>
   );
 }

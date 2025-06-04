@@ -13,6 +13,8 @@ import {
   BarChartIcon,
   FilePlus,
   Package,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { LoaderSpin } from "@/components/Loader";
 import Link from "next/link";
@@ -42,11 +44,17 @@ interface DialogsState {
   assignOrder: { isOpen: boolean; order: Order | null };
 }
 
+// Configuración de paginación
+const ITEMS_PER_PAGE = 8; // Número de items por página
+
 export default function PedidosPage() {
   // Vista activa: list, grid o stats
   const [activeView, setActiveView] = useState<"list" | "grid" | "stats">(
     "grid"
   );
+
+  // Estado para paginación
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Estado para filtros
   const [filters, setFilters] = useState<{
@@ -71,14 +79,32 @@ export default function PedidosPage() {
     assignOrder: { isOpen: false, order: null },
   });
 
+  // Calcular offset basado en la página actual
+  const offset = useMemo(
+    () => (currentPage - 1) * ITEMS_PER_PAGE,
+    [currentPage]
+  );
+
+  // Filtros con paginación
+  const filtersWithPagination = useMemo(
+    () => ({
+      ...filters,
+      limit: ITEMS_PER_PAGE,
+      offset: offset,
+    }),
+    [filters, offset]
+  );
+
   // Consultas de datos con TanStack Query
   const {
     data: ordersResponse,
     isLoading: isLoadingOrders,
     error: ordersError,
-  } = useOrders(filters, {
+  } = useOrders(filtersWithPagination, {
     // No refetching automático en foco para mejorar rendimiento
     refetchOnWindowFocus: false,
+    // Mantener data anterior mientras se carga nueva página
+    placeholderData: (old) => old,
   });
 
   // Solo consultar estadísticas cuando se muestra la vista de estadísticas
@@ -185,9 +211,18 @@ export default function PedidosPage() {
         ...prev,
         order_status: status === "all" ? undefined : status,
       }));
+      // Resetear a la primera página cuando cambia el filtro
+      setCurrentPage(1);
     },
     []
   );
+
+  // Manejador de cambio de filtros generales
+  const handleFiltersChange = useCallback((newFilters: typeof filters) => {
+    setFilters(newFilters);
+    // Resetear a la primera página cuando cambian los filtros
+    setCurrentPage(1);
+  }, []);
 
   // Manejador de eliminación de pedido
   const handleDeleteOrder = useCallback(() => {
@@ -195,10 +230,38 @@ export default function PedidosPage() {
       deleteOrderMutation.mutate(dialogs.deleteOrder.order.id, {
         onSuccess: () => {
           closeDeleteDialog();
+          // Si estamos en una página que se queda vacía, ir a la anterior
+          const currentOrders = ordersResponse?.data || [];
+          if (currentOrders.length === 1 && currentPage > 1) {
+            setCurrentPage((prev) => prev - 1);
+          }
         },
       });
     }
-  }, [dialogs.deleteOrder.order, deleteOrderMutation, closeDeleteDialog]);
+  }, [
+    dialogs.deleteOrder.order,
+    deleteOrderMutation,
+    closeDeleteDialog,
+    ordersResponse,
+    currentPage,
+  ]);
+
+  // Funciones de paginación
+  const handlePreviousPage = useCallback(() => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  }, []);
+
+  const handleNextPage = () => {
+    const total = pagination?.total || 0;
+    const maxPages = Math.ceil(total / ITEMS_PER_PAGE);
+    if (currentPage < maxPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePageClick = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, []);
 
   // Memoizar la lista de pedidos para evitar re-renderizados
   const orders = useMemo(() => ordersResponse?.data || [], [ordersResponse]);
@@ -206,6 +269,54 @@ export default function PedidosPage() {
     () => ordersResponse?.pagination || null,
     [ordersResponse]
   );
+
+  // Calcular información de paginación
+  const totalPages = useMemo(
+    () => Math.ceil((pagination?.total || 0) / ITEMS_PER_PAGE),
+    [pagination?.total]
+  );
+
+  const canGoPrevious = currentPage > 1;
+  const canGoNext = currentPage < totalPages;
+
+  // Generar números de página para mostrar
+  const pageNumbers = useMemo(() => {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      // Si hay pocas páginas, mostrar todas
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Lógica más compleja para muchas páginas
+      const start = Math.max(1, currentPage - 2);
+      const end = Math.min(totalPages, currentPage + 2);
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      // Agregar primera página si no está incluida
+      if (start > 1) {
+        pages.unshift(1);
+        if (start > 2) {
+          pages.splice(1, 0, -1); // -1 representa "..."
+        }
+      }
+
+      // Agregar última página si no está incluida
+      if (end < totalPages) {
+        if (end < totalPages - 1) {
+          pages.push(-1); // -1 representa "..."
+        }
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  }, [currentPage, totalPages]);
 
   // Renderizado basado en estado de carga
   if (ordersError) {
@@ -340,11 +451,20 @@ export default function PedidosPage() {
       {/* Filtros avanzados */}
       <div className="mb-6">
         <OrderFilters
-          onChange={setFilters}
+          onChange={handleFiltersChange}
           initialFilters={filters}
           compact={true}
         />
       </div>
+
+      {/* Información de paginación */}
+      {pagination && pagination.total > 0 && (
+        <div className="mb-4 text-sm text-gray-500">
+          Mostrando {(currentPage - 1) * ITEMS_PER_PAGE + 1} -{" "}
+          {Math.min(currentPage * ITEMS_PER_PAGE, pagination.total)} de{" "}
+          {pagination.total} pedidos
+        </div>
+      )}
 
       {/* Contenido según la vista seleccionada */}
       <div className="mt-6">
@@ -453,6 +573,65 @@ export default function PedidosPage() {
         )}
       </div>
 
+      {/* Paginación */}
+      {pagination && totalPages > 1 && (
+        <div className="flex justify-center mt-8">
+          <div className="flex items-center gap-1">
+            {/* Botón Anterior */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePreviousPage}
+              disabled={!canGoPrevious}
+              className="flex items-center gap-1"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Anterior</span>
+            </Button>
+
+            {/* Números de página */}
+            <div className="flex gap-1 mx-2">
+              {pageNumbers.map((pageNum, index) =>
+                pageNum === -1 ? (
+                  <span
+                    key={`ellipsis-${index}`}
+                    className="px-3 py-1 text-gray-500"
+                  >
+                    ...
+                  </span>
+                ) : (
+                  <Button
+                    key={pageNum}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageClick(pageNum)}
+                    className={`px-3 ${
+                      currentPage === pageNum
+                        ? "bg-blue-600/10 "
+                        : "hover:bg-primary/10"
+                    }`}
+                  >
+                    {pageNum}
+                  </Button>
+                )
+              )}
+            </div>
+
+            {/* Botón Siguiente */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleNextPage}
+              disabled={!canGoNext}
+              className="flex items-center gap-1"
+            >
+              <span className="hidden sm:inline">Siguiente</span>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Diálogos */}
       {/* Formulario para Nuevo Pedido */}
       <OrderForm
@@ -495,24 +674,6 @@ export default function PedidosPage() {
         onConfirm={handleDeleteOrder}
         onCancel={closeDeleteDialog}
       />
-
-      {/* Paginación */}
-      {pagination && pagination.total > (pagination.limit || 10) && (
-        <div className="flex justify-center mt-8">
-          <div className="flex gap-1">
-            {/* Aquí iría la paginación */}
-            <Button variant="outline" size="sm" disabled>
-              Anterior
-            </Button>
-            <Button variant="outline" size="sm" className="px-3 bg-primary/5">
-              1
-            </Button>
-            <Button variant="outline" size="sm" disabled>
-              Siguiente
-            </Button>
-          </div>
-        </div>
-      )}
     </main>
   );
 }

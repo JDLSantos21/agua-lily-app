@@ -1,4 +1,5 @@
-// src/app/orders/components/order-form/customer-selector.tsx
+// src/app/orders/components/order-form/customer-selector.tsx - ACTUALIZADO
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Customer } from "@/types/customers.types";
 import { useDebounce } from "use-debounce";
-import { Search, X, User, Plus } from "lucide-react";
+import { Search, X, User, Plus, MessageCircle } from "lucide-react";
 import { LoaderSpin } from "@/components/Loader";
 
 // API para buscar clientes
@@ -28,6 +29,7 @@ interface CustomerSelectorProps {
     name: string;
     phone: string;
     address: string;
+    hasWhatsapp?: boolean; // ← NUEVO
   };
   onCustomerChange: (
     customerId: number | null,
@@ -35,6 +37,7 @@ interface CustomerSelectorProps {
       name: string;
       phone: string;
       address: string;
+      hasWhatsapp: boolean; // ← NUEVO
     },
     saveCustomer: boolean
   ) => void;
@@ -73,12 +76,14 @@ export default function CustomerSelector({
   const [newCustomerAddress, setNewCustomerAddress] = useState(
     initialCustomerData.address || ""
   );
+  const [newCustomerHasWhatsapp, setNewCustomerHasWhatsapp] = useState(
+    initialCustomerData.hasWhatsapp || false
+  ); // ← NUEVO ESTADO
 
   // Cargar cliente inicial si existe
   useEffect(() => {
     if (initialCustomerId) {
       setActiveTab("existing");
-      // Aquí se podría cargar los datos del cliente si fuera necesario
     } else if (
       initialCustomerData.name ||
       initialCustomerData.phone ||
@@ -88,6 +93,7 @@ export default function CustomerSelector({
       setNewCustomerName(initialCustomerData.name || "");
       setNewCustomerPhone(initialCustomerData.phone || "");
       setNewCustomerAddress(initialCustomerData.address || "");
+      setNewCustomerHasWhatsapp(initialCustomerData.hasWhatsapp || false);
     }
   }, [initialCustomerId, initialCustomerData]);
 
@@ -122,6 +128,7 @@ export default function CustomerSelector({
         name: customer.business_name || customer.name,
         phone: customer.contact_phone,
         address: customer.address,
+        hasWhatsapp: customer.has_whatsapp || false, // ← NUEVO
       },
       false
     );
@@ -135,6 +142,7 @@ export default function CustomerSelector({
         name: newCustomerName,
         phone: newCustomerPhone,
         address: newCustomerAddress,
+        hasWhatsapp: newCustomerHasWhatsapp, // ← NUEVO
       },
       saveCustomer
     );
@@ -150,6 +158,7 @@ export default function CustomerSelector({
     newCustomerName,
     newCustomerPhone,
     newCustomerAddress,
+    newCustomerHasWhatsapp, // ← AGREGAR A DEPENDENCIAS
     saveCustomer,
   ]);
 
@@ -157,19 +166,17 @@ export default function CustomerSelector({
   const handleTabChange = (tab: "existing" | "new") => {
     setActiveTab(tab);
 
-    // Si cambia a cliente nuevo, limpiar selección de existente
     if (tab === "new") {
       setSelectedCustomer(null);
-      // Notificar el cambio con los datos del formulario de cliente nuevo
       handleNewCustomerChange();
     } else if (tab === "existing" && selectedCustomer) {
-      // Si cambia a cliente existente y hay uno seleccionado, usar esos datos
       onCustomerChange(
         selectedCustomer.id || null,
         {
           name: selectedCustomer.name,
           phone: selectedCustomer.contact_phone,
           address: selectedCustomer.address,
+          hasWhatsapp: selectedCustomer.has_whatsapp || false, // ← NUEVO
         },
         false
       );
@@ -264,9 +271,15 @@ export default function CustomerSelector({
                     <strong>Nombre:</strong>{" "}
                     {selectedCustomer.business_name || selectedCustomer.name}
                   </p>
-                  <p>
+                  <div className="flex items-center gap-2">
                     <strong>Teléfono:</strong> {selectedCustomer.contact_phone}
-                  </p>
+                    {selectedCustomer.has_whatsapp && (
+                      <div className="flex items-center gap-1 text-green-600">
+                        <MessageCircle className="h-3 w-3" />
+                        <span className="text-xs">WhatsApp</span>
+                      </div>
+                    )}
+                  </div>
                   <p>
                     <strong>Dirección:</strong> {selectedCustomer.address}
                   </p>
@@ -288,6 +301,7 @@ export default function CustomerSelector({
                 required
               />
             </div>
+
             <div className="grid gap-2">
               <Label htmlFor="phone">Teléfono de contacto *</Label>
               <Input
@@ -297,7 +311,28 @@ export default function CustomerSelector({
                 placeholder="Ej. 829-555-1234"
                 required
               />
+
+              {/* ← NUEVO: Checkbox WhatsApp */}
+              {newCustomerPhone && (
+                <div className="flex items-center space-x-2 mt-1">
+                  <Checkbox
+                    id="has-whatsapp"
+                    checked={newCustomerHasWhatsapp}
+                    onCheckedChange={(checked) =>
+                      setNewCustomerHasWhatsapp(checked as boolean)
+                    }
+                  />
+                  <Label
+                    htmlFor="has-whatsapp"
+                    className="text-sm font-normal cursor-pointer flex items-center gap-1"
+                  >
+                    <MessageCircle className="h-3 w-3 text-green-600" />
+                    Este número tiene WhatsApp
+                  </Label>
+                </div>
+              )}
             </div>
+
             <div className="grid gap-2">
               <Label htmlFor="address">Dirección *</Label>
               <Textarea
@@ -310,6 +345,7 @@ export default function CustomerSelector({
               />
             </div>
 
+            {/* Checkbox para guardar cliente */}
             <div className="flex items-center space-x-2 mt-2">
               <Checkbox
                 id="save-customer"

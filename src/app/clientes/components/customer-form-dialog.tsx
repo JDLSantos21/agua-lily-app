@@ -41,7 +41,7 @@ const customerFormSchema = z.object({
   contact_phone: z
     .string()
     .min(10, { message: "El teléfono debe tener al menos 10 caracteres" })
-    .max(20, { message: "El teléfono no puede exceder los 20 caracteres" }),
+    .max(11, { message: "El teléfono no puede exceder los 20 caracteres" }),
   contact_email: z
     .string()
     .email({ message: "Correo electrónico inválido" })

@@ -6,7 +6,7 @@ import FuelResetDialog from "./components/fuel-reset-dialog";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
+    <div className="flex h-screen dflex-col md:flex-row md:overflow-hidden">
       <ReplenishmentFormDialog />
       <FuelResetDialog />
       <div className="w-full flex-none md:w-auto">

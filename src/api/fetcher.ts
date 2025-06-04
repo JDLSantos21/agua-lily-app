@@ -43,6 +43,7 @@ export const fetcher = async (
       headers,
     });
 
+    console.log("Respuesta", response);
     // Clonar la respuesta para poder leerla múltiples veces si es necesario
     const responseClone = response.clone();
 
@@ -96,6 +97,7 @@ export const fetcher = async (
     return await response.json();
   } catch (error) {
     if (error instanceof Error) {
+      console.log(error);
       throw new Error(error.message);
     } else {
       throw new Error("Ocurrió un problema, intente de nuevo más tarde.");

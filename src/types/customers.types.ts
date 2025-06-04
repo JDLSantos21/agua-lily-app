@@ -23,6 +23,7 @@ export interface Customer {
   id?: number;
   name: string;
   contact_phone: string;
+  has_whatsapp?: boolean; // ← NUEVO CAMPO
   contact_email?: string | null;
   address: string;
   business_name?: string | null;
@@ -54,6 +55,7 @@ export interface CustomerFilter {
   search?: string;
   status?: CustomerStatus;
   is_business?: boolean;
+  has_whatsapp?: boolean; // ← NUEVO FILTRO OPCIONAL
   limit?: number;
   offset?: number;
 }

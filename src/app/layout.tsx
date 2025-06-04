@@ -56,9 +56,9 @@ export default function RootLayout({
           Version 1.1.7
         </h1>
         <UpdateModal />
-        <SocketProvider />
-        <Toaster richColors />
         <QueryClientProvider client={queryClient}>
+          <SocketProvider />
+          <Toaster richColors />
           {children}
         </QueryClientProvider>
       </body>

@@ -51,9 +51,9 @@ export default function ClientesPage() {
 
   // Obtener estado y acciones del store
   const {
-    customers,
+    // customers,
     pagination,
-    isLoading,
+    // isLoading,
     error,
     filters,
     dialogState,
@@ -75,6 +75,8 @@ export default function ClientesPage() {
     fetchCustomerStats();
   }, [fetchCustomers, fetchCustomerStats]);
 
+  const { data: customers, isLoading } = useCustomers();
+
   // Renderizado basado en estado de carga
   if (error) {
     return (
@@ -92,7 +94,9 @@ export default function ClientesPage() {
           <p className="text-sm text-gray-400 mt-2">Detalles: {error}</p>
         </CardContent>
         <CardFooter>
-          <Button onClick={() => fetchCustomers()}>Reintentar</Button>
+          <Button variant="outline" onClick={() => fetchCustomers()}>
+            Reintentar
+          </Button>
         </CardFooter>
       </Card>
     );
@@ -184,7 +188,7 @@ export default function ClientesPage() {
               </div>
             ) : activeView === "grid" ? (
               // Vista de cuadrícula
-              customers.length === 0 ? (
+              customers?.data.length === 0 ? (
                 <Empty
                   title="No hay clientes"
                   description="No se encontraron clientes con los filtros aplicados"
@@ -204,7 +208,7 @@ export default function ClientesPage() {
                   exit={{ opacity: 0 }}
                 >
                   <AnimatePresence>
-                    {customers.map((customer) => (
+                    {customers?.data.map((customer) => (
                       <CustomerCard
                         key={customer.id}
                         customer={customer}
@@ -251,14 +255,14 @@ export default function ClientesPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {customers.length === 0 ? (
+                      {customers?.data.length === 0 ? (
                         <TableRow>
                           <TableCell colSpan={5} className="h-24 text-center">
                             No se encontraron clientes
                           </TableCell>
                         </TableRow>
                       ) : (
-                        customers.map((customer) => (
+                        customers?.data.map((customer) => (
                           <CustomerTableRow
                             key={customer.id}
                             customer={customer}
@@ -275,7 +279,7 @@ export default function ClientesPage() {
                 {pagination && pagination.total > 0 && (
                   <CardFooter className="flex items-center justify-between border-t px-6 py-3">
                     <div className="text-sm text-gray-500">
-                      Mostrando {customers.length} de {pagination.total}{" "}
+                      Mostrando {customers?.data.length} de {pagination.total}{" "}
                       clientes
                     </div>
                     {/* Aquí se podría agregar paginación */}
@@ -411,3 +415,4 @@ const CustomerTableRow = memo(function CustomerTableRow({
 // Componentes adicionales necesarios
 import { Building2, Eye, Edit, User } from "lucide-react";
 import { memo } from "react";
+import { useCustomers } from "@/hooks/useCustomers";

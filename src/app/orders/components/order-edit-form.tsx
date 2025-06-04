@@ -23,6 +23,8 @@ import { format } from "date-fns";
 // Nuevos imports de TanStack Query
 import { useProducts, useUpdateOrder } from "@/hooks/useOrders";
 import CustomerEditCard from "./customer-edit-card";
+import { formatDateForDB } from "@/utils/formatDate";
+import { es } from "date-fns/locale";
 
 interface OrderEditFormProps {
   open: boolean;
@@ -31,7 +33,7 @@ interface OrderEditFormProps {
 }
 
 // Estructura de secciones para editar un pedido
-const TABS = ["info", "products", "delivery"];
+// const TABS = ["info", "products", "delivery"];
 
 export default function OrderEditForm({
   open,
@@ -193,6 +195,7 @@ export default function OrderEditForm({
 
     try {
       console.log("💾 Enviando actualización del pedido:", order.id);
+      const formattedDate = formatDateForDB(formData.scheduled_delivery_date);
 
       // Preparar datos para envío
       const dataToUpdate: Partial<Order> = {
@@ -204,7 +207,7 @@ export default function OrderEditForm({
           quantity: item.quantity,
           notes: item.notes || null,
         })),
-        scheduled_delivery_date: formData.scheduled_delivery_date,
+        scheduled_delivery_date: formattedDate,
         delivery_time_slot: formData.delivery_time_slot,
         notes: formData.notes,
         delivery_notes: formData.delivery_notes,
@@ -232,23 +235,34 @@ export default function OrderEditForm({
       <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-y-auto">
         <DialogHeader className="pb-0">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-            <div>
+            <div className="w-full">
               <DialogTitle className="text-xl flex items-center gap-2">
                 <FileEdit className="h-5 w-5 text-blue-500" />
                 Actualizar Pedido
               </DialogTitle>
-              <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
-                <span className="font-mono">{order.tracking_code}</span>
-                <OrderStatusBadge status={order.order_status || "pendiente"} />
-                {isRegisteredCustomer && (
-                  <Badge variant="outline" className="bg-blue-50 text-blue-600">
-                    Cliente Registrado
-                  </Badge>
-                )}
+              <div className="w-full flex items-center justify-between gap-2 mt-1 text-sm text-gray-500">
+                <div className="text-sm text-gray-500 flex flex-col">
+                  <span className="font-mono">{order.tracking_code}</span>
+                  {format(
+                    new Date(order.order_date || ""),
+                    "EEEE dd 'de' MMMM yyyy, hh:mm a",
+                    { locale: es }
+                  )}
+                </div>
+                <div className="flex gap-1">
+                  <OrderStatusBadge
+                    status={order.order_status || "pendiente"}
+                  />
+                  {isRegisteredCustomer && (
+                    <Badge
+                      variant="outline"
+                      className="bg-blue-50 text-blue-600"
+                    >
+                      Cliente Registrado
+                    </Badge>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="text-sm text-gray-500">
-              Fecha: {format(new Date(order.order_date || ""), "dd/MM/yyyy")}
             </div>
           </div>
         </DialogHeader>

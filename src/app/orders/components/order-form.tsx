@@ -34,7 +34,6 @@ const STEPS = ["customer", "products", "delivery", "summary"];
 export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
   // Estado del formulario
   const [currentStep, setCurrentStep] = useState(0);
-  const [saveNewCustomer, setSaveNewCustomer] = useState(false);
 
   // Form data
   const [formData, setFormData] = useState<CreateOrderRequest>({
@@ -42,6 +41,8 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
     customer_name: "",
     customer_phone: "",
     customer_address: "",
+    customer_has_whatsapp: false, // ← NUEVO
+    save_customer: false, // ← NUEVO
     items: [],
     scheduled_delivery_date: undefined,
     delivery_time_slot: null,
@@ -67,6 +68,8 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
         customer_name: "",
         customer_phone: "",
         customer_address: "",
+        customer_has_whatsapp: false, // ← CAMBIO: Agregar esta línea
+        save_customer: false, // ← CAMBIO: Agregar esta línea
         items: [],
         scheduled_delivery_date: undefined,
         delivery_time_slot: null,
@@ -76,7 +79,6 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
 
       // Resetear el paso
       setCurrentStep(0);
-      setSaveNewCustomer(false);
     }
   }, [open]);
 
@@ -95,6 +97,7 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
         name: string;
         phone: string;
         address: string;
+        hasWhatsapp: boolean; // ← CAMBIO: Agregar este parámetro
       },
       saveCustomer: boolean
     ) => {
@@ -104,9 +107,11 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
         customer_name: customerData.name,
         customer_phone: customerData.phone,
         customer_address: customerData.address,
+        customer_has_whatsapp: customerData.hasWhatsapp, // ← CAMBIO: Agregar esta línea
+        save_customer: saveCustomer, // ← CAMBIO: Agregar esta línea
       }));
 
-      setSaveNewCustomer(saveCustomer);
+      // setSaveNewCustomer(saveCustomer);
     },
     []
   );
@@ -269,10 +274,13 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
                 name: formData.customer_name,
                 phone: formData.customer_phone,
                 address: formData.customer_address,
+                hasWhatsapp: formData.customer_has_whatsapp, // ← CAMBIO: Agregar esta línea
               }}
               onCustomerChange={handleCustomerChange}
-              saveCustomer={saveNewCustomer}
-              onSaveCustomerChange={setSaveNewCustomer}
+              saveCustomer={formData.save_customer ?? false} // ← CAMBIO: Usar formData en lugar de saveNewCustomer, asegurando booleano
+              onSaveCustomerChange={(
+                save // ← CAMBIO: Actualizar formData directamente
+              ) => setFormData((prev) => ({ ...prev, save_customer: save }))}
             />
           </TabsContent>
 
@@ -301,7 +309,7 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
             <OrderSummary
               orderData={formData}
               products={products}
-              saveCustomer={saveNewCustomer}
+              saveCustomer={formData.save_customer ?? false}
             />
           </TabsContent>
         </Tabs>
