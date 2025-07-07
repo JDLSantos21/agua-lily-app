@@ -1,7 +1,7 @@
 {
-  "version": "v1.1.7",
-  "pub_date": "2025-05-07T00:00:00Z",
-  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSE1NTS9tTnlKbnlMZG1rSEhma0FvTXA1WUlCVnpGZGs3ZmFseDBBcUhabjA0eVpteHBIL25QN3o2RWh6aVFEYk1zQ0FVbmRtYzJtMUV1K2VwYTRHckFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzQ2NjUxODU4CWZpbGU6QWd1YSBMaWx5IEFwcF8xLjEuN194NjQtc2V0dXAuZXhlCi91aXpIdzNsTmdPeHhYaFo5bml2Z0oyMzdBc3I4T1pxblAxTGMyV05ONXlBZks0a2VhKzBJLzNtaHE5U1VzRGE0UThOV3puSmhNMEgvcllRRjFkVERRPT0K",
-  "url": "https://github.com/JDLSantos21/agua-lily-app/releases/latest/download/setup.exe",
-  "notes": "New login design and improve performance"
+  "version": "v1.2.5",
+  "pub_date": "2025-06-30T00:00:00Z",
+  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSEtpcFFRQzNOTXR0TGxZcTJOakQ1ZXlHSk5NeTRCQ1lJV0dsRzNFVklyTmljaDlGbHkrVUxudGRpUGd3L0s1Rkp5R3A1OURFaDRMV3FFNHpPUmlQb3c4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzUxMjkyODAxCWZpbGU6QWd1YSBMaWx5IEFwcF8xLjIuNV94NjRfZXMtRVMubXNpCnBoVmd5VjlIVXJSZE01ODRsV0hxTTNjdWU2YThZQWV6ZG9RcDFqMk1vb3NBeThtKzVSa2xSelNuMlZ6MzRKQVdoUENXZ2R6VER6NHRjNXlWV1VtRENnPT0K",
+  "url": "https://github.com/JDLSantos21/agua-lily-app/releases/latest/download/setup.msi",
+  "notes": "Arreglador problema en la UI del receptor."
 }

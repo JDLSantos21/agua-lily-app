@@ -140,7 +140,7 @@ export default function OrderEditForm({
   // Actualizar detalles de entrega - con memoización
   const handleDeliveryChange = useCallback(
     (deliveryData: {
-      scheduled_delivery_date?: string;
+      scheduled_delivery_date?: string | Date;
       delivery_time_slot?: string | null;
       notes?: string | null;
       delivery_notes?: string | null;

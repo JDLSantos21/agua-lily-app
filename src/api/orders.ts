@@ -38,6 +38,22 @@ export const getOrders = async (
 };
 
 /**
+ * Obtener pedidos del recibidor de pedidos en tiempo real.
+ */
+
+export const getOrdersForReceiver = async (
+  filters?: OrderFilter
+): Promise<OrdersResponse> => {
+  return await fetcher(
+    `${API_BASE}/receiver`,
+    {
+      method: "GET",
+    },
+    filters ? { ...filters } : {}
+  );
+};
+
+/**
  * Obtiene un pedido por su ID
  */
 export const getOrderById = async (id: number): Promise<OrderResponse> => {

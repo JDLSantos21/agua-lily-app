@@ -4,14 +4,7 @@
 import SideNav from "@/ui/sidenav/sidenav";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { usePathname } from "next/navigation";
-import {
-  Package,
-  SearchIcon,
-  CalendarDays,
-  BarChart,
-  Clock,
-  Truck,
-} from "lucide-react";
+import { Package, SearchIcon, Clock, Truck } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -55,7 +48,7 @@ export default function PedidosLayout({
         <div className="flex-grow md:overflow-y-auto">
           {/* Navegación superior para pedidos */}
           <div className="bg-background border-b sticky bg-white top-0 z-10">
-            <div className="container py-2 px-4">
+            <div className="py-2 px-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <Tabs value={pathname}>
@@ -78,24 +71,6 @@ export default function PedidosLayout({
                         >
                           <SearchIcon className="h-4 w-4" />
                           <span>Buscar</span>
-                        </Link>
-                      </TabsTrigger>
-                      <TabsTrigger value="/orders/calendario" asChild>
-                        <Link
-                          href="/orders/calendario"
-                          className="flex items-center gap-1"
-                        >
-                          <CalendarDays className="h-4 w-4" />
-                          <span>Calendario</span>
-                        </Link>
-                      </TabsTrigger>
-                      <TabsTrigger value="/orders/estadisticas" asChild>
-                        <Link
-                          href="/orders/estadisticas"
-                          className="flex items-center gap-1"
-                        >
-                          <BarChart className="h-4 w-4" />
-                          <span>Estadísticas</span>
                         </Link>
                       </TabsTrigger>
                     </TabsList>

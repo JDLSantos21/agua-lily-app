@@ -220,6 +220,7 @@ export default function BuscarPedidosPage() {
                 <Button
                   onClick={handleTrackingSearch}
                   disabled={!trackingCode || isTrackingLoading}
+                  variant="primary"
                 >
                   {isTrackingLoading ? "Buscando..." : "Buscar"}
                 </Button>

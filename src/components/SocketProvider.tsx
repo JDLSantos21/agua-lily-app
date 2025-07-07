@@ -17,7 +17,7 @@ export function SocketProvider() {
     reconnectAttempts,
   } = useSocket();
 
-  const { name } = useAuthStore();
+  const { name, role } = useAuthStore();
 
   // Solo mostrar si hay usuario autenticado
   if (!name) {
@@ -71,7 +71,7 @@ export function SocketProvider() {
         </div>
 
         {/* Contador de usuarios conectados */}
-        {isConnected && connectedUsers > 0 && (
+        {isConnected && connectedUsers > 0 && role === "admin" && (
           <Badge
             variant="outline"
             className="bg-blue-50 text-blue-700 border-blue-200 flex items-center gap-1"

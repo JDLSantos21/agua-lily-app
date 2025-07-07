@@ -16,12 +16,14 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Customer } from "@/types/customers.types";
 import { useDebounce } from "use-debounce";
-import { Search, X, User, Plus, MessageCircle } from "lucide-react";
+import { Search, X, User, Plus } from "lucide-react";
 import { LoaderSpin } from "@/components/Loader";
 
 // API para buscar clientes
 import { searchCustomers } from "@/api/customers";
 import { CustomerCard } from "./customer-card";
+import { IoLogoWhatsapp } from "react-icons/io5";
+import formatPhoneNumber from "@/shared/utils/formatNumber";
 
 interface CustomerSelectorProps {
   initialCustomerId: number | null;
@@ -272,10 +274,11 @@ export default function CustomerSelector({
                     {selectedCustomer.business_name || selectedCustomer.name}
                   </p>
                   <div className="flex items-center gap-2">
-                    <strong>Teléfono:</strong> {selectedCustomer.contact_phone}
+                    <strong>Teléfono:</strong>{" "}
+                    {formatPhoneNumber(selectedCustomer.contact_phone)}
                     {selectedCustomer.has_whatsapp && (
                       <div className="flex items-center gap-1 text-green-600">
-                        <MessageCircle className="h-3 w-3" />
+                        <IoLogoWhatsapp className="h-4 w-4" />
                         <span className="text-xs">WhatsApp</span>
                       </div>
                     )}
@@ -308,7 +311,7 @@ export default function CustomerSelector({
                 id="phone"
                 value={newCustomerPhone}
                 onChange={(e) => setNewCustomerPhone(e.target.value)}
-                placeholder="Ej. 829-555-1234"
+                placeholder="Ej. 8295551234"
                 required
               />
 
@@ -326,7 +329,7 @@ export default function CustomerSelector({
                     htmlFor="has-whatsapp"
                     className="text-sm font-normal cursor-pointer flex items-center gap-1"
                   >
-                    <MessageCircle className="h-3 w-3 text-green-600" />
+                    <IoLogoWhatsapp className="h-4 w-4 text-green-500" />
                     Este número tiene WhatsApp
                   </Label>
                 </div>

@@ -35,6 +35,8 @@ import { toast } from "sonner";
 import OrderStatusBadge from "./order-status-badge";
 import { format } from "@formkit/tempo";
 import { useOrder } from "@/hooks/useOrders";
+import formatPhoneNumber from "@/shared/utils/formatNumber";
+import { formatDateToUTC } from "@/shared/utils/formatDateToUTC";
 
 interface OrderViewDialogProps {
   orderId: number | null;
@@ -277,7 +279,12 @@ const OrderDetailsTab = memo(function OrderDetailsTab({
                   <Truck className="h-4 w-4 text-gray-500" />
                   <span>
                     Fecha de entrega:{" "}
-                    {format(order.scheduled_delivery_date, "long")}
+                    {format(
+                      new Date(
+                        formatDateToUTC(order.scheduled_delivery_date) || ""
+                      ),
+                      { date: "long" }
+                    )}
                   </span>
                 </div>
               )}
@@ -327,7 +334,7 @@ const OrderDetailsTab = memo(function OrderDetailsTab({
 
             <div className="flex items-center gap-2 text-sm">
               <Phone className="h-4 w-4 text-gray-500" />
-              <span>{order.customer_phone}</span>
+              <span>{formatPhoneNumber(order.customer_phone)}</span>
             </div>
 
             <div className="flex items-start gap-2 text-sm">

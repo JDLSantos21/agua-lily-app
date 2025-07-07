@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="es-ES" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+  <String Id="LaunchApp">Iniciar Agua Lily App</String>
+  <String Id="DowngradeErrorMessage">Ya está instalada una versión más reciente de Agua Lily App.</String>
+  <String Id="PathEnvVarFeature">Agregar Agua Lily App a la variable de entorno PATH.</String>
+  <String Id="InstallAppFeature">Instala Agua Lily App.</String>
+</WixLocalization>

@@ -1,4 +1,4 @@
-// src/app/clientes/components/customer-form-dialog.tsx - VERSIÓN MEJORADA
+// src/app/clientes/components/customer-form-dialog.tsx - VERSIÓN CON WHATSAPP
 "use client";
 
 import { useEffect, useState, memo, useCallback } from "react";
@@ -26,11 +26,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Customer, CustomerStatus } from "@/types/customers.types";
 import { useCreateCustomer, useUpdateCustomer } from "@/hooks/useCustomers";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { IoLogoWhatsapp } from "react-icons/io5";
 
 // Esquema de validación con Zod
 const customerFormSchema = z.object({
@@ -41,7 +43,8 @@ const customerFormSchema = z.object({
   contact_phone: z
     .string()
     .min(10, { message: "El teléfono debe tener al menos 10 caracteres" })
-    .max(11, { message: "El teléfono no puede exceder los 20 caracteres" }),
+    .max(20, { message: "El teléfono no puede exceder los 20 caracteres" }),
+  has_whatsapp: z.boolean().default(false),
   contact_email: z
     .string()
     .email({ message: "Correo electrónico inválido" })
@@ -131,6 +134,7 @@ export const CustomerFormDialog = memo(function CustomerFormDialog({
     defaultValues: {
       name: "",
       contact_phone: "",
+      has_whatsapp: false,
       contact_email: "",
       address: "",
       is_business: false,
@@ -152,6 +156,7 @@ export const CustomerFormDialog = memo(function CustomerFormDialog({
       form.reset({
         name: customer.name,
         contact_phone: customer.contact_phone,
+        has_whatsapp: customer.has_whatsapp ? true : false,
         contact_email: customer.contact_email || "",
         address: customer.address,
         is_business: customer.is_business || false,
@@ -169,6 +174,7 @@ export const CustomerFormDialog = memo(function CustomerFormDialog({
       form.reset({
         name: "",
         contact_phone: "",
+        has_whatsapp: false,
         contact_email: "",
         address: "",
         is_business: false,
@@ -385,6 +391,31 @@ export const CustomerFormDialog = memo(function CustomerFormDialog({
                           />
                         </FormControl>
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Campo WhatsApp */}
+                  <FormField
+                    control={form.control}
+                    name="has_whatsapp"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className="flex items-center gap-1.5">
+                            <IoLogoWhatsapp className="h-4 w-4 text-green-600" />
+                            Tiene WhatsApp
+                          </FormLabel>
+                          <FormDescription>
+                            Este número telefónico tiene WhatsApp disponible
+                          </FormDescription>
+                        </div>
                       </FormItem>
                     )}
                   />

@@ -3,14 +3,13 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { LoaderSpin } from "@/components/Loader";
 import { Empty } from "@/components/Empty";
 import { Product, OrderItem } from "@/types/orders.types";
-import { Plus, Minus, X, Search, Package, Trash } from "lucide-react";
+import { Plus, Minus, X, Search, Trash } from "lucide-react";
 import { useDebounce } from "use-debounce";
 
 interface ProductSelectorProps {
@@ -117,18 +116,12 @@ export default function ProductSelector({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid md:grid-cols-2 gap-6">
+    <div>
+      <div className="flex flex-col">
         {/* Selector de productos */}
         <div>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-md flex items-center gap-1">
-                <Package className="h-4 w-4" />
-                Seleccionar Productos
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <Card className="border-none shadow-none">
+            <CardHeader>
               {/* Buscador */}
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -149,9 +142,10 @@ export default function ProductSelector({
                   </button>
                 )}
               </div>
-
+            </CardHeader>
+            <CardContent className="flex justify-between gap-2">
               {/* Lista de productos */}
-              <div className="h-64 overflow-y-auto border rounded-md">
+              <div className="h-64 overflow-y-auto border rounded-md w-[45%]">
                 {isLoading ? (
                   <div className="flex items-center justify-center h-full">
                     <LoaderSpin text="Cargando productos..." />
@@ -174,12 +168,12 @@ export default function ProductSelector({
                       <li
                         key={product.id}
                         className={`
-                          p-3 cursor-pointer hover:bg-gray-50 transition
+                          px-3 py-1 cursor-pointer hover:bg-gray-50 transition
                           ${selectedProduct?.id === product.id ? "bg-primary/10" : ""}
                         `}
                         onClick={() => handleSelectProduct(product)}
                       >
-                        <div className="flex justify-between items-start">
+                        <div className="flex justify-between items-center">
                           <div>
                             <div className="font-medium">{product.name}</div>
                             <div className="text-xs text-gray-500">
@@ -204,11 +198,10 @@ export default function ProductSelector({
                   </ul>
                 )}
               </div>
-
               {/* Detalles del producto seleccionado */}
               {selectedProduct && (
-                <div className="border rounded-md p-3 bg-gray-50">
-                  <div className="flex justify-between items-start">
+                <div className="border rounded-md relative p-3 h-64 flex justify-evenly flex-col w-[50%]">
+                  <div className="flex justify-between">
                     <div>
                       <h3 className="font-medium">{selectedProduct.name}</h3>
                       <p className="text-xs text-gray-500">
@@ -217,20 +210,16 @@ export default function ProductSelector({
                       </p>
                     </div>
                     <Button
-                      variant="ghost"
+                      variant="destructive"
                       size="sm"
-                      className="h-8 w-8 p-0 text-gray-400"
+                      className="h-6 w-6 p-0 text-white"
                       onClick={() => setSelectedProduct(null)}
                     >
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
-
-                  <div className="mt-3 space-y-3">
+                  <div className="flex justify-between items-start mt-1">
                     <div>
-                      <Label htmlFor="quantity" className="text-xs">
-                        Cantidad
-                      </Label>
                       <div className="flex items-center mt-1">
                         <Button
                           variant="outline"
@@ -259,30 +248,31 @@ export default function ProductSelector({
                         </Button>
                       </div>
                     </div>
+                  </div>
 
+                  <div className="space-y-2">
                     <div>
                       <Label htmlFor="notes" className="text-xs">
-                        Notas (opcional)
+                        Notas
                       </Label>
-                      <Textarea
+                      <Input
                         id="notes"
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Instrucciones o comentarios específicos"
                         className="mt-1 text-sm"
-                        rows={2}
                       />
                     </div>
-
-                    <Button
-                      className="w-full"
-                      size="sm"
-                      variant="primary"
-                      onClick={handleAddProduct}
-                    >
-                      Añadir al Pedido
-                    </Button>
                   </div>
+
+                  <Button
+                    className="w-full"
+                    size="sm"
+                    variant="primary"
+                    onClick={handleAddProduct}
+                  >
+                    Añadir al Pedido
+                  </Button>
                 </div>
               )}
             </CardContent>
@@ -291,12 +281,11 @@ export default function ProductSelector({
 
         {/* Lista de productos seleccionados */}
         <div>
-          <Card>
+          <Card className="border-none shadow-none">
             <CardHeader className="pb-3">
               <CardTitle className="text-md flex items-center justify-between">
                 <span className="flex items-center gap-1">
-                  <Package className="h-4 w-4" />
-                  Productos en este Pedido
+                  Productos seleccionados
                 </span>
                 {selectedItems.length > 0 && (
                   <Badge variant="secondary">
@@ -309,10 +298,9 @@ export default function ProductSelector({
             <CardContent>
               {selectedItems.length === 0 ? (
                 <div className="py-8 text-center text-gray-500 border border-dashed rounded-md">
-                  <Package className="h-8 w-8 mx-auto text-gray-300 mb-2" />
                   <p>No hay productos añadidos al pedido</p>
                   <p className="text-xs mt-1">
-                    Seleccione productos del panel izquierdo
+                    Seleccione productos del panel superior
                   </p>
                 </div>
               ) : (
@@ -327,9 +315,9 @@ export default function ProductSelector({
                       return (
                         <li
                           key={index}
-                          className="border rounded-md p-3 relative"
+                          className="border rounded-md px-3 py-1 relative flex items-center justify-between"
                         >
-                          <div className="flex justify-between items-start">
+                          <div className="flex w-2/5 justify-between items-start border-r-1 border-gray-400">
                             <div>
                               <div className="font-medium">
                                 {item.product_name || productData?.name}
@@ -339,17 +327,15 @@ export default function ProductSelector({
                                 {productData?.unit || item.unit}
                               </div>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                              onClick={() => handleRemoveItem(index)}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
                           </div>
 
-                          <div className="mt-2 flex items-center">
+                          {item.notes && (
+                            <div className="text-xs rounded w-[32%]">
+                              {item.notes}
+                            </div>
+                          )}
+
+                          <div className="flex items-center w-[23%]">
                             <div className="flex items-center">
                               <Button
                                 variant="outline"
@@ -379,12 +365,10 @@ export default function ProductSelector({
                               </Button>
                             </div>
                           </div>
-
-                          {item.notes && (
-                            <div className="mt-2 text-xs bg-gray-50 p-2 rounded">
-                              {item.notes}
-                            </div>
-                          )}
+                          <X
+                            onClick={() => handleRemoveItem(index)}
+                            className="h-5 w-5 text-red-500 hover:text-red-700 absolute right-3 cursor-pointer"
+                          />
                         </li>
                       );
                     })}
@@ -392,15 +376,9 @@ export default function ProductSelector({
 
                   <Separator />
 
-                  <div className="flex justify-between items-center text-sm">
+                  <div className="flex gap-2 items-center text-sm">
                     <span>Total de productos:</span>
-                    <span className="font-medium">
-                      {selectedItems.reduce(
-                        (acc, item) => acc + item.quantity,
-                        0
-                      )}{" "}
-                      unidades
-                    </span>
+                    <span className="font-medium">{selectedItems.length}</span>
                   </div>
 
                   <Button
@@ -410,7 +388,7 @@ export default function ProductSelector({
                     onClick={() => onChange([])}
                   >
                     <Trash className="h-4 w-4" />
-                    Limpiar todos los productos
+                    Quitar todos los productos
                   </Button>
                 </div>
               )}

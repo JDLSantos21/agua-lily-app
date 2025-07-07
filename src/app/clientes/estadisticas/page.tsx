@@ -1,7 +1,6 @@
 // src/app/clientes/estadisticas/page.tsx - VERSIÓN MEJORADA
 "use client";
 
-import { useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -30,19 +29,12 @@ import {
   CartesianGrid,
   TooltipProps,
 } from "recharts";
-import { useCustomerStore } from "@/stores/customerStore";
+import { useCustomerStats } from "@/hooks/useCustomers";
 
 export default function EstadisticasPage() {
-  const { customerStats, isLoadingStats, error, fetchCustomerStats } =
-    useCustomerStore();
-
-  // Cargar datos al montar el componente
-  useEffect(() => {
-    fetchCustomerStats();
-  }, [fetchCustomerStats]);
-
+  const { data: customerStats, isLoading, error, refetch } = useCustomerStats();
   // Si está cargando, mostrar indicador
-  if (isLoadingStats) {
+  if (isLoading) {
     return <LoaderSpin text="Cargando estadísticas..." />;
   }
 
@@ -52,9 +44,9 @@ export default function EstadisticasPage() {
       <Alert variant="destructive" className="mx-auto max-w-3xl mt-10">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Error</AlertTitle>
-        <AlertDescription>{error}</AlertDescription>
+        <AlertDescription>{error.message}</AlertDescription>
         <div className="mt-4">
-          <Button onClick={() => fetchCustomerStats()}>Reintentar</Button>
+          <Button onClick={() => refetch()}>Reintentar</Button>
         </div>
       </Alert>
     );
@@ -88,39 +80,39 @@ export default function EstadisticasPage() {
 
   // Preparar datos para gráficos
   const tipoClientesData = [
-    { name: "Empresas", value: customerStats.clientes_empresa },
-    { name: "Individuales", value: customerStats.clientes_individuales },
+    { name: "Empresas", value: customerStats.data.clientes_empresa },
+    { name: "Individuales", value: customerStats.data.clientes_individuales },
   ];
 
   const estadoClientesData = [
-    { name: "Activos", value: customerStats.clientes_activos },
-    { name: "Inactivos", value: customerStats.clientes_inactivos },
+    { name: "Activos", value: customerStats.data.clientes_activos },
+    { name: "Inactivos", value: customerStats.data.clientes_inactivos },
   ];
 
   const comparacionData = [
     {
       name: "Total",
-      value: customerStats.total_clientes,
+      value: customerStats.data.total_clientes,
       fill: "#3b82f6",
     },
     {
       name: "Empresas",
-      value: customerStats.clientes_empresa,
+      value: customerStats.data.clientes_empresa,
       fill: "#1e40af",
     },
     {
       name: "Individuales",
-      value: customerStats.clientes_individuales,
+      value: customerStats.data.clientes_individuales,
       fill: "#6b7280",
     },
     {
       name: "Activos",
-      value: customerStats.clientes_activos,
+      value: customerStats.data.clientes_activos,
       fill: "#22c55e",
     },
     {
       name: "Inactivos",
-      value: customerStats.clientes_inactivos,
+      value: customerStats.data.clientes_inactivos,
       fill: "#ef4444",
     },
   ];
@@ -139,7 +131,7 @@ export default function EstadisticasPage() {
       return (
         <div className="bg-white p-2 border rounded shadow-sm">
           <p className="font-medium">{`${label}`}</p>
-          <p className="text-sm">{`${payload[0].value} clientes (${Math.round(((payload[0].value as number) / customerStats.total_clientes) * 100)}%)`}</p>
+          <p className="text-sm">{`${payload[0].value} clientes (${Math.round(((payload[0].value as number) / customerStats.data.total_clientes) * 100)}%)`}</p>
         </div>
       );
     }
@@ -279,22 +271,23 @@ export default function EstadisticasPage() {
           <CardContent>
             <p className="text-gray-600">
               El panel de estadísticas muestra un total de{" "}
-              <strong>{customerStats.total_clientes}</strong> clientes
+              <strong>{customerStats.data.total_clientes}</strong> clientes
               registrados en el sistema, de los cuales{" "}
-              <strong>{customerStats.clientes_empresa}</strong> son empresas ({" "}
-              {customerStats.total_clientes > 0
+              <strong>{customerStats.data.clientes_empresa}</strong> son
+              empresas ({" "}
+              {customerStats.data.total_clientes > 0
                 ? (
-                    (customerStats.clientes_empresa /
-                      customerStats.total_clientes) *
+                    (customerStats.data.clientes_empresa /
+                      customerStats.data.total_clientes) *
                     100
                   ).toFixed(0)
                 : 0}
-              %) y <strong>{customerStats.clientes_individuales}</strong> son
-              clientes individuales ({" "}
-              {customerStats.total_clientes > 0
+              %) y <strong>{customerStats.data.clientes_individuales}</strong>{" "}
+              son clientes individuales ({" "}
+              {customerStats.data.total_clientes > 0
                 ? (
-                    (customerStats.clientes_individuales /
-                      customerStats.total_clientes) *
+                    (customerStats.data.clientes_individuales /
+                      customerStats.data.total_clientes) *
                     100
                   ).toFixed(0)
                 : 0}
@@ -307,21 +300,21 @@ export default function EstadisticasPage() {
               </h4>
               <p className="text-gray-600">
                 Actualmente hay{" "}
-                <strong>{customerStats.clientes_activos}</strong> clientes
+                <strong>{customerStats.data.clientes_activos}</strong> clientes
                 activos ({" "}
-                {customerStats.total_clientes > 0
+                {customerStats.data.total_clientes > 0
                   ? (
-                      (customerStats.clientes_activos /
-                        customerStats.total_clientes) *
+                      (customerStats.data.clientes_activos /
+                        customerStats.data.total_clientes) *
                       100
                     ).toFixed(0)
                   : 0}
-                %) y <strong>{customerStats.clientes_inactivos}</strong>{" "}
+                %) y <strong>{customerStats.data.clientes_inactivos}</strong>{" "}
                 clientes inactivos ({" "}
-                {customerStats.total_clientes > 0
+                {customerStats.data.total_clientes > 0
                   ? (
-                      (customerStats.clientes_inactivos /
-                        customerStats.total_clientes) *
+                      (customerStats.data.clientes_inactivos /
+                        customerStats.data.total_clientes) *
                       100
                     ).toFixed(0)
                   : 0}
@@ -337,7 +330,7 @@ export default function EstadisticasPage() {
               <ul className="text-blue-700 space-y-2 list-disc pl-5">
                 <li>
                   Considere estrategias de reactivación para los{" "}
-                  {customerStats.clientes_inactivos} clientes inactivos.
+                  {customerStats.data.clientes_inactivos} clientes inactivos.
                 </li>
                 <li>
                   Revise periódicamente el estado de los clientes para mantener
@@ -353,7 +346,7 @@ export default function EstadisticasPage() {
           <CardFooter className="flex justify-between border-t pt-4">
             <Button
               variant="outline"
-              onClick={() => fetchCustomerStats()}
+              onClick={() => refetch()}
               className="flex items-center gap-1"
             >
               <svg

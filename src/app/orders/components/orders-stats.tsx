@@ -114,15 +114,15 @@ const OrderStats = memo(function OrderStatsComponent({
     ];
 
     return (
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4 w-1/2">
         {statItems.map((stat, index) => (
           <Card key={index} className={`border ${stat.color}`}>
-            <CardContent className="p-4 flex justify-between items-center">
+            <CardContent className="p-4 flex max-xl:flex-col max-xl:text-center justify-between items-center">
               <div>
                 <h3 className="text-sm font-medium">{stat.title}</h3>
                 <p className="text-2xl font-bold">{stat.value}</p>
               </div>
-              {stat.icon}
+              <span className="max-xl:hidden">{stat.icon}</span>
             </CardContent>
           </Card>
         ))}

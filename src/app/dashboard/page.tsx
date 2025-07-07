@@ -11,6 +11,8 @@ export default function Dashboard() {
         <InventoryReportDialog />
       </div>
 
+      {/* Panel de Cajero */}
+
       <RoleBased allowedRoles={["admin"]}>
         <div>
           <h2>Panel de Administrador</h2>

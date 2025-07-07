@@ -35,7 +35,9 @@ export function ConfirmDialog({
           <Button variant="outline" onClick={onCancel}>
             Cancelar
           </Button>
-          <Button onClick={onConfirm}>Confirmar</Button>
+          <Button variant="destructive" onClick={onConfirm}>
+            Confirmar
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

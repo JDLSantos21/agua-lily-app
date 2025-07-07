@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Agua Lily App",
-  "version": "1.1.7",
+  "version": "1.2.5",
   "identifier": "com.lily.dev",
   "build": {
     "frontendDist": "../out",
@@ -15,6 +15,7 @@
       {
         "title": "Agua Lily",
         "fullscreen": false,
+        "maximized": true,
         "height": 720,
         "width": 1280,
         "minWidth": 1150,
@@ -40,6 +41,22 @@
     "active": true,
     "targets": "all",
     "createUpdaterArtifacts": true,
+    "windows": {
+      "wix": {
+        "template": "windows/main.wxs",
+        "language": {
+          "en-US": {
+            "localePath": "windows/locales/en-US.wxl"
+          },
+          "es-ES": {
+            "localePath": "windows/locales/es-ES.wxl"
+          }
+        },
+        "bannerPath": "windows/banner.bmp",
+        "dialogImagePath": "windows/dialog.bmp",
+        "upgradeCode": "a350924d-7631-580c-b39c-00d5f5a39e53"
+      }
+    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

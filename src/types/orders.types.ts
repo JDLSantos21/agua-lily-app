@@ -26,7 +26,7 @@ export interface Order {
   customer_phone: string;
   customer_address: string;
   order_date?: string;
-  scheduled_delivery_date?: string;
+  scheduled_delivery_date?: string | Date;
   delivery_time_slot?: string | null;
   order_status?: OrderStatus;
   delivery_driver_id?: number | null;
@@ -154,7 +154,7 @@ export interface CreateOrderRequest {
   customer_name: string;
   customer_phone: string;
   customer_address: string;
-  scheduled_delivery_date?: string;
+  scheduled_delivery_date?: string | Date;
   delivery_time_slot?: string | null;
   order_status?: OrderStatus;
   delivery_driver_id?: number | null;

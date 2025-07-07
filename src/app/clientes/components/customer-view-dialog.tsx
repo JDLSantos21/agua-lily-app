@@ -31,12 +31,15 @@ import {
 import { Customer, CustomerStatus, Equipment } from "@/types/customers.types";
 import {
   useCustomerWithEquipment,
+  useDeleteCustomer,
   useUpdateCustomerStatus,
 } from "@/hooks/useCustomers";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { format } from "@formkit/tempo";
 import { RoleBased } from "@/components/RoleBased";
+import { IoLogoWhatsapp } from "react-icons/io5";
+import formatPhoneNumber from "@/shared/utils/formatNumber";
 // import { formatDate } from "@/lib/utils"; // Suponiendo que existe esta función de utilidad
 
 interface CustomerViewDialogProps {
@@ -60,6 +63,8 @@ const CustomerViewDialog = memo(function CustomerViewDialog({
   const { data, isLoading, error, refetch } = useCustomerWithEquipment(
     customerId || 0
   );
+
+  const deleteCustomerMutation = useDeleteCustomer();
 
   const customer = data?.data;
 
@@ -94,11 +99,18 @@ const CustomerViewDialog = memo(function CustomerViewDialog({
   }, [customer, onEdit]);
 
   const handleDelete = useCallback(() => {
-    if (customer && onDelete) {
-      onDelete(customer);
+    if (customer?.id) {
+      deleteCustomerMutation.mutate(customer.id, {
+        onSuccess: () => {
+          setShowDeleteConfirm(false);
+        },
+        onError: (error: any) => {
+          console.log("Error al eliminar el cliente:", error);
+        },
+      });
       handleClose();
     }
-  }, [customer, onDelete, handleClose]);
+  }, [customer, handleClose]);
 
   const handleStatusChange = useCallback(() => {
     if (!customer) return;
@@ -288,7 +300,12 @@ const CustomerDetailTab = memo(function CustomerDetailTab({
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <Phone className="h-4 w-4 text-gray-500" />
-        <span className="text-sm">{customer.contact_phone}</span>
+        <span className="text-sm">
+          {formatPhoneNumber(customer.contact_phone)}
+        </span>
+        <IoLogoWhatsapp
+          className={`${customer.has_whatsapp ? "text-green-600" : "text-gray-300"} w-4 h-4`}
+        />
       </div>
 
       {customer.contact_email && (

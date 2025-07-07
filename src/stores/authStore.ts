@@ -5,12 +5,15 @@ import { removeCookies, getCookies, setCookies } from "@/utils/authCookies";
 
 interface AuthState {
   token: string | null;
+  accessToken?: string | null;
+  refreshToken?: string | null;
   role: string | null;
   name: string | null;
   user_id: number | null;
   isInitialized: boolean;
   login: (token: string, role: string, name: string, id: number) => void;
   logout: () => void;
+  refresh: () => Promise<void>;
   initializeAuth: () => void;
   getTokenFromStorage: () => string | null;
 }
@@ -78,6 +81,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         isInitialized: true,
       });
     }
+  },
+  refresh: () => {
+    console.log("hola");
   },
   // Función para obtener el token directamente de las cookies
   getTokenFromStorage: () => {

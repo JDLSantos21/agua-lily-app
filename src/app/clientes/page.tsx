@@ -1,15 +1,14 @@
 // src/app/clientes/page.tsx - VERSIÓN MEJORADA
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useCustomerStore } from "@/stores/customerStore";
 import { CustomerFilters } from "./components/customer-filters";
 import { CustomerCard } from "./components/customer-card";
 import CustomerFormDialog from "./components/customer-form-dialog";
 import CustomerViewDialog from "./components/customer-view-dialog";
 import { CustomerStats } from "./components/customer-stats";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { Customer } from "@/types/customers.types";
+import { Customer, CustomerFilter } from "@/types/customers.types";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,42 +39,46 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Empty } from "@/components/Empty";
 
 export default function ClientesPage() {
   // Vista activa: list, grid o stats
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState<CustomerFilter>({});
   const [activeView, setActiveView] = useState<"list" | "grid" | "stats">(
     "list"
   );
 
-  // Obtener estado y acciones del store
+  // Obtener estado
   const {
-    // customers,
-    pagination,
-    // isLoading,
-    error,
-    filters,
     dialogState,
-    fetchCustomers,
-    fetchCustomerStats,
-    setFilters,
     openViewDialog,
     openFormDialog,
     openDeleteDialog,
     closeViewDialog,
     closeFormDialog,
-    closeDeleteDialog,
-    deleteCustomer,
   } = useCustomerStore();
 
-  // Cargar datos al montar el componente
-  useEffect(() => {
-    fetchCustomers();
-    fetchCustomerStats();
-  }, [fetchCustomers, fetchCustomerStats]);
+  const CUSTOMERS_PER_PAGE = 10;
 
-  const { data: customers, isLoading } = useCustomers();
+  const offset = useMemo(
+    () => (currentPage - 1) * CUSTOMERS_PER_PAGE,
+    [currentPage]
+  );
+
+  const {
+    data: customers,
+    isLoading,
+    refetch: customersRefetch,
+    error,
+  } = useCustomers({ ...filters, offset, limit: CUSTOMERS_PER_PAGE });
+
+  const pagination = useMemo(() => customers?.pagination || null, [customers]);
+
+  const totalPages = useMemo(
+    () => Math.ceil((pagination?.total || 0) / CUSTOMERS_PER_PAGE),
+    [pagination?.total]
+  );
 
   // Renderizado basado en estado de carga
   if (error) {
@@ -91,10 +94,12 @@ export default function ClientesPage() {
             Ha ocurrido un error al intentar cargar los datos de clientes. Por
             favor, intente nuevamente.
           </p>
-          <p className="text-sm text-gray-400 mt-2">Detalles: {error}</p>
+          <p className="text-sm text-gray-400 mt-2">
+            Detalles: {error.message}
+          </p>
         </CardContent>
         <CardFooter>
-          <Button variant="outline" onClick={() => fetchCustomers()}>
+          <Button variant="outline" onClick={() => customersRefetch()}>
             Reintentar
           </Button>
         </CardFooter>
@@ -103,38 +108,10 @@ export default function ClientesPage() {
   }
 
   return (
-    <main className="container p-4 pb-20">
+    <main className="p-4 pb-20">
       {/* Header con navegación y acciones principales */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Gestión de Clientes</h1>
-          <p className="text-gray-500 mt-1">
-            Administre clientes, vea estadísticas y realice búsquedas
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Tabs
-            value={activeView}
-            onValueChange={(value) => setActiveView(value as any)}
-            className="mr-2"
-          >
-            <TabsList>
-              <TabsTrigger value="list" aria-label="Vista de lista">
-                <ListIcon className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">Lista</span>
-              </TabsTrigger>
-              <TabsTrigger value="grid" aria-label="Vista de cuadrícula">
-                <Grid2X2 className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">Cuadrícula</span>
-              </TabsTrigger>
-              <TabsTrigger value="stats" aria-label="Estadísticas">
-                <BarChart className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">Estadísticas</span>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-
+      <div className="flex flex-col md:flex-row md:items-center justify-end gap-4 mb-6">
+        <div className="flex items-center justify-end gap-2">
           <Button
             onClick={() => openFormDialog()}
             variant={"primary"}
@@ -150,11 +127,30 @@ export default function ClientesPage() {
       <CustomerFilters
         onChange={setFilters}
         initialFilters={filters}
-        className="mb-6"
+        className="mb-5"
       />
 
       {/* Contenido según la vista seleccionada */}
-      <div className="mt-6">
+      <div className="space-y-5 flex flex-col">
+        <div className="self-end">
+          <Tabs
+            value={activeView}
+            onValueChange={(value) => setActiveView(value as any)}
+            className="mr-2"
+          >
+            <TabsList>
+              <TabsTrigger value="list" aria-label="Vista de lista">
+                <ListIcon className="h-4 w-4 mr-1" />
+              </TabsTrigger>
+              <TabsTrigger value="grid" aria-label="Vista de cuadrícula">
+                <Grid2X2 className="h-4 w-4 mr-1" />
+              </TabsTrigger>
+              <TabsTrigger value="stats" aria-label="Estadísticas">
+                <BarChart className="h-4 w-4 mr-1" />
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
         {isLoading ? (
           <div className="flex justify-center py-12">
             <LoaderSpin text="Cargando clientes..." />
@@ -225,67 +221,49 @@ export default function ClientesPage() {
               )
             ) : (
               // Vista de lista (por defecto)
-              <Card>
-                <CardContent className="p-0">
-                  <Table>
-                    <TableHeader>
+              <div>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[35%]">
+                        <div className="flex items-center gap-1">
+                          Nombre
+                          <ArrowUpDown className="h-3 w-3 text-gray-400" />
+                        </div>
+                      </TableHead>
+                      <TableHead className="w-[30%]">Contacto</TableHead>
+                      <TableHead className="w-[20%]">
+                        <div className="flex items-center gap-1">
+                          Tipo
+                          <Filter className="h-3 w-3 text-gray-400" />
+                        </div>
+                      </TableHead>
+                      <TableHead className="text-right w-[15%]">
+                        Acciones
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {customers?.data.length === 0 ? (
                       <TableRow>
-                        <TableHead className="w-[30%]">
-                          <div className="flex items-center gap-1">
-                            Nombre
-                            <ArrowUpDown className="h-3 w-3 text-gray-400" />
-                          </div>
-                        </TableHead>
-                        <TableHead className="w-[20%]">Contacto</TableHead>
-                        <TableHead className="w-[20%]">
-                          <div className="flex items-center gap-1">
-                            Tipo
-                            <Filter className="h-3 w-3 text-gray-400" />
-                          </div>
-                        </TableHead>
-                        <TableHead className="w-[15%]">
-                          <div className="flex items-center gap-1">
-                            Estado
-                            <Filter className="h-3 w-3 text-gray-400" />
-                          </div>
-                        </TableHead>
-                        <TableHead className="text-right w-[15%]">
-                          Acciones
-                        </TableHead>
+                        <TableCell colSpan={5} className="h-24 text-center">
+                          No se encontraron clientes
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {customers?.data.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={5} className="h-24 text-center">
-                            No se encontraron clientes
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        customers?.data.map((customer) => (
-                          <CustomerTableRow
-                            key={customer.id}
-                            customer={customer}
-                            onView={() => openViewDialog(customer.id as number)}
-                            onEdit={() => openFormDialog(customer)}
-                            onDelete={() => openDeleteDialog(customer)}
-                          />
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-
-                {pagination && pagination.total > 0 && (
-                  <CardFooter className="flex items-center justify-between border-t px-6 py-3">
-                    <div className="text-sm text-gray-500">
-                      Mostrando {customers?.data.length} de {pagination.total}{" "}
-                      clientes
-                    </div>
-                    {/* Aquí se podría agregar paginación */}
-                  </CardFooter>
-                )}
-              </Card>
+                    ) : (
+                      customers?.data.map((customer) => (
+                        <CustomerTableRow
+                          key={customer.id}
+                          customer={customer}
+                          onView={() => openViewDialog(customer.id as number)}
+                          onEdit={() => openFormDialog(customer)}
+                          onDelete={() => openDeleteDialog(customer)}
+                        />
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </>
         )}
@@ -309,16 +287,10 @@ export default function ClientesPage() {
         onDelete={openDeleteDialog}
       />
 
-      <ConfirmDialog
-        open={dialogState.deleteDialog.isOpen}
-        title="Eliminar cliente"
-        description={`¿Está seguro que desea eliminar a ${dialogState.deleteDialog.customer?.name || "este cliente"}? Esta acción no se puede deshacer.`}
-        onConfirm={() => {
-          if (dialogState.deleteDialog.customer?.id) {
-            deleteCustomer(dialogState.deleteDialog.customer.id);
-          }
-        }}
-        onCancel={closeDeleteDialog}
+      <CustomersPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
       />
     </main>
   );
@@ -348,7 +320,12 @@ const CustomerTableRow = memo(function CustomerTableRow({
       </TableCell>
       <TableCell>
         <div className="flex flex-col gap-1">
-          <div className="text-sm">{customer.contact_phone}</div>
+          <div className="text-sm flex items-center  gap-2">
+            {formatPhoneNumber(customer.contact_phone)}{" "}
+            {customer.has_whatsapp ? (
+              <IoLogoWhatsapp className="h-4 w-4 text-green-600" />
+            ) : null}
+          </div>
           {customer.contact_email && (
             <div className="text-xs text-gray-500 truncate max-w-[200px]">
               {customer.contact_email}
@@ -369,15 +346,7 @@ const CustomerTableRow = memo(function CustomerTableRow({
           </div>
         )}
       </TableCell>
-      <TableCell>
-        <Badge
-          variant={customer.status === "activo" ? "outline" : "destructive"}
-          className="uppercase text-xs"
-        >
-          {customer.status}
-        </Badge>
-      </TableCell>
-      <TableCell className="text-right">
+      <TableCell className="text-right flex justify-end">
         <Button
           variant="ghost"
           size="sm"
@@ -385,7 +354,6 @@ const CustomerTableRow = memo(function CustomerTableRow({
           onClick={onView}
         >
           <Eye className="h-3.5 w-3.5" />
-          <span className="sr-only md:not-sr-only md:inline-block">Ver</span>
         </Button>
         <Button
           variant="ghost"
@@ -394,7 +362,6 @@ const CustomerTableRow = memo(function CustomerTableRow({
           onClick={onEdit}
         >
           <Edit className="h-3.5 w-3.5" />
-          <span className="sr-only md:not-sr-only md:inline-block">Editar</span>
         </Button>
         {/* <Button
           variant="ghost"
@@ -416,3 +383,6 @@ const CustomerTableRow = memo(function CustomerTableRow({
 import { Building2, Eye, Edit, User } from "lucide-react";
 import { memo } from "react";
 import { useCustomers } from "@/hooks/useCustomers";
+import CustomersPagination from "./components/customers-pagination";
+import formatPhoneNumber from "@/shared/utils/formatNumber";
+import { IoLogoWhatsapp } from "react-icons/io5";

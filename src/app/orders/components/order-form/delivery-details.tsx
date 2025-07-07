@@ -12,17 +12,17 @@ import {
 } from "@/components/ui/select";
 import { DatePicker } from "@/app/settings/labels/components/date-picker";
 import { Clock, CalendarCheck, FileText, Truck } from "lucide-react";
-import { format } from "date-fns";
+import { formatDateToUTC } from "@/shared/utils/formatDateToUTC";
 
 interface DeliveryDetailsProps {
   initialData: {
-    scheduled_delivery_date?: string;
+    scheduled_delivery_date?: string | Date;
     delivery_time_slot?: string | null;
     notes?: string | null;
     delivery_notes?: string | null;
   };
   onChange: (data: {
-    scheduled_delivery_date?: string;
+    scheduled_delivery_date?: string | Date;
     delivery_time_slot?: string | null;
     notes?: string | null;
     delivery_notes?: string | null;
@@ -31,9 +31,8 @@ interface DeliveryDetailsProps {
 
 // Opciones de franjas horarias
 const TIME_SLOTS = [
-  { value: "8:00-12:00", label: "Mañana (8:00 - 12:00)" },
-  { value: "12:00-16:00", label: "Mediodía (12:00 - 16:00)" },
-  { value: "16:00-20:00", label: "Tarde (16:00 - 20:00)" },
+  { value: "7:00 AM - 11:59 AM", label: "Mañana (7:00 AM - 11:59 AM)" },
+  { value: "12:00 PM - 6:00 PM", label: "Tarde (12:00 PM - 6:00 PM)" },
 ];
 
 export default function DeliveryDetails({
@@ -43,7 +42,7 @@ export default function DeliveryDetails({
   // Estado para fecha de entrega
   const [deliveryDate, setDeliveryDate] = useState<Date | undefined>(
     initialData.scheduled_delivery_date
-      ? new Date(initialData.scheduled_delivery_date)
+      ? new Date(formatDateToUTC(initialData.scheduled_delivery_date) || "")
       : undefined
   );
 
@@ -61,9 +60,7 @@ export default function DeliveryDetails({
   // Actualizar datos cuando cambien los campos
   useEffect(() => {
     const newData = {
-      scheduled_delivery_date: deliveryDate
-        ? format(deliveryDate, "yyyy-MM-dd")
-        : undefined,
+      scheduled_delivery_date: deliveryDate || undefined,
       delivery_time_slot: timeSlot || null,
       notes: notes.trim() || null,
       delivery_notes: deliveryNotes.trim() || null,

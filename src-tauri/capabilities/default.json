@@ -11,6 +11,14 @@
     "fs:allow-app-read",
     "shell:default",
     "fs:read-all",
-    "fs:write-all"
+    "fs:write-all",
+    "notification:default",
+    "notification:allow-check-permissions",
+    "core:webview:default",
+    "core:webview:allow-create-webview-window",
+    "core:window:default",
+    "core:window:allow-set-size",
+    "core:window:allow-set-position",
+    "core:window:allow-set-fullscreen"
   ]
 }

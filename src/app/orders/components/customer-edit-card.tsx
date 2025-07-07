@@ -179,7 +179,7 @@ export default function CustomerEditCard({
                 id="customer-phone"
                 value={customerPhone}
                 onChange={(e) => handlePhoneChange(e.target.value)}
-                placeholder="Ej. 829-555-1234"
+                placeholder="Ej. 8295551234"
                 className="pl-10"
                 required
                 disabled={isRegisteredCustomer}

@@ -22,7 +22,7 @@ export default function ClientesLayout({
         </div>
         <div className="flex-grow md:overflow-y-auto mx-auto">
           {/* <ClientesNav onNewCustomer={() => setIsNewCustomerDialogOpen(true)} /> */}
-          <div className="mt-5 px-6 md:px-12">{children}</div>
+          <div className="mt-5">{children}</div>
 
           {/* Diálogo para crear nuevo cliente desde cualquier página */}
           <CustomerFormDialog

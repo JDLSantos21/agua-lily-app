@@ -80,7 +80,7 @@ export const useCustomerWithEquipment = (
   return useQuery({
     queryKey: CACHE_KEYS.equipment(id),
     queryFn: () => getCustomerWithEquipment(id),
-    enabled: id > 0, // Solo ejecutar si hay un ID válido
+    enabled: id > 0,
     ...options,
   });
 };

@@ -4,7 +4,6 @@ import { devtools } from "zustand/middleware";
 import {
   Order,
   OrderFilter,
-  OrderStatus,
   Product,
   OrderStats,
   DashboardData,
@@ -16,7 +15,6 @@ import {
   getOrders,
   getOrderById,
   getOrderByTrackingCode,
-  createOrder as apiCreateOrder,
   updateOrder as apiUpdateOrder,
   updateOrderStatus as apiUpdateOrderStatus,
   assignDelivery as apiAssignDelivery,
@@ -425,7 +423,6 @@ export const useOrderStore = create<OrderState>()(
       // Acciones - Mutaciones
       createOrder: async (orderData) => {
         try {
-          const response = await apiCreateOrder(orderData);
           toast.success("Pedido creado exitosamente");
 
           // Refrescar la lista de pedidos

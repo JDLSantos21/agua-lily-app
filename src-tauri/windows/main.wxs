@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product
+    Id="*"
+    Name="Agua Lily App"
+    Language="1033"
+    Version="1.2.5"
+    Manufacturer="Jose A. De Los Santos"
+    UpgradeCode="a350924d-7631-580c-b39c-00d5f5a39e53"
+  >
+    <Package
+      InstallerVersion="200"
+      Compressed="yes"
+      InstallScope="perMachine"
+    />
+
+    <MajorUpgrade
+      DowngradeErrorMessage="!(loc.DowngradeErrorMessage)"
+    />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- Define the icon for the installer -->
+    <Icon Id="icon.ico" SourceFile="C:\Users\JDLSa\Desktop\Workspace\agua-lily-app\src-tauri\icons\icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+
+    <!-- Define the directory structure -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="Agua Lily App" />
+      </Directory>
+      <Directory Id="DesktopFolder" />
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="Agua Lily App" />
+      </Directory>
+    </Directory>
+
+    <!-- Define the components to install -->
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="MainExecutable" Guid="*" Win64="yes">
+        <File
+          Id="MainExe"
+          Source="C:\Users\JDLSa\Desktop\Workspace\agua-lily-app\src-tauri\target\release\agua-lily-app.exe"
+          KeyPath="yes"
+        />
+        <!-- Register the application in the system -->
+        <RegistryValue
+          Root="HKLM"
+          Key="Software\Microsoft\Windows\CurrentVersion\App Paths\agua-lily-app.exe"
+          Name="Path"
+          Type="string"
+          Value="[INSTALLFOLDER]"
+          KeyPath="no"
+        />
+        <RegistryValue
+          Root="HKLM"
+          Key="Software\Microsoft\Windows\CurrentVersion\App Paths\agua-lily-app.exe"
+          Type="string"
+          Value="[INSTALLFOLDER]agua-lily-app.exe"
+          KeyPath="no"
+        />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Desktop shortcut component -->
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="DesktopShortcutComponent" Guid="*" Win64="yes">
+        <Shortcut
+          Id="DesktopShortcut"
+          Name="Agua Lily App"
+          Description="Launch Agua Lily App"
+          Target="[INSTALLFOLDER]agua-lily-app.exe"
+          WorkingDirectory="INSTALLFOLDER"
+          Icon="icon.ico"
+        />
+        <RegistryValue
+          Root="HKCU"
+          Key="Software\LilyDev\Agua Lily App"
+          Name="DesktopShortcutInstalled"
+          Type="integer"
+          Value="1"
+          KeyPath="yes"
+        />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Start menu shortcut component -->
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="StartMenuShortcutComponent" Guid="*" Win64="yes">
+        <Shortcut
+          Id="StartMenuShortcut"
+          Name="Agua Lily App"
+          Description="Launch Agua Lily App"
+          Target="[INSTALLFOLDER]agua-lily-app.exe"
+          WorkingDirectory="INSTALLFOLDER"
+          Icon="icon.ico"
+        />
+        <RegistryValue
+          Root="HKCU"
+          Key="Software\LilyDev\Agua Lily App"
+          Name="StartMenuShortcutInstalled"
+          Type="integer"
+          Value="1"
+          KeyPath="yes"
+        />
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Separate component for per-user registry -->
+    <Component Id="RegistryEntries" Guid="*" Directory="TARGETDIR">
+      <RegistryValue
+        Root="HKCU"
+        Key="Software\LilyDev\Agua Lily App"
+        Name="installed"
+        Type="integer"
+        Value="1"
+        KeyPath="yes"
+      />
+    </Component>
+
+    <!-- Feature definition -->
+    <Feature Id="MainFeature" Title="!(loc.InstallAppFeature)" Level="1">
+      <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="DesktopShortcutComponent" />
+      <ComponentRef Id="StartMenuShortcutComponent" />
+      <ComponentRef Id="RegistryEntries" />
+    </Feature>
+
+    <!-- UI Configuration -->
+    <UIRef Id="WixUI_InstallDir" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <WixVariable Id="WixUIBannerBmp" Value="C:\Users\JDLSa\Desktop\Workspace\agua-lily-app\src-tauri\windows\banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="C:\Users\JDLSa\Desktop\Workspace\agua-lily-app\src-tauri\windows\dialog.bmp" />
+  </Product>
+</Wix>

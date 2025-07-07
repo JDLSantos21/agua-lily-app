@@ -1,4 +1,4 @@
-// src/app/clientes/components/customer-stats.tsx - VERSIÓN MEJORADA
+// src/app/clientes/components/customer-stats.tsx
 "use client";
 
 import { useEffect, useState, memo } from "react";
@@ -11,13 +11,12 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Building2, Users, UserCheck, UserX, RefreshCw } from "lucide-react";
-import { useCustomerStore } from "@/stores/customerStore";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { useCustomerStats } from "@/hooks/useCustomers";
 
 export const CustomerStats = memo(function CustomerStats() {
-  const { customerStats, isLoadingStats, error, fetchCustomerStats } =
-    useCustomerStore();
+  const { data: customerStats, isLoading, error, refetch } = useCustomerStats();
 
   // Estado para animación de números
   const [animatedStats, setAnimatedStats] = useState({
@@ -42,24 +41,26 @@ export const CustomerStats = memo(function CustomerStats() {
         const progress = frame / totalFrames;
 
         setAnimatedStats({
-          total_clientes: Math.floor(progress * customerStats.total_clientes),
+          total_clientes: Math.floor(
+            progress * customerStats.data.total_clientes
+          ),
           clientes_empresa: Math.floor(
-            progress * customerStats.clientes_empresa
+            progress * customerStats.data.clientes_empresa
           ),
           clientes_individuales: Math.floor(
-            progress * customerStats.clientes_individuales
+            progress * customerStats.data.clientes_individuales
           ),
           clientes_activos: Math.floor(
-            progress * customerStats.clientes_activos
+            progress * customerStats.data.clientes_activos
           ),
           clientes_inactivos: Math.floor(
-            progress * customerStats.clientes_inactivos
+            progress * customerStats.data.clientes_inactivos
           ),
         });
 
         if (frame === totalFrames) {
           clearInterval(counter);
-          setAnimatedStats(customerStats);
+          setAnimatedStats(customerStats.data);
         }
       }, frameDuration);
 
@@ -68,7 +69,7 @@ export const CustomerStats = memo(function CustomerStats() {
   }, [customerStats]);
 
   // Si está cargando, mostrar skeleton
-  if (isLoadingStats) {
+  if (isLoading) {
     return <StatsSkeletonLoader />;
   }
 
@@ -78,12 +79,12 @@ export const CustomerStats = memo(function CustomerStats() {
       <div className="p-4 rounded-md bg-red-50 border border-red-200 text-red-600 flex justify-between items-center">
         <div>
           <h3 className="font-medium">Error al cargar las estadísticas</h3>
-          <p className="text-sm">{error}</p>
+          <p className="text-sm">{error.message}</p>
         </div>
         <Button
           variant="outline"
           className="bg-white hover:bg-red-50"
-          onClick={() => fetchCustomerStats()}
+          onClick={() => refetch()}
         >
           <RefreshCw className="h-4 w-4 mr-1" />
           Reintentar
@@ -97,11 +98,7 @@ export const CustomerStats = memo(function CustomerStats() {
     return (
       <div className="text-center text-gray-500 py-8 bg-gray-50 rounded-md">
         <p>No hay datos de estadísticas disponibles</p>
-        <Button
-          variant="ghost"
-          className="mt-2"
-          onClick={() => fetchCustomerStats()}
-        >
+        <Button variant="ghost" className="mt-2" onClick={() => refetch()}>
           <RefreshCw className="h-4 w-4 mr-1" />
           Cargar estadísticas
         </Button>
@@ -112,20 +109,22 @@ export const CustomerStats = memo(function CustomerStats() {
   // Calcular porcentajes
   const stats = customerStats;
 
-  const pctEmpresas = stats.total_clientes
-    ? Math.round((stats.clientes_empresa / stats.total_clientes) * 100)
+  const pctEmpresas = stats.data.total_clientes
+    ? Math.round(
+        (stats.data.clientes_empresa / stats.data.total_clientes) * 100
+      )
     : 0;
 
-  const pctIndividuales = stats.total_clientes
-    ? Math.round((stats.clientes_individuales / stats.total_clientes) * 100)
+  const pctActivos = stats.data.total_clientes
+    ? Math.round(
+        (stats.data.clientes_activos / stats.data.total_clientes) * 100
+      )
     : 0;
 
-  const pctActivos = stats.total_clientes
-    ? Math.round((stats.clientes_activos / stats.total_clientes) * 100)
-    : 0;
-
-  const pctInactivos = stats.total_clientes
-    ? Math.round((stats.clientes_inactivos / stats.total_clientes) * 100)
+  const pctInactivos = stats.data.total_clientes
+    ? Math.round(
+        (stats.data.clientes_inactivos / stats.data.total_clientes) * 100
+      )
     : 0;
 
   return (

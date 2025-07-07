@@ -53,7 +53,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <h1 className="absolute top-0 right-2 text-sm text-gray-800/40">
-          Version 1.1.7
+          Version 1.2.5
         </h1>
         <UpdateModal />
         <QueryClientProvider client={queryClient}>

@@ -9,12 +9,12 @@ import {
   Grid2X2,
   ListIcon,
   PlusIcon,
-  SearchIcon,
   BarChartIcon,
   FilePlus,
   Package,
   ChevronLeft,
   ChevronRight,
+  Monitor,
 } from "lucide-react";
 import { LoaderSpin } from "@/components/Loader";
 import Link from "next/link";
@@ -33,6 +33,7 @@ import OrderEditForm from "./components/order-edit-form";
 
 // Hooks de TanStack Query
 import { useOrders, useOrderStats, useDeleteOrder } from "@/hooks/useOrders";
+import { ReceptorWindow } from "@/shared/tauri/windows/receptor";
 
 // Type para el estado de diálogos
 interface DialogsState {
@@ -48,9 +49,15 @@ interface DialogsState {
 const ITEMS_PER_PAGE = 8; // Número de items por página
 
 export default function PedidosPage() {
+  const initialView = localStorage.getItem("activeView") as
+    | "list"
+    | "grid"
+    | "stats"
+    | null;
+
   // Vista activa: list, grid o stats
   const [activeView, setActiveView] = useState<"list" | "grid" | "stats">(
-    "grid"
+    initialView || "grid"
   );
 
   // Estado para paginación
@@ -345,59 +352,24 @@ export default function PedidosPage() {
   }
 
   return (
-    <main className="container p-4 pb-20">
-      {/* Header con navegación y acciones principales */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Gestión de Pedidos</h1>
-          <p className="text-gray-500 mt-1">
-            Administre pedidos, asigne entregas y controle el estado
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Tabs
-            value={activeView}
-            onValueChange={(value) => setActiveView(value as any)}
-            className="mr-2"
-          >
-            <TabsList>
-              <TabsTrigger value="grid" aria-label="Vista de cuadrícula">
-                <Grid2X2 className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">Cuadrícula</span>
-              </TabsTrigger>
-              <TabsTrigger value="list" aria-label="Vista de lista">
-                <ListIcon className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">Lista</span>
-              </TabsTrigger>
-              <TabsTrigger value="stats" aria-label="Estadísticas">
-                <BarChartIcon className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">Estadísticas</span>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          <Button variant="outline" asChild>
-            <Link href="/orders/buscar" className="flex items-center gap-1">
-              <SearchIcon className="h-4 w-4" />
-              <span>Buscar</span>
-            </Link>
-          </Button>
-
-          <Button onClick={openNewOrderDialog} variant="primary">
-            <PlusIcon className="h-4 w-4 mr-1" />
-            <span>Nuevo Pedido</span>
-          </Button>
-        </div>
-      </div>
-
+    <main className=" p-4 pb-20">
       {/* Estadísticas rápidas */}
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <OrderStats
           simplified
           stats={statsData?.data}
           isLoading={isLoadingStats}
         />
+        <div className="flex flex-col gap-2">
+          <Button onClick={openNewOrderDialog} variant="primary">
+            <PlusIcon className="h-4 w-4 mr-1" />
+            <span>Nuevo Pedido</span>
+          </Button>
+          <Button onClick={ReceptorWindow.open} variant="outline">
+            <Monitor className="h-4 w-4 mr-1" />
+            <span>Receptor</span>
+          </Button>
+        </div>
       </div>
 
       {/* Filtros de estado */}
@@ -449,12 +421,37 @@ export default function PedidosPage() {
       </div>
 
       {/* Filtros avanzados */}
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <OrderFilters
           onChange={handleFiltersChange}
           initialFilters={filters}
           compact={true}
         />
+        <Tabs
+          value={activeView}
+          onValueChange={(value) => setActiveView(value as any)}
+          className="mr-2"
+        >
+          <TabsList>
+            <TabsTrigger
+              value="grid"
+              onClick={() => localStorage.setItem("activeView", "grid")}
+              aria-label="Vista de cuadrícula"
+            >
+              <Grid2X2 className="h-4 w-4 mr-1" />
+            </TabsTrigger>
+            <TabsTrigger
+              value="list"
+              onClick={() => localStorage.setItem("activeView", "list")}
+              aria-label="Vista de lista"
+            >
+              <ListIcon className="h-4 w-4 mr-1" />
+            </TabsTrigger>
+            <TabsTrigger value="stats" aria-label="Estadísticas">
+              <BarChartIcon className="h-4 w-4 mr-1" />
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       {/* Información de paginación */}
@@ -586,7 +583,6 @@ export default function PedidosPage() {
               className="flex items-center gap-1"
             >
               <ChevronLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Anterior</span>
             </Button>
 
             {/* Números de página */}
@@ -625,7 +621,6 @@ export default function PedidosPage() {
               disabled={!canGoNext}
               className="flex items-center gap-1"
             >
-              <span className="hidden sm:inline">Siguiente</span>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>

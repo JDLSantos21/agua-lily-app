@@ -31,7 +31,6 @@ import CustomerViewDialog from "../components/customer-view-dialog";
 import CustomerFormDialog from "../components/customer-form-dialog";
 import { Customer } from "@/types/customers.types";
 import { LoaderSpin } from "@/components/Loader";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Empty } from "@/components/Empty";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
@@ -52,8 +51,6 @@ export default function BusquedaPage() {
     openDeleteDialog,
     closeViewDialog,
     closeFormDialog,
-    closeDeleteDialog,
-    deleteCustomer,
   } = useCustomerStore();
 
   // Consulta de búsqueda
@@ -101,6 +98,7 @@ export default function BusquedaPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Búsqueda Avanzada de Clientes</h1>
         <Button
+          variant="primary"
           onClick={() => openFormDialog()}
           className="flex items-center gap-1"
         >
@@ -172,6 +170,7 @@ export default function BusquedaPage() {
                   onClick={handleSearch}
                   disabled={!searchTerm || isLoading}
                   className="flex gap-1"
+                  variant="primary"
                 >
                   <Search className="h-4 w-4" />
                   Buscar
@@ -279,22 +278,6 @@ export default function BusquedaPage() {
             refetch();
           }
         }}
-      />
-
-      <ConfirmDialog
-        open={dialogState.deleteDialog.isOpen}
-        title="Eliminar cliente"
-        description={`¿Está seguro que desea eliminar a ${dialogState.deleteDialog.customer?.name || "este cliente"}? Esta acción no se puede deshacer.`}
-        onConfirm={() => {
-          if (dialogState.deleteDialog.customer?.id) {
-            deleteCustomer(dialogState.deleteDialog.customer.id);
-            // Si estábamos buscando, refrescar los resultados
-            if (isSearching) {
-              refetch();
-            }
-          }
-        }}
-        onCancel={closeDeleteDialog}
       />
     </div>
   );

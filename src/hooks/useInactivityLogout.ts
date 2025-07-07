@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useAuthStore } from "@/stores/authStore";
 
-const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutos en milisegundos
+const INACTIVITY_TIMEOUT = 180 * 60 * 1000; // 3 horas en milisegundos
 
 export const useInactivityLogout = () => {
   const { logout } = useAuthStore();

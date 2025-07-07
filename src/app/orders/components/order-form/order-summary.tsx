@@ -20,7 +20,8 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { CreateOrderRequest, Product, OrderItem } from "@/types/orders.types";
-import { format } from "date-fns";
+import formatPhoneNumber from "@/shared/utils/formatNumber";
+import { formatDateToUTC } from "@/shared/utils/formatDateToUTC";
 
 interface OrderSummaryProps {
   orderData: CreateOrderRequest;
@@ -36,16 +37,6 @@ export default function OrderSummary({
   // Encontrar información detallada de cada producto
   const getProductDetails = (item: OrderItem) => {
     return products.find((p) => p.id === item.product_id);
-  };
-
-  // Formatear fecha
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "No especificada";
-    try {
-      return format(new Date(dateString), "dd/MM/yyyy");
-    } catch (e) {
-      return dateString;
-    }
   };
 
   return (
@@ -72,7 +63,7 @@ export default function OrderSummary({
                   </div>
                   <div className="flex items-center gap-1 text-sm text-gray-600">
                     <Phone className="h-3.5 w-3.5 text-gray-400" />
-                    <span>{orderData.customer_phone}</span>
+                    <span>{formatPhoneNumber(orderData.customer_phone)}</span>
                   </div>
                 </div>
                 <div className="space-y-1">
@@ -158,7 +149,10 @@ export default function OrderSummary({
                   <div className="text-xs text-gray-500">Fecha de entrega:</div>
                   <div className="flex items-center gap-1 text-sm">
                     <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                    <span>{formatDate(orderData.scheduled_delivery_date)}</span>
+                    <span>
+                      {formatDateToUTC(orderData.scheduled_delivery_date) ||
+                        "No especificada"}
+                    </span>
                   </div>
                 </div>
 

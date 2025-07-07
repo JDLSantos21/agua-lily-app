@@ -22,6 +22,7 @@ import OrderSummary from "./order-form/order-summary";
 
 // Nuevos imports de TanStack Query
 import { useProducts, useCreateOrder } from "@/hooks/useOrders";
+import { format } from "@formkit/tempo";
 
 interface OrderFormProps {
   open: boolean;
@@ -127,7 +128,7 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
   // Actualizar detalles de entrega
   const handleDeliveryChange = useCallback(
     (deliveryData: {
-      scheduled_delivery_date?: string;
+      scheduled_delivery_date?: string | Date;
       delivery_time_slot?: string | null;
       notes?: string | null;
       delivery_notes?: string | null;
@@ -167,10 +168,27 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
       return;
     }
 
+    formData.customer_has_whatsapp == true
+      ? (formData.customer_has_whatsapp = true)
+      : (formData.customer_has_whatsapp = false);
+
+    if (formData.scheduled_delivery_date) {
+      // Convertir la fecha a formato UTC
+      formData.scheduled_delivery_date =
+        typeof formData.scheduled_delivery_date === "string"
+          ? new Date(formData.scheduled_delivery_date)
+          : formData.scheduled_delivery_date;
+
+      // Formatear la fecha a "DD-MM-YYYY"
+      formData.scheduled_delivery_date = format(
+        formData.scheduled_delivery_date,
+        "YYYY-MM-DD"
+      );
+    }
+
     try {
       // Crear un nuevo pedido
       await createOrderMutation.mutateAsync(formData);
-
       // Si todo va bien, cerrar el formulario
       handleClose();
     } catch (error) {
@@ -235,7 +253,7 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={STEPS[currentStep]} className="mt-4">
+        <Tabs value={STEPS[currentStep]}>
           <TabsList className="grid grid-cols-4 mb-4">
             <TabsTrigger
               value="customer"

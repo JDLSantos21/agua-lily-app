@@ -179,11 +179,16 @@ export function useSocket() {
     // EVENTOS DE PEDIDOS
     // ======================
 
-    socketInstance.on("order:created", (data) => {
+    socketInstance.on("order:created", async (data) => {
       console.log("📦 Nuevo pedido creado:", data);
 
       // Invalidar queries para refrescar listas
       queryClient.invalidateQueries({ queryKey: ["orders"] });
+
+      // await notify(
+      //   "Se ha creado un nuevo pedido",
+      //   `Se ha recibido un nuevo pedido a nombre de ${data.order.customer_name}`
+      // );
 
       // Mostrar notificación
       toast.success(data.message, {

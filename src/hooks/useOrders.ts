@@ -18,6 +18,7 @@ import {
   getProducts,
   getOrderStats,
   getDashboardData,
+  getOrdersForReceiver,
 } from "@/api/orders";
 import {
   Order,
@@ -73,6 +74,38 @@ export const useOrders = (
   return useQuery({
     queryKey: CACHE_KEYS.list(cleanFilters),
     queryFn: () => getOrders(cleanFilters),
+    // Mantener data anterior mientras se carga nueva página
+    placeholderData: (old) => old,
+    // Cache por 30 segundos para evitar refetches frecuentes
+    staleTime: 30 * 1000,
+    ...options,
+  });
+};
+
+/**
+ * Hook para obtener pedidos del recibidor de pedidos en tiempo real.
+ */
+
+export const useOrdersForReceiver = (
+  filters?: OrderFilter,
+  options?: Partial<UseQueryOptions<OrdersResponse>>
+) => {
+  // Limpiar filtros vacíos para evitar consultas innecesarias
+  const cleanFilters = filters ? { ...filters } : {};
+
+  // Remover campos undefined para normalizar la cache key
+  Object.keys(cleanFilters).forEach((key) => {
+    if (
+      cleanFilters[key as keyof OrderFilter] === undefined ||
+      cleanFilters[key as keyof OrderFilter] === ""
+    ) {
+      delete cleanFilters[key as keyof OrderFilter];
+    }
+  });
+
+  return useQuery({
+    queryKey: CACHE_KEYS.list(cleanFilters),
+    queryFn: () => getOrdersForReceiver(cleanFilters),
     // Mantener data anterior mientras se carga nueva página
     placeholderData: (old) => old,
     // Cache por 30 segundos para evitar refetches frecuentes
