@@ -1,80 +1,146 @@
 import { create } from "zustand";
 import { isTokenExpired } from "@/utils/jwtUtils";
 import { getCookie } from "@/lib/clientCookie";
-import { removeCookies, getCookies, setCookies } from "@/utils/authCookies";
+import { save, remove } from "@/utils/authCookies";
+import { loginApi, logoutApi, refreshApi } from "@/services/authService";
 
 interface AuthState {
-  token: string | null;
-  accessToken?: string | null;
-  refreshToken?: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
   role: string | null;
   name: string | null;
   user_id: number | null;
   isInitialized: boolean;
-  login: (token: string, role: string, name: string, id: number) => void;
-  logout: () => void;
+  isRefreshing: boolean;
+  login: (username: string, password: string) => Promise<void>;
+  logout: () => Promise<boolean>;
   refresh: () => Promise<void>;
   initializeAuth: () => void;
-  getTokenFromStorage: () => string | null;
+  isAuthenticated: () => boolean;
 }
 
 const isClient = typeof window !== "undefined";
 
-export const useAuthStore = create<AuthState>((set) => ({
-  token: null,
+export const useAuthStore = create<AuthState>((set, get) => ({
+  accessToken: null,
+  refreshToken: null,
   role: null,
   name: null,
   user_id: null,
   isInitialized: false,
-  login: (token, role, name, id) => {
-    console.log("Token recibido en login:", token);
-    // Limpiar cualquier token antiguo antes de almacenar el nuevo
-    if (isClient) {
-      removeCookies();
-    }
-    // Almacenar la información en cookies (7 días de expiración)
-    if (isClient) {
-      setCookies(token, role, name, id, 7);
-    }
-    set({ token, role, name, isInitialized: true, user_id: id });
+  isRefreshing: false,
+
+  isAuthenticated: () => {
+    const state = get();
+    return !!state.accessToken && !isTokenExpired(state.accessToken);
   },
-  logout: () => {
-    // Eliminar cookies
+
+  async login(username, password) {
+    const { data } = await loginApi(username, password);
+
     if (isClient) {
-      removeCookies();
+      save("accessToken", data.access_token, 7);
+      save("refreshToken", data.refresh_token, 7);
+      save("role", data.role, 7);
+      save("name", data.name, 7);
+      save("user_id", data.id.toString(), 7);
     }
+
     set({
-      token: null,
+      accessToken: data.access_token,
+      refreshToken: data.refresh_token,
+      role: data.role,
+      name: data.name,
+      user_id: data.id,
+    });
+  },
+  async logout() {
+    try {
+      await logoutApi(get().refreshToken);
+    } catch (error) {
+      return false;
+    }
+
+    if (isClient) {
+      remove("accessToken");
+      remove("refreshToken");
+      remove("role");
+      remove("name");
+      remove("user_id");
+    }
+
+    set({
+      accessToken: null,
+      refreshToken: null,
       role: null,
       name: null,
       user_id: null,
-      isInitialized: true,
     });
-    console.log("Sesión cerrada, estado limpiado");
+
+    return true;
   },
+
   initializeAuth: () => {
-    const { token, role, name, user_id } = getCookies();
+    if (!isClient) {
+      set({ isInitialized: true });
+      return;
+    }
 
-    console.log("Inicializando autenticación, token encontrado:", token);
+    const accessToken = getCookie("accessToken");
+    const refreshToken = getCookie("refreshToken");
+    const role = getCookie("role");
+    const name = getCookie("name");
+    const user_id = getCookie("user_id");
 
-    if (token && !isTokenExpired(token)) {
-      // console.log("Token válido encontrado, actualizando estado");
+    if (accessToken && !isTokenExpired(accessToken)) {
       set({
-        token,
+        accessToken,
+        refreshToken,
         role,
         name,
         user_id: user_id ? Number(user_id) : null,
         isInitialized: true,
       });
-    } else {
-      console.log("Token no encontrado o expirado, limpiando estado y cookies");
-      // Limpiar cookies si el token está presente pero expirado
-      if (isClient) {
-        removeCookies();
-      }
-
+    } else if (refreshToken) {
       set({
-        token: null,
+        accessToken,
+        refreshToken,
+        role,
+        name,
+        user_id: user_id ? Number(user_id) : null,
+        isInitialized: true,
+      });
+
+      get()
+        .refresh()
+        .catch((refreshError) => {
+          if (isClient) {
+            remove("accessToken");
+            remove("refreshToken");
+            remove("role");
+            remove("name");
+            remove("user_id");
+          }
+          set({
+            accessToken: null,
+            refreshToken: null,
+            role: null,
+            name: null,
+            user_id: null,
+            isInitialized: true,
+          });
+        });
+    } else {
+      if (isClient) {
+        remove("accessToken");
+        remove("refreshToken");
+        remove("role");
+        remove("name");
+        remove("user_id");
+      }
+      set({
+        accessToken: null,
+        refreshToken: null,
         role: null,
         name: null,
         user_id: null,
@@ -82,11 +148,60 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
     }
   },
-  refresh: () => {
-    console.log("hola");
-  },
-  // Función para obtener el token directamente de las cookies
-  getTokenFromStorage: () => {
-    return isClient ? getCookie("token") : null;
+  async refresh() {
+    const state = get();
+    if (state.isRefreshing) return;
+
+    set({ isRefreshing: true });
+
+    try {
+      const rt = state.refreshToken;
+      if (!rt) {
+        window.location.href = "/login";
+        return;
+      }
+
+      const { data } = await refreshApi(rt);
+
+      if (isClient) {
+        save("accessToken", data.access_token, 7);
+        // También guardamos el nuevo refresh token si viene en la respuesta
+        if (data.refresh_token) {
+          save("refreshToken", data.refresh_token, 7);
+        }
+      }
+
+      set({
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token || state.refreshToken,
+        isRefreshing: false,
+        isInitialized: true,
+      });
+    } catch (error) {
+      if (isClient) {
+        remove("accessToken");
+        remove("refreshToken");
+        remove("role");
+        remove("name");
+        remove("user_id");
+      }
+
+      set({
+        accessToken: null,
+        refreshToken: null,
+        role: null,
+        name: null,
+        user_id: null,
+        isRefreshing: false,
+        isInitialized: true,
+      });
+
+      // Redirigir al login cuando falle el refresh token
+      if (isClient) {
+        window.location.href = "/login";
+      }
+
+      throw error;
+    }
   },
 }));

@@ -1,6 +1,6 @@
 // src/api/inventory.ts
 
-import { fetcher } from "./fetcher";
+import { api } from "@/services/api";
 import {
   adjustmentFilter,
   setMovement,
@@ -21,58 +21,26 @@ export const getInventoryReportData = async ({
   }
   params.date = date;
 
-  return await fetcher(
-    `/inventory/movements`,
-    {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    },
-    params
-  );
+  const res = await api.get("/inventory/movements", { params });
+  return res.data;
 };
 
 export const registerMovement = async (movementData: setMovement) => {
-  try {
-    const response = await fetcher("/inventory/movements", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(movementData),
-    });
-
-    return await response;
-  } catch (error) {
-    console.log(error);
-    throw new Error(
-      "Ocurrió un problema registrando el movimiento, intenta de nuevo."
-    );
-  }
+  const res = await api.post("/inventory/movements", movementData);
+  return res.data;
 };
 
 export const fetchAdjustments = async () => {
-  return await fetcher(`/inventory/adjustments`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json" },
-  });
+  const res = await api.get("/inventory/adjustments");
+  return res.data;
 };
 
 export const fetchFilterAdjustments = async (filter: adjustmentFilter) => {
-  const url = `/inventory/adjustments`;
-  return await fetcher(`${url}`, {}, { ...filter });
+  const res = await api.get("/inventory/adjustments", { params: filter });
+  return res.data;
 };
 
 export const setAdjustment = async (adjustmentData: CreateAdjustment) => {
-  try {
-    const response = await fetcher("/inventory/adjustments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(adjustmentData),
-    });
-
-    return await response;
-  } catch (error) {
-    console.log(error);
-    throw new Error(
-      "Ocurrió un problema registrando el ajuste, intenta de nuevo."
-    );
-  }
+  const res = await api.post("/inventory/adjustments", adjustmentData);
+  return res.data;
 };

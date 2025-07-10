@@ -1,39 +1,19 @@
-import { CompletedTrip } from "@/app/viajes/types/trips";
-import { fetcher } from "./fetcher";
+import { CompletedTrip } from "@/app/(protected)/viajes/types/trips";
+import { api } from "@/services/api";
 
 export const getDefaultsData = async () => {
-  try {
-    return await fetcher(`/trips/defaults`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  const res = await api.get("/trips/defaults");
+  return res.data;
 };
 
 export const registerTrip = async (data: any) => {
-  try {
-    return await fetcher("/trips", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-  } catch (error) {
-    throw new Error("Error al registrar el viaje: " + error);
-  }
+  const res = await api.post("/trips", data);
+  return res.data;
 };
 
 export const completeTrip = async (data: any) => {
-  try {
-    return await fetcher(`/trips/${data.trip_id}/complete`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-  } catch (error) {
-    throw new Error("Error al registrar el viaje: " + error);
-  }
+  const res = await api.patch(`/trips/${data.trip_id}/complete`, data);
+  return res.data;
 };
 
 export type TripsQueryParams = {
@@ -53,37 +33,18 @@ export const getTrips = async ({
   if (start_date) params.start_date = start_date;
   if (end_date) params.end_date = end_date;
 
-  console.log(params);
-
-  try {
-    const response = await fetcher("/trips", {}, params);
-    console.log(response);
-    return response;
-  } catch (error) {
-    console.log(error);
-  }
+  const res = await api.get("/trips", { params });
+  return res.data;
 };
 
 export const getTripById = async (trip_id: string): Promise<CompletedTrip> => {
-  try {
-    return await fetcher(`/trips/${trip_id}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
+  const res = await api.get(`/trips/${trip_id}`);
+  return res.data as CompletedTrip;
 };
 
 export const getPendingTripById = async (trip_id: string) => {
-  try {
-    return await fetcher(`/trips/pending/${trip_id}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
+  const res = await api.get(`/trips/pending/${trip_id}`);
+  return res.data;
 };
 
 export const getTripsReportData = async ({
@@ -98,11 +59,8 @@ export const getTripsReportData = async ({
   if (user_id) params.user_id = user_id.toString();
   if (date) params.date = date;
 
-  try {
-    return await fetcher("/trips/report", {}, params);
-  } catch (error) {
-    console.log(error);
-  }
+  const res = await api.get("/trips/report", { params });
+  return res.data;
 };
 
 export const getTripsHistory = async (filterData: {
@@ -116,25 +74,15 @@ export const getTripsHistory = async (filterData: {
     params.date = date.toISOString().split("T")[0]; // Formato YYYY-MM-DD
   }
   if (filterData.status) params.status = filterData.status;
-  console.log("testeo de params: ", params);
-  try {
-    return await fetcher("/trips/history", {}, params);
-  } catch (error) {
-    console.log(error);
-  }
+
+  const res = await api.get("/trips/history", { params });
+  return res.data;
 };
 
 export const updateTripDate = async (
   trip_id: string | number,
   date: string
 ) => {
-  try {
-    return await fetcher(`/trips/${trip_id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ date }),
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  const res = await api.patch(`/trips/${trip_id}`, { date });
+  return res.data;
 };

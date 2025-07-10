@@ -82,7 +82,7 @@ export function useSocket() {
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
 
   const queryClient = useQueryClient();
-  const { token, name, user_id, role } = useAuthStore();
+  const { accessToken: token, name, user_id, role } = useAuthStore();
 
   // Inicializar socket
   useEffect(() => {
@@ -140,7 +140,7 @@ export function useSocket() {
     });
 
     socketInstance.on("connect_error", (error) => {
-      console.error("❌ Error de conexión WebSocket:", error);
+      console.log("❌ Error de conexión WebSocket:", error);
       setIsConnected(false);
       setShowDisconnectPopup(true);
 
@@ -212,9 +212,7 @@ export function useSocket() {
       queryClient.invalidateQueries({ queryKey: ["order", data.orderId] });
 
       // Mostrar notificación más sutil para actualizaciones
-      toast.info(data.message, {
-        duration: 3000,
-      });
+      toast.info(data.message, { duration: 3000 });
     });
 
     socketInstance.on("order:status_changed", (data) => {
@@ -348,6 +346,10 @@ export function useSocket() {
     }
   }, [socket, isConnected]);
 
+  const closeDisconnectModal = useCallback(() => {
+    setShowDisconnectPopup(false);
+  }, []);
+
   return {
     socket,
     isConnected,
@@ -360,5 +362,6 @@ export function useSocket() {
     leaveRoom,
     requestDataRefresh,
     ping,
+    closeDisconnectModal,
   };
 }

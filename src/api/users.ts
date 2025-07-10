@@ -1,15 +1,16 @@
-import { fetcher } from "./fetcher";
+import { api } from "@/services/api";
 
 export const getUsers = async () => {
-  return await fetcher("/users");
+  const res = await api.get("/users");
+  return res.data;
 };
 
 export const checkUserPassword = async (user_id: number, password: string) => {
-  return await fetcher(`/users/${user_id}/check-password`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ password }),
-  });
+  const data = {
+    user_id,
+    password,
+  };
+
+  const res = await api.post(`/users/${user_id}/check-password`, data);
+  return res.data;
 };

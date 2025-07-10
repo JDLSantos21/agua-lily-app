@@ -14,29 +14,27 @@ export const ProtectedRoute = ({
   children,
   requiredRole,
 }: ProtectedRouteProps) => {
-  const { token, role, isInitialized } = useAuthStore();
+  const { accessToken, role } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isInitialized) return; // Esperar a que se inicialice la autenticación
-
-    if (!token) {
+    if (!accessToken) {
       router.replace("/"); // Redirigir al login si no hay token
     } else if (requiredRole && !hasAccess(role, requiredRole)) {
       router.replace("/access-denied"); // Redirigir si el rol no tiene acceso
     }
-  }, [token, role, requiredRole, router, isInitialized]);
+  }, [accessToken, role, requiredRole, router]);
 
-  if (!isInitialized) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <LoaderSpin text="Cargando" />
-      </div>
-    );
-  }
+  // if (!isInitialized) {
+  //   return (
+  //     <div className="flex items-center justify-center h-full">
+  //       <LoaderSpin text="Cargando" />
+  //     </div>
+  //   );
+  // }
 
   // No renderizar nada si el usuario no tiene acceso
-  if (!token || (requiredRole && !hasAccess(role, requiredRole))) {
+  if (!accessToken || (requiredRole && !hasAccess(role, requiredRole))) {
     return null;
   }
 

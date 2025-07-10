@@ -1,5 +1,5 @@
 // src/api/orders.ts
-import { fetcher } from "./fetcher";
+import { api } from "@/services/api";
 import {
   Order,
   OrderFilter,
@@ -20,21 +20,14 @@ import {
  * Esta API proporciona métodos para interactuar con el endpoint de pedidos del servidor
  */
 
-const API_BASE = "/orders";
-
 /**
  * Obtiene todos los pedidos con filtros opcionales
  */
 export const getOrders = async (
   filters?: OrderFilter
 ): Promise<OrdersResponse> => {
-  return await fetcher(
-    API_BASE,
-    {
-      method: "GET",
-    },
-    filters ? { ...filters } : {}
-  );
+  const res = await api.get("/orders", { params: filters });
+  return res.data;
 };
 
 /**
@@ -44,22 +37,16 @@ export const getOrders = async (
 export const getOrdersForReceiver = async (
   filters?: OrderFilter
 ): Promise<OrdersResponse> => {
-  return await fetcher(
-    `${API_BASE}/receiver`,
-    {
-      method: "GET",
-    },
-    filters ? { ...filters } : {}
-  );
+  const res = await api.get("/orders/receiver", { params: filters });
+  return res.data;
 };
 
 /**
  * Obtiene un pedido por su ID
  */
 export const getOrderById = async (id: number): Promise<OrderResponse> => {
-  return await fetcher(`${API_BASE}/${id}`, {
-    method: "GET",
-  });
+  const res = await api.get(`/orders/${id}`);
+  return res.data;
 };
 
 /**
@@ -68,9 +55,8 @@ export const getOrderById = async (id: number): Promise<OrderResponse> => {
 export const getOrderByTrackingCode = async (
   trackingCode: string
 ): Promise<OrderResponse> => {
-  return await fetcher(`${API_BASE}/track/${trackingCode}`, {
-    method: "GET",
-  });
+  const res = await api.get(`/orders/track/${trackingCode}`);
+  return res.data;
 };
 
 /**
@@ -79,11 +65,8 @@ export const getOrderByTrackingCode = async (
 export const createOrder = async (
   order: CreateOrderRequest
 ): Promise<CreateOrderResponse> => {
-  return await fetcher(`${API_BASE}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(order),
-  });
+  const res = await api.post(`/orders`, order);
+  return res.data;
 };
 
 /**
@@ -93,10 +76,6 @@ export const updateOrder = async (
   id: number,
   order: Partial<Order>
 ): Promise<{ success: boolean; message: string }> => {
-  console.log("🌐 updateOrder API - Inicio");
-  console.log("🆔 ID:", id);
-  console.log("📝 Datos originales:", order);
-
   // Crear una copia limpia de los datos
   const cleanData = { ...order };
 
@@ -111,23 +90,8 @@ export const updateOrder = async (
 
   console.log("🧹 Datos limpios para enviar:", cleanData);
 
-  try {
-    const response = await fetcher(`${API_BASE}/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(cleanData),
-    });
-
-    console.log("✅ Respuesta exitosa:", response);
-    return response;
-  } catch (error) {
-    console.error("❌ Error en updateOrder API:", error);
-    console.error("🔥 Error detallado:", {
-      message: error instanceof Error ? error.message : "Error desconocido",
-      stack: error instanceof Error ? error.stack : "No stack available",
-    });
-    throw error;
-  }
+  const res = await api.put(`/orders/${id}`, cleanData);
+  return res.data;
 };
 
 /**
@@ -137,11 +101,8 @@ export const updateOrderStatus = async (
   id: number,
   statusData: UpdateOrderStatusRequest
 ): Promise<{ success: boolean; message: string }> => {
-  return await fetcher(`${API_BASE}/${id}/status`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(statusData),
-  });
+  const res = await api.patch(`/orders/${id}/status`, statusData);
+  return res.data;
 };
 
 /**
@@ -151,11 +112,9 @@ export const assignDelivery = async (
   id: number,
   assignData: AssignDeliveryRequest
 ): Promise<{ success: boolean; message: string }> => {
-  return await fetcher(`${API_BASE}/${id}/assign`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(assignData),
-  });
+  const res = await api.patch(`/orders/${id}/assign`, assignData);
+
+  return res.data;
 };
 
 /**
@@ -164,9 +123,8 @@ export const assignDelivery = async (
 export const deleteOrder = async (
   id: number
 ): Promise<{ success: boolean; message: string }> => {
-  return await fetcher(`${API_BASE}/${id}`, {
-    method: "DELETE",
-  });
+  const res = await api.delete(`/orders/${id}`);
+  return res.data;
 };
 
 /**
@@ -175,9 +133,8 @@ export const deleteOrder = async (
 export const getScheduledForDate = async (
   date: string
 ): Promise<OrdersResponse> => {
-  return await fetcher(`${API_BASE}/scheduled/${date}`, {
-    method: "GET",
-  });
+  const res = await api.get(`/orders/scheduled/${date}`);
+  return res.data;
 };
 
 /**
@@ -187,13 +144,8 @@ export const searchOrders = async (
   term: string,
   limit: number = 10
 ): Promise<OrdersResponse> => {
-  return await fetcher(
-    `${API_BASE}/search`,
-    {
-      method: "GET",
-    },
-    { term, limit }
-  );
+  const res = await api.get(`/orders/search`, { params: { term, limit } });
+  return res.data;
 };
 
 /**
@@ -202,9 +154,8 @@ export const searchOrders = async (
 export const getPendingByDriver = async (
   driverId: number
 ): Promise<OrdersResponse> => {
-  return await fetcher(`${API_BASE}/driver/${driverId}/pending`, {
-    method: "GET",
-  });
+  const res = await api.get(`/orders/driver/${driverId}/pending`);
+  return res.data;
 };
 
 /**
@@ -213,34 +164,30 @@ export const getPendingByDriver = async (
 export const getPendingByCustomer = async (
   customerId: number
 ): Promise<OrdersResponse> => {
-  return await fetcher(`${API_BASE}/customer/${customerId}/pending`, {
-    method: "GET",
-  });
+  const res = await api.get(`/orders/customer/${customerId}/pending`);
+  return res.data;
 };
 
 /**
  * Obtiene todos los productos activos
  */
 export const getProducts = async (): Promise<ProductsResponse> => {
-  return await fetcher(`${API_BASE}/products`, {
-    method: "GET",
-  });
+  const res = await api.get(`/orders/products`);
+  return res.data;
 };
 
 /**
  * Obtiene estadísticas de pedidos
  */
 export const getOrderStats = async (): Promise<StatsResponse> => {
-  return await fetcher(`${API_BASE}/stats`, {
-    method: "GET",
-  });
+  const res = await api.get(`/orders/stats`);
+  return res.data;
 };
 
 /**
  * Obtiene datos para el dashboard
  */
 export const getDashboardData = async (): Promise<DashboardResponse> => {
-  return await fetcher(`${API_BASE}/dashboard`, {
-    method: "GET",
-  });
+  const res = await api.get("/orders/dashboard");
+  return res.data;
 };

@@ -21,7 +21,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import SidenavClock from "./sidenav-clock";
 import {
@@ -31,6 +30,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/shared/hooks/useAuth";
 
 // Usar un objeto singleton para mantener el estado entre navegaciones
 // Next.js preserva este objeto entre navegaciones de cliente
@@ -41,7 +41,8 @@ const globalState = {
 };
 
 export default function SideNav() {
-  const { logout, name, role } = useAuthStore();
+  const { name, role } = useAuthStore();
+  const { signOut } = useAuth();
   const router = useRouter();
 
   // Utilizar el estado global inicializado para evitar pestañeo
@@ -69,8 +70,7 @@ export default function SideNav() {
   }, []);
 
   const handleLogout = () => {
-    logout();
-    router.replace("/");
+    signOut();
   };
 
   const handleSettings = () => {
@@ -105,68 +105,97 @@ export default function SideNav() {
   return (
     <div
       className={cn(
-        "flex h-full flex-col py-5 border-r border-gray-100 bg-white select-none relative",
+        "flex h-full flex-col bg-gradient-to-b from-slate-50 to-slate-100 border-r border-slate-200/60 backdrop-blur-sm select-none relative shadow-lg",
         widthClass
       )}
       style={transitionStyle}
     >
-      {/* Logo y título */}
-      <div className="flex items-center justify-center mb-6">
+      {/* Header con logo y título */}
+      <div className="flex items-center justify-center px-4 py-6 bg-white/80 backdrop-blur-sm border-b border-slate-200/60 relative">
         {(!collapsed || !isHydrated) && (
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" className="w-10 h-auto" alt="logo" />
-            <span className="font-semibold text-lg text-gray-900">Sistema</span>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
+              <img
+                src="/logo.png"
+                className="w-8 h-auto filter brightness-0 invert"
+                alt="logo"
+              />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold text-lg text-slate-800">
+                Agua Lily
+              </span>
+              <span className="text-xs text-slate-500 font-medium">
+                Sistema de Gestión
+              </span>
+            </div>
           </div>
         )}
         {collapsed && isHydrated && (
-          <img src="/logo.png" className="w-10 h-auto" alt="logo" />
+          <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
+            <img
+              src="/logo.png"
+              className="w-8 h-auto filter brightness-0 invert"
+              alt="logo"
+            />
+          </div>
         )}
+
+        {/* Botón para expandir/contraer integrado en el header */}
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 z-20">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleSidebar}
+            className="h-8 w-8 p-0 rounded-full hover:bg-slate-100/80 hover:shadow-md transition-all duration-200 border border-slate-200/80 bg-white/60 backdrop-blur-sm"
+          >
+            {isHydrated && collapsed ? (
+              <ChevronRight className="h-4 w-4 text-slate-600" />
+            ) : (
+              <ChevronLeft className="h-4 w-4 text-slate-600" />
+            )}
+          </Button>
+        </div>
       </div>
 
-      {/* Botón para expandir/contraer separado del logo */}
-      <div
-        className={`absolute top-16 ${isHydrated && collapsed ? "right-1/4" : "right-2"}`}
-      >
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleSidebar}
-          className="h-8 w-8 p-0 rounded-full hover:bg-gray-100"
-        >
-          {isHydrated && collapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <ChevronLeft className="h-4 w-4" />
-          )}
-        </Button>
-      </div>
+      {/* Reloj con diseño mejorado */}
+      {(!collapsed || !isHydrated) && (
+        <div className="px-4 py-3 bg-white/50 backdrop-blur-sm border-b border-slate-200/60">
+          <SidenavClock />
+        </div>
+      )}
 
-      {(!collapsed || !isHydrated) && <SidenavClock />}
+      <div className="flex grow flex-col justify-between px-4 py-4 space-y-4">
+        {/* Navegación principal */}
+        <div className="flex-1 mt-2">
+          <NavLinks collapsed={isHydrated && collapsed} />
+        </div>
 
-      <Separator className="my-4" />
-
-      <div className="flex grow flex-col justify-between space-y-4 w-full">
-        <NavLinks collapsed={isHydrated && collapsed} />
-
-        {/* Sección del usuario */}
+        {/* Sección del usuario con diseño moderno */}
         <div className="mt-auto">
-          <Separator className="mb-4" />
+          <div className="h-px bg-gradient-to-r from-transparent via-slate-300/60 to-transparent mb-4" />
 
           {isHydrated && collapsed ? (
-            <div className="flex flex-col items-center space-y-3">
+            <div className="flex flex-col items-center space-y-4">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Avatar className="cursor-pointer w-10 h-10">
-                      <AvatarFallback className="bg-blue-100 text-blue-600">
-                        {name?.[0]}
-                      </AvatarFallback>
-                      <AvatarImage src="" alt="Avatar" />
-                    </Avatar>
+                    <div className="relative group">
+                      <Avatar className="cursor-pointer w-12 h-12 ring-2 ring-blue-100 hover:ring-blue-200 transition-all duration-200">
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white font-semibold">
+                          {name?.[0]}
+                        </AvatarFallback>
+                        <AvatarImage src="" alt="Avatar" />
+                      </Avatar>
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
+                    </div>
                   </TooltipTrigger>
-                  <TooltipContent side="right">
-                    <p>{name}</p>
-                    <p className="text-xs uppercase">{role}</p>
+                  <TooltipContent
+                    side="right"
+                    className="bg-slate-900 text-white border-slate-700"
+                  >
+                    <p className="font-medium">{name}</p>
+                    <p className="text-xs text-slate-300 uppercase">{role}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -178,77 +207,90 @@ export default function SideNav() {
                       variant="ghost"
                       size="icon"
                       onClick={handleLogout}
-                      className="w-10 h-10 rounded-full text-red-500 hover:bg-red-50 hover:text-red-600"
+                      className="w-10 h-10 rounded-full text-red-500 hover:bg-red-50 hover:text-red-600 hover:shadow-md transition-all duration-200 border border-red-200/60"
                     >
                       <LogOut className="h-5 w-5" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="right">Cerrar Sesión</TooltipContent>
+                  <TooltipContent
+                    side="right"
+                    className="bg-slate-900 text-white border-slate-700"
+                  >
+                    Cerrar Sesión
+                  </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
           ) : (
-            <div>
+            <div className="bg-white/70 backdrop-blur-sm rounded-xl p-1 border border-slate-200/60 shadow-sm">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <div className="flex items-center gap-3 w-full px-3 py-2 hover:bg-gray-50 rounded-md transition-colors cursor-pointer">
-                    <Avatar className="w-10 h-10">
-                      <AvatarFallback className="bg-blue-100 text-blue-600">
-                        {name?.[0]}
-                      </AvatarFallback>
-                      <AvatarImage src="" alt="Avatar" />
-                    </Avatar>
+                  <div className="flex items-center gap-3 w-full px-3 py-3 hover:bg-white/80 rounded-lg transition-all duration-200 cursor-pointer group">
+                    <div className="relative">
+                      <Avatar className="w-12 h-12 ring-2 ring-blue-100 group-hover:ring-blue-200 transition-all duration-200">
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white font-semibold">
+                          {name?.[0]}
+                        </AvatarFallback>
+                        <AvatarImage src="" alt="Avatar" />
+                      </Avatar>
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
+                    </div>
 
                     <div className="flex-1 text-left flex flex-col overflow-hidden">
-                      <span className="text-sm font-medium text-gray-900 truncate">
+                      <span className="text-sm font-semibold text-slate-800 truncate">
                         {name}
                       </span>
-                      <span className="text-xs text-gray-500 uppercase truncate">
+                      <span className="text-xs text-slate-500 uppercase truncate font-medium">
                         {role}
                       </span>
                     </div>
                   </div>
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent className="w-56" align="end">
-                  <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+                <DropdownMenuContent
+                  className="w-64 bg-white/95 backdrop-blur-sm border-slate-200/60 shadow-xl"
+                  align="end"
+                >
+                  <DropdownMenuLabel className="font-semibold text-slate-800">
+                    Mi Cuenta
+                  </DropdownMenuLabel>
 
                   <DropdownMenuItem
                     onClick={() => handleProfile()}
-                    className="gap-2 cursor-pointer"
+                    className="gap-3 cursor-pointer hover:bg-blue-50 transition-colors duration-200"
                   >
-                    <UserCircle className="h-4 w-4 text-gray-500" />
-                    Perfil
+                    <UserCircle className="h-5 w-5 text-blue-600" />
+                    <span className="font-medium">Perfil</span>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
-                    className="gap-2 cursor-pointer"
+                    className="gap-3 cursor-pointer hover:bg-blue-50 transition-colors duration-200"
                     onClick={() => handleSettings()}
                   >
-                    <Settings className="h-4 w-4 text-gray-500" />
-                    Configuración
+                    <Settings className="h-5 w-5 text-blue-600" />
+                    <span className="font-medium">Configuración</span>
                   </DropdownMenuItem>
 
-                  <DropdownMenuSeparator />
+                  <DropdownMenuSeparator className="bg-slate-200/60" />
 
-                  <DropdownMenuItem className="gap-2 cursor-pointer">
-                    <Moon className="h-4 w-4 text-gray-500" />
-                    Apariencia
+                  <DropdownMenuItem className="gap-3 cursor-pointer hover:bg-slate-50 transition-colors duration-200">
+                    <Moon className="h-5 w-5 text-slate-600" />
+                    <span className="font-medium">Apariencia</span>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem className="gap-2 cursor-pointer">
-                    <LifeBuoy className="h-4 w-4 text-gray-500" />
-                    Soporte
+                  <DropdownMenuItem className="gap-3 cursor-pointer hover:bg-slate-50 transition-colors duration-200">
+                    <LifeBuoy className="h-5 w-5 text-slate-600" />
+                    <span className="font-medium">Soporte</span>
                   </DropdownMenuItem>
 
-                  <DropdownMenuSeparator />
+                  <DropdownMenuSeparator className="bg-slate-200/60" />
 
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="gap-2 text-red-600 focus:text-red-700 cursor-pointer"
+                    className="gap-3 text-red-600 focus:text-red-700 cursor-pointer hover:bg-red-50 transition-colors duration-200"
                   >
-                    <LogOut className="h-4 w-4" />
-                    Cerrar Sesión
+                    <LogOut className="h-5 w-5" />
+                    <span className="font-medium">Cerrar Sesión</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

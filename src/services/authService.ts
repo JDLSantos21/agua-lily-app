@@ -1,21 +1,16 @@
-// src/services/authService.ts
-import { API_URL } from "@/api/config";
-export const login = async (username: string, password: string) => {
-  console.log(username, password);
-  const response = await fetch(`${API_URL}/auth/login?api_key=1234`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ username, password }),
+import { api } from "./api";
+
+export async function loginApi(username: string, password: string) {
+  return await api.post("/auth/login", {
+    username,
+    password,
   });
+}
 
-  if (!response.ok) {
-    console.log(await response.json());
-    throw new Error("Usuario o contraseña incorrecta.");
-  }
+export async function logoutApi(refreshToken: string | null) {
+  if (!refreshToken) return;
+  return await api.post("/auth/logout", { refresh_token: refreshToken });
+}
 
-  const data = await response.json();
-  // console.log(data);s
-  return data;
-};
+export const refreshApi = (refreshToken: string) =>
+  api.post("/auth/refresh", { refresh_token: refreshToken });

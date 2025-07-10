@@ -288,7 +288,8 @@ export const useUpdateOrderStatus = () => {
       queryClient.invalidateQueries({ queryKey: CACHE_KEYS.stats() });
     },
     onError: (error: any) => {
-      toast.error(error.message || "Error al actualizar el estado del pedido");
+      console.log("Error al actualizar el estado del pedido:", error);
+      toast.error("Ocurrió un problema, intente más tarde.");
     },
   });
 };

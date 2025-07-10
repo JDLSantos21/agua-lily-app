@@ -15,6 +15,7 @@ export function SocketProvider() {
     isConnected,
     connectedUsers,
     reconnectAttempts,
+    closeDisconnectModal,
   } = useSocket();
 
   const { name, role } = useAuthStore();
@@ -31,6 +32,7 @@ export function SocketProvider() {
         isOpen={showDisconnectPopup}
         isReconnecting={isReconnecting}
         onReconnect={reconnect}
+        onClose={closeDisconnectModal}
         reconnectAttempts={reconnectAttempts}
       />
 

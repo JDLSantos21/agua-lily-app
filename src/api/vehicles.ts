@@ -1,31 +1,19 @@
-import { fetcher } from "./fetcher";
-import { VehicleChartData } from "@/types/vehicles";
-
-export interface Vehicle {
-  id: number;
-  license_plate: string;
-  chasis: string;
-  current_tag: string;
-  brand: string;
-  model: string;
-  year: number;
-  description: string;
-  created_at: string;
-  updated_at: string;
-}
+import { api } from "@/services/api";
+import { Vehicle, VehicleChartData } from "@/types/vehicles";
 
 export const getVehicles = async (): Promise<Vehicle[]> => {
-  return await fetcher("/vehicles");
+  const res = await api.get("/vehicles");
+  return res.data;
 };
 
 export const getVehicleConsumption = async (
   vehicleId: number
 ): Promise<VehicleChartData> => {
-  return await fetcher(`/fuel/vehicle/${vehicleId}/consumption`);
+  const res = await api.get(`/fuel/vehicle/${vehicleId}/consumption`);
+  return res.data;
 };
 
 export const deleteVehicle = async (id: number): Promise<void> => {
-  await fetcher(`/vehicles/${id}`, {
-    method: "DELETE",
-  });
+  const res = await api.delete(`/vehicles/${id}`);
+  return res.data;
 };

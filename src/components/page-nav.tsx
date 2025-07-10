@@ -20,12 +20,12 @@ const PageNav = memo(
     const pathname = usePathname();
 
     return (
-      <nav className="bg-white z-10 w-full sticky top-0 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-14">
-            <div className="flex items-center space-x-4">
+      <nav className="bg-white/80 backdrop-blur-md z-10 w-full sticky top-0 border-b border-gray-200/50 shadow-sm">
+        <div className="mx-auto px-6 sm:px-8 lg:px-12">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center space-x-8">
               {children}
-              <div className="flex space-x-1">
+              <div className="flex items-center space-x-2">
                 {navItems.map((item, index) => {
                   // Skip development-only items in production
                   if (item.isDev && process.env.NODE_ENV !== "development") {
@@ -39,26 +39,34 @@ const PageNav = memo(
                       key={`nav-item-${index}`}
                       href={item.href}
                       className={cn(
-                        "relative flex items-center h-14 px-3 text-sm transition-colors",
+                        "relative flex items-center h-10 px-4 text-sm font-medium rounded-lg transition-all duration-200 group",
                         isActive
-                          ? "text-blue-600"
-                          : "text-gray-500 hover:text-gray-800"
+                          ? "text-blue-600 bg-blue-50/80 shadow-sm"
+                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/80"
                       )}
                     >
-                      <span className="mr-2">{item.icon}</span>
-                      {item.title}
+                      <span
+                        className={cn(
+                          "mr-2.5 transition-colors duration-200",
+                          isActive
+                            ? "text-blue-600"
+                            : "text-gray-400 group-hover:text-gray-600"
+                        )}
+                      >
+                        {item.icon}
+                      </span>
+                      <span className="tracking-wide">{item.title}</span>
 
                       {isActive && (
                         <motion.div
-                          className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600"
+                          className="absolute inset-0 bg-blue-50/20 rounded-lg border border-blue-200/50"
                           layoutId="activeNavIndicator"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
                           transition={{
-                            duration: 0.3,
-                            ease: "easeInOut",
-                            bounce: 0.2,
+                            duration: 0.2,
+                            ease: "easeOut",
                           }}
                         />
                       )}

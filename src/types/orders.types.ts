@@ -38,6 +38,8 @@ export interface Order {
   created_by?: number;
   items?: OrderItem[];
   status_history?: OrderStatusHistoryEntry[];
+  created_at: string;
+  updated_at: string;
 }
 
 export interface OrderStatusHistoryEntry {

@@ -47,7 +47,6 @@ export const useCustomers = (
   filters?: CustomerFilter,
   options?: UseQueryOptions<CustomersResponse>
 ) => {
-  console.log(filters);
   return useQuery({
     queryKey: CACHE_KEYS.list(filters),
     queryFn: () => getCustomers(filters),

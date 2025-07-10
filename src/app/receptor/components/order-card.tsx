@@ -4,8 +4,8 @@ import { Calendar, Clock, Package } from "lucide-react";
 import { Order } from "@/types/orders.types";
 import { formatDate } from "date-fns";
 import { es } from "date-fns/locale";
-import OrderStatusBadge from "@/app/orders/components/order-status-badge";
 import { formatDateToUTC } from "@/shared/utils/formatDateToUTC";
+import OrderStatusBadge from "@/app/(protected)/orders/components/order-status-badge";
 export default function OrderCard({ order }: { order: Partial<Order> }) {
   const hasScheduledDelivery =
     order.scheduled_delivery_date && order.delivery_time_slot;

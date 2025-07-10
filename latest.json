@@ -1,7 +1,7 @@
 {
-  "version": "v1.2.5",
-  "pub_date": "2025-06-30T00:00:00Z",
+  "version": "v1.2.6",
+  "pub_date": "2025-07-09T00:00:00Z",
   "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSEtpcFFRQzNOTXR0TGxZcTJOakQ1ZXlHSk5NeTRCQ1lJV0dsRzNFVklyTmljaDlGbHkrVUxudGRpUGd3L0s1Rkp5R3A1OURFaDRMV3FFNHpPUmlQb3c4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzUxMjkyODAxCWZpbGU6QWd1YSBMaWx5IEFwcF8xLjIuNV94NjRfZXMtRVMubXNpCnBoVmd5VjlIVXJSZE01ODRsV0hxTTNjdWU2YThZQWV6ZG9RcDFqMk1vb3NBeThtKzVSa2xSelNuMlZ6MzRKQVdoUENXZ2R6VER6NHRjNXlWV1VtRENnPT0K",
   "url": "https://github.com/JDLSantos21/agua-lily-app/releases/latest/download/setup.msi",
-  "notes": "Arreglador problema en la UI del receptor."
+  "notes": "Rediseño de la página de viajes, mejorando la experiencia del usuario y la navegación.\n\n- Se ha añadido un nuevo componente de generador de etiquetas para facilitar la impresión de etiquetas personalizadas.\n- Se han realizado mejoras en el rendimiento y la estabilidad de la aplicación.\n- Corrección de errores menores y mejoras en la interfaz de usuario."
 }

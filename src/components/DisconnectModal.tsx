@@ -15,6 +15,7 @@ interface DisconnectModalProps {
   isOpen: boolean;
   isReconnecting: boolean;
   onReconnect: () => void;
+  onClose?: () => void;
   reconnectAttempts?: number;
 }
 
@@ -22,16 +23,25 @@ export function DisconnectModal({
   isOpen,
   isReconnecting,
   onReconnect,
+  onClose,
   reconnectAttempts = 0,
 }: DisconnectModalProps) {
   const maxAttempts = 5;
   const isMaxAttemptsReached = reconnectAttempts >= maxAttempts;
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
+        aria-describedby={undefined}
         className="sm:max-w-md"
-        onInteractOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => {
+          // Permitir cerrar solo si no está reconectando y hay función onClose
+          if (!isReconnecting && onClose) {
+            onClose();
+          } else {
+            e.preventDefault();
+          }
+        }}
       >
         <DialogHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
@@ -96,6 +106,13 @@ export function DisconnectModal({
               className="w-full"
             >
               Recargar página
+            </Button>
+          )}
+
+          {/* Botón para cerrar el modal */}
+          {onClose && !isReconnecting && (
+            <Button onClick={onClose} variant="ghost" className="w-full">
+              Continuar sin conexión
             </Button>
           )}
         </div>

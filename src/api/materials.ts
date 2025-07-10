@@ -1,44 +1,27 @@
 // src/api/materials.ts
 import { newMaterial, UpdatedMaterial } from "@/types/materials/material";
-import { fetcher } from "./fetcher";
+import { api } from "@/services/api";
 
-export const fetchMaterials = async () => {
-  return await fetcher("/materials");
+export const fetchMaterials = async (): Promise<any> => {
+  const res = await api.get("/materials");
+  return res.data;
 };
 
-export const fetchFilteredStock = async (query: string) => {
-  return await fetcher(`/materials/filter`, {}, { query });
+export const fetchFilteredStock = async ({ query }: { query: string }) => {
+  const res = await api.get("/materials/filter", {
+    params: { query },
+  });
+  return res.data;
 };
 
 export const deleteMaterial = async (id: number) => {
-  try {
-    const response = await fetcher(`/materials/${id}`, {
-      method: "DELETE",
-    });
-    return await response;
-  } catch (error) {
-    console.log(error);
-    throw new Error(
-      "Ocurrió un problema eliminando el material, intenta de nuevo."
-    );
-  }
+  const res = await api.delete(`/materials/${id}`);
+  return res.data;
 };
 
 export const setMaterial = async (materialData: newMaterial) => {
-  try {
-    const response = await fetcher("/materials", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(materialData),
-    });
-
-    return await response;
-  } catch (error) {
-    console.log(error);
-    throw new Error(
-      "Ocurrió un problema registrando el material, intenta de nuevo."
-    );
-  }
+  const res = await api.post("/materials", materialData);
+  return res.data;
 };
 
 export const editMaterial = async (
@@ -51,18 +34,6 @@ export const editMaterial = async (
     minimum_stock: Number(materialData.minimum_stock),
   };
 
-  try {
-    const response = await fetcher(`/materials/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formatedData),
-    });
-
-    return await response;
-  } catch (error) {
-    console.log(error);
-    throw new Error(
-      "Ocurrió un problema editando el material, intenta de nuevo."
-    );
-  }
+  const res = await api.patch(`/materials/${id}`, formatedData);
+  return res.data;
 };

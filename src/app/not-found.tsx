@@ -1,6 +1,5 @@
 // not found page
 "use client";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -8,14 +7,6 @@ import { Separator } from "@/components/ui/separator";
 
 export default function NotFound() {
   const router = useRouter();
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      router.push("/dashboard");
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [router]);
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">

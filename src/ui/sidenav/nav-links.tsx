@@ -85,8 +85,8 @@ export default function NavLinks({ collapsed = false }: NavLinksProps) {
 
   return (
     <TooltipProvider delayDuration={300}>
-      <nav className="flex flex-col space-y-1 w-full relative">
-        {/* Indicador animado que se desplaza entre enlaces activos */}
+      <nav className="flex flex-col space-y-2 w-full relative">
+        {/* Indicador animado mejorado */}
         <div className="relative">
           {filteredLinks.map((link, index) => {
             const isActive = pathname.startsWith(link.href);
@@ -95,17 +95,18 @@ export default function NavLinks({ collapsed = false }: NavLinksProps) {
               return (
                 <motion.div
                   key="active-indicator"
-                  className="absolute left-0 w-1 bg-blue-600 rounded-r-md z-0"
+                  className="absolute left-0 w-1 bg-gradient-to-b from-blue-500 to-blue-600 rounded-r-full z-0 shadow-sm"
                   layoutId="activeIndicator"
                   initial={false}
                   transition={{
                     type: "spring",
-                    stiffness: 350,
-                    damping: 30,
+                    stiffness: 400,
+                    damping: 35,
+                    mass: 0.8,
                   }}
                   style={{
-                    top: `${index * 42 + 10}px`, // 42px es aproximadamente el alto de cada enlace (py-2.5 * 16px)
-                    height: "20px",
+                    top: `${index * 56 + 12}px`, // 56px = 48px altura del enlace + 8px gap, + 12px centrado
+                    height: "24px", // altura centrada dentro del enlace
                   }}
                 />
               );
@@ -114,7 +115,7 @@ export default function NavLinks({ collapsed = false }: NavLinksProps) {
           })}
         </div>
 
-        {/* Enlaces de navegación */}
+        {/* Enlaces de navegación mejorados */}
         {filteredLinks.map((link) => {
           const isActive = pathname.startsWith(link.href);
 
@@ -124,11 +125,11 @@ export default function NavLinks({ collapsed = false }: NavLinksProps) {
                 <Link
                   href={link.href}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors duration-200 group relative",
+                    "flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 group relative backdrop-blur-sm h-12", // altura fija
                     collapsed ? "justify-center" : "",
                     isActive
-                      ? "bg-blue-50 text-blue-700 font-medium"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      ? "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 font-semibold shadow-sm border border-blue-100/50"
+                      : "text-slate-600 hover:bg-white/60 hover:text-slate-800 hover:shadow-sm border border-transparent hover:border-slate-200/60"
                   )}
                   aria-current={isActive ? "page" : undefined}
                 >
@@ -136,8 +137,8 @@ export default function NavLinks({ collapsed = false }: NavLinksProps) {
                     className={cn(
                       "h-5 w-5 flex-shrink-0",
                       isActive
-                        ? "text-blue-700"
-                        : "text-gray-500 group-hover:text-gray-700"
+                        ? "text-blue-600"
+                        : "text-slate-500 group-hover:text-slate-700"
                     )}
                   />
                   {!collapsed && (
@@ -147,7 +148,11 @@ export default function NavLinks({ collapsed = false }: NavLinksProps) {
               </TooltipTrigger>
               <TooltipContent
                 side="right"
-                className={collapsed ? "bg-gray-800 text-white" : "hidden"}
+                className={
+                  collapsed
+                    ? "bg-slate-900 text-white border-slate-700"
+                    : "hidden"
+                }
               >
                 {link.name}
               </TooltipContent>

@@ -1,5 +1,5 @@
 // src/api/customers.ts - VERSIÓN MEJORADA
-import { fetcher } from "./fetcher";
+import { api } from "@/services/api";
 import {
   Customer,
   CustomerFilter,
@@ -11,11 +11,6 @@ import {
 
 /**
  * API para gestión de clientes
- * --------------------------
- * Esta API ha sido optimizada para:
- * 1. Consistencia en parámetros y respuestas
- * 2. Tipado estricto
- * 3. Documentación clara
  */
 
 /**
@@ -24,13 +19,10 @@ import {
 export const getCustomers = async (
   filters?: CustomerFilter
 ): Promise<CustomersResponse> => {
-  return await fetcher(
-    "/customers",
-    {
-      method: "GET",
-    },
-    (filters as Record<string, string | number | Date>) || {}
-  );
+  const res = await api.get(`customers`, {
+    params: filters,
+  });
+  return res.data;
 };
 
 /**
@@ -39,9 +31,8 @@ export const getCustomers = async (
 export const getCustomerById = async (
   id: number
 ): Promise<CustomerResponse> => {
-  return await fetcher(`/customers/${id}`, {
-    method: "GET",
-  });
+  const res = await api.get(`customers/${id}`);
+  return res.data;
 };
 
 /**
@@ -50,22 +41,17 @@ export const getCustomerById = async (
 export const getCustomerWithEquipment = async (
   id: number
 ): Promise<CustomerWithEquipmentResponse> => {
-  return await fetcher(`/customers/${id}/equipment`, {
-    method: "GET",
-  });
+  const res = await api.get(`customers/${id}/equipment`);
+  return res.data;
 };
-
 /**
  * Crea un nuevo cliente
  */
 export const createCustomer = async (
   customer: Omit<Customer, "id">
 ): Promise<CustomerResponse> => {
-  return await fetcher(`/customers`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(customer),
-  });
+  const res = await api.post(`customers`, customer);
+  return res.data;
 };
 
 /**
@@ -75,11 +61,8 @@ export const updateCustomer = async (
   id: number,
   customer: Partial<Customer>
 ): Promise<CustomerResponse> => {
-  return await fetcher(`/customers/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(customer),
-  });
+  const res = await api.put(`customers/${id}`, customer);
+  return res.data;
 };
 
 /**
@@ -89,11 +72,8 @@ export const updateCustomerStatus = async (
   id: number,
   status: "activo" | "inactivo"
 ): Promise<CustomerResponse> => {
-  return await fetcher(`/customers/${id}/status`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status }),
-  });
+  const res = await api.patch(`customers/${id}/status`, { status });
+  return res.data;
 };
 
 /**
@@ -102,9 +82,8 @@ export const updateCustomerStatus = async (
 export const deleteCustomer = async (
   id: number
 ): Promise<{ success: boolean; message: string }> => {
-  return await fetcher(`/customers/${id}`, {
-    method: "DELETE",
-  });
+  const res = await api.delete(`customers/${id}`);
+  return res.data;
 };
 
 /**
@@ -114,20 +93,16 @@ export const searchCustomers = async (
   term: string,
   limit: number = 10
 ): Promise<CustomersResponse> => {
-  return await fetcher(
-    `/customers/search`,
-    {
-      method: "GET",
-    },
-    { term, limit }
-  );
+  const res = await api.get(`customers/search`, {
+    params: { term, limit },
+  });
+  return res.data;
 };
 
 /**
  * Obtiene estadísticas de clientes
  */
 export const getCustomerStats = async (): Promise<CustomerStatsResponse> => {
-  return await fetcher(`/customers/stats`, {
-    method: "GET",
-  });
+  const res = await api.get(`customers/stats`);
+  return res.data;
 };

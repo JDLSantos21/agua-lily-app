@@ -34,9 +34,9 @@ export default function SidenavClock() {
   }, []);
 
   return (
-    <div className="flex flex-col text-center">
-      <span className="text-sm font-medium text-gray-900">{time}</span>
-      <span className="text-xs text-gray-500">{date}</span>
+    <div className="flex flex-col text-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 border border-blue-100/50 shadow-sm">
+      <span className="text-lg font-bold text-slate-800 mb-1">{time}</span>
+      <span className="text-xs text-slate-600 font-medium">{date}</span>
     </div>
   );
 }

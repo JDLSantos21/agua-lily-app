@@ -1,9 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { login } from "@/services/authService";
-import { useAuthStore } from "@/stores/authStore";
+import { useState } from "react";
 import { motion } from "framer-motion";
 
 // Componentes UI
@@ -18,46 +15,25 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
 import { User, Lock, Loader, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/shared/hooks/useAuth";
+import { useMutation } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const { signIn } = useAuth();
 
-  const router = useRouter();
-  const { login: authLogin, token, role } = useAuthStore();
-
-  useEffect(() => {
-    if (token && role) {
-      router.replace("/dashboard");
-    }
-  }, [token, role]);
-
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-    }
-  }, [error]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-
-    try {
-      const { token, role, name, id } = await login(username, password);
-      console.log(token, role, name, id);
-      authLogin(token, role, name, id);
-      router.replace("/dashboard");
-    } catch (err) {
-      setError((err as Error).message);
-      setLoading(false);
-    }
-  };
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => signIn(username, password),
+    onError: (error: AxiosError) => {
+      const response: any = error.response;
+      toast.error(response?.data?.error || "Error al iniciar sesión");
+      console.log(error);
+    },
+  });
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
@@ -100,7 +76,7 @@ export default function Login() {
             </motion.div>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form className="space-y-5">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -160,12 +136,13 @@ export default function Login() {
                 className="pt-2"
               >
                 <Button
-                  type="submit"
+                  onClick={() => mutate()}
+                  type="button"
                   variant="default"
                   className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white transition-all duration-300 font-medium"
-                  disabled={loading}
+                  disabled={isPending}
                 >
-                  {loading ? (
+                  {isPending ? (
                     <Loader className="animate-spin" size={20} />
                   ) : (
                     <motion.div

@@ -1,51 +1,25 @@
-import { ReplenishmentFormData } from "@/app/combustible/reabastecimiento/components/replenishment-form";
-import { fetcher } from "./fetcher";
+import { ReplenishmentFormData } from "@/app/(protected)/combustible/reabastecimiento/components/replenishment-form";
+import { api } from "@/services/api";
+import { AxiosResponse } from "axios";
 
 export const fetchDashboardData = async () => {
-  try {
-    return await fetcher(`/fuel/dashboard`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  const res = await api.get("/fuel/dashboard");
+  return res.data;
 };
 
 export const fetchFuelAvailability = async () => {
-  try {
-    return await fetcher(`/fuel/availability`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  const res = await api.get("/fuel/availability");
+  return res.data;
 };
 
 export const fetchRegisterInitialData = async () => {
-  try {
-    return await fetcher(`/fuel/register-data`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  const res = await api.get("/fuel/register-data");
+  return res.data;
 };
 
 export const registerFuelConsumption = async (data: unknown) => {
-  try {
-    await fetcher(`/fuel/records`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    console.log("Consumo registrado correctamente");
-  } catch (err) {
-    console.log("Error al registrar consumo:", err);
-    throw new Error("Error al registrar consumo");
-  }
+  const res = await api.post("/fuel/records", data);
+  return res.data;
 };
 
 export async function fetchFilteredFuelRecords(filters: {
@@ -59,46 +33,23 @@ export async function fetchFilteredFuelRecords(filters: {
   if (filters.start_date) params.start_date = `${filters.start_date} 00:00:00`; // Añadimos hora inicial
   if (filters.end_date) params.end_date = `${filters.end_date} 23:59:59`; // Añadimos hora final
 
-  // Usamos fetcher para realizar la petición
-  try {
-    return fetcher("/fuel/records/filtered", {}, params);
-  } catch (error) {
-    console.log(error);
-  }
+  const res = await api.get("/fuel/records/filtered", { params });
+  return res.data;
 }
 
 export async function registerFuelReplenishment(data: ReplenishmentFormData) {
-  try {
-    return fetcher("/fuel/replenishments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  const res = await api.post("/fuel/replenishments", data);
+  return res.data;
 }
 
 export async function fetchRecentReplenishments() {
-  try {
-    return fetcher("/fuel/replenishments", {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  const res = await api.get("/fuel/replenishments");
+  return res.data;
 }
 
 export async function fetchReplenishmentChartData() {
-  try {
-    return fetcher("/fuel/replenishments/chart", {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  const res = await api.get("/fuel/replenishments/chart");
+  return res.data;
 }
 
 export async function resetFuelAvailability({
@@ -107,14 +58,7 @@ export async function resetFuelAvailability({
 }: {
   user_id: number;
   password: string;
-}) {
-  try {
-    return fetcher("/fuel/reset", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ user_id, password }),
-    });
-  } catch (error) {
-    console.log(error);
-  }
+}): Promise<AxiosResponse> {
+  const res = await api.post("/fuel/reset", { user_id, password });
+  return res.data;
 }
