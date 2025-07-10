@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { useEffect } from "react";
-import { LoaderSpin } from "./Loader";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

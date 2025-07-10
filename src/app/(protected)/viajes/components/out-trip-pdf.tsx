@@ -2,7 +2,7 @@
 import React from "react";
 import { Document, Page, Text, View, Image, pdf } from "@react-pdf/renderer";
 import { format } from "@formkit/tempo";
-import { outTripPDF as styles } from "@/app/viajes/pdf-styles/outTripPDF";
+import { outTripPDF as styles } from "../pdf-styles/outTripPDF";
 
 interface PendingTrip {
   id: number;
