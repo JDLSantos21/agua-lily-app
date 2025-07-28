@@ -20,20 +20,20 @@ export enum CustomerStatus {
  * Interfaz principal de Cliente
  */
 export interface Customer {
-  id?: number;
+  id: number;
   name: string;
   contact_phone: string;
   has_whatsapp?: boolean; // ← NUEVO CAMPO
-  contact_email?: string | null;
+  contact_email: string | null;
   address: string;
   business_name?: string | null;
   is_business: boolean;
-  rnc?: string | null;
+  rnc: string | null;
   location_reference?: string | null;
-  notes?: string | null;
+  notes: string | null;
   status: CustomerStatus;
-  created_at?: string;
-  updated_at?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 /**

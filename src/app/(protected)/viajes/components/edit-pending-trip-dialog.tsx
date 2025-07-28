@@ -21,8 +21,8 @@ import { useTripStore } from "@/stores/tripStore";
 import { motion } from "framer-motion";
 import { memo, useEffect } from "react";
 import { useGetPendingTrip } from "@/shared/hooks/useTrips";
-import { useVehiclesQuery } from "@/hooks/useVehiclesQuery";
 import { useEmployeesQuery } from "@/hooks/useEmployees";
+import { useVehicles } from "@/shared/hooks/useVehicles";
 
 interface PendingTrip {
   id: number;
@@ -41,8 +41,7 @@ export default memo(function EditPendingTripDialog() {
     selectedTripId ? selectedTripId.toString() : ""
   );
 
-  const { data: vehicles = [], isLoading: vehiclesLoading } =
-    useVehiclesQuery();
+  const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
   const { data: employees = [], isLoading: employeesLoading } =
     useEmployeesQuery("conductor");
 

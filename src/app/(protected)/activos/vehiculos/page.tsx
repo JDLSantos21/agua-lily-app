@@ -1,64 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { VehiclesTable } from "./components/vehicles-table";
-import { getVehicles } from "@/api/vehicles";
-import { Vehicle } from "@/types/vehicles";
+import { Vehicle, VehicleFilters } from "@/types/vehicles";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
-import { VehicleSearch } from "./components/vehicle-search";
+import {
+  PlusIcon,
+  Truck,
+  CheckCircle,
+  Filter as FilterIcon,
+  Calendar,
+  RefreshCw,
+} from "lucide-react";
 import { VehicleDialog } from "./components/vehicle-dialog";
 import { VehicleDetailDialog } from "./components/vehicle-detail-dialog";
 import { RoleBased } from "@/components/RoleBased";
+import { useVehicles } from "@/shared/hooks/useVehicles";
+import { VehicleFiltersComponent } from "./components/vehicle-filters";
+import { ErrorState } from "./components/error-state";
+import { EmptyState } from "./components/empty-state";
 
 export default function VehiclesPage() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [filters, setFilters] = useState<VehicleFilters>({});
   const [dialogOpen, setDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [currentVehicle, setCurrentVehicle] = useState<Vehicle | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
-  useEffect(() => {
-    const fetchVehicles = async () => {
-      try {
-        const data = await getVehicles();
-        setVehicles(data);
-        setFilteredVehicles(data);
-      } catch (error) {
-        console.log("Error fetching vehicles:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const {
+    data: vehicles = [],
+    isLoading,
+    error,
+    refetch,
+  } = useVehicles(filters);
 
-    fetchVehicles();
-  }, []);
-
-  const handleSearch = (searchTerm: string) => {
-    if (!searchTerm.trim()) {
-      setFilteredVehicles(vehicles);
-      return;
-    }
-
-    const filtered = vehicles.filter((vehicle) =>
-      vehicle.current_tag.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredVehicles(filtered);
-  };
-
-  const refreshVehicles = async () => {
-    setIsLoading(true);
-    try {
-      const data = await getVehicles();
-      setVehicles(data);
-      setFilteredVehicles(data);
-    } catch (error) {
-      console.log("Error refreshing vehicles:", error);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleFiltersChange = (newFilters: VehicleFilters) => {
+    setFilters(newFilters);
   };
 
   const openCreateDialog = () => {
@@ -76,6 +53,15 @@ export default function VehiclesPage() {
     setDetailDialogOpen(true);
   };
 
+  const handleRefresh = async () => {
+    await refetch();
+  };
+
+  // Show error state if there's an error
+  if (error) {
+    return <ErrorState error={error} onRetry={handleRefresh} />;
+  }
+
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
@@ -83,13 +69,17 @@ export default function VehiclesPage() {
         <div className="bg-white rounded-lg border p-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <PlusIcon className="h-5 w-5 text-blue-600" />
+              <Truck className="h-5 w-5 text-blue-600" />
             </div>
-            <div>
-              <p className="text-sm text-gray-600">Total Vehículos</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {vehicles.length}
-              </p>
+            <div className="flex flex-row gap-2 items-center">
+              <span className="text-sm text-gray-600">Total Vehículos</span>
+              <span className="text-2xl font-bold text-gray-900">
+                {isLoading ? (
+                  <div className="h-8 w-12 bg-gray-200 animate-pulse rounded" />
+                ) : (
+                  vehicles.length
+                )}
+              </span>
             </div>
           </div>
         </div>
@@ -97,13 +87,17 @@ export default function VehiclesPage() {
         <div className="bg-white rounded-lg border p-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <PlusIcon className="h-5 w-5 text-green-600" />
+              <CheckCircle className="h-5 w-5 text-green-600" />
             </div>
-            <div>
-              <p className="text-sm text-gray-600">Registrados</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {vehicles.length}
-              </p>
+            <div className="flex flex-row gap-2 items-center">
+              <span className="text-sm text-gray-600">Registrados</span>
+              <span className="text-2xl font-bold text-gray-900">
+                {isLoading ? (
+                  <div className="h-8 w-12 bg-gray-200 animate-pulse rounded" />
+                ) : (
+                  vehicles.length
+                )}
+              </span>
             </div>
           </div>
         </div>
@@ -111,13 +105,17 @@ export default function VehiclesPage() {
         <div className="bg-white rounded-lg border p-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
-              <PlusIcon className="h-5 w-5 text-yellow-600" />
+              <FilterIcon className="h-5 w-5 text-yellow-600" />
             </div>
-            <div>
-              <p className="text-sm text-gray-600">Resultado Filtrado</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {filteredVehicles.length}
-              </p>
+            <div className="flex flex-row gap-2 items-center">
+              <span className="text-sm text-gray-600">Resultado Filtrado</span>
+              <span className="text-2xl font-bold text-gray-900">
+                {isLoading ? (
+                  <div className="h-8 w-12 bg-gray-200 animate-pulse rounded" />
+                ) : (
+                  vehicles.length
+                )}
+              </span>
             </div>
           </div>
         </div>
@@ -125,51 +123,88 @@ export default function VehiclesPage() {
         <div className="bg-white rounded-lg border p-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <PlusIcon className="h-5 w-5 text-purple-600" />
+              <Calendar className="h-5 w-5 text-purple-600" />
             </div>
-            <div>
-              <p className="text-sm text-gray-600">Promedio Año</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {vehicles.length > 0
-                  ? Math.round(
-                      vehicles.reduce((sum, v) => sum + v.year, 0) /
-                        vehicles.length
-                    )
-                  : 0}
-              </p>
+            <div className="flex flex-row gap-2 items-center">
+              <span className="text-sm text-gray-600">Promedio Año</span>
+              <span className="text-2xl font-bold text-gray-900">
+                {isLoading ? (
+                  <div className="h-8 w-12 bg-gray-200 animate-pulse rounded" />
+                ) : vehicles.length > 0 ? (
+                  Math.round(
+                    vehicles.reduce((sum, v) => sum + v.year, 0) /
+                      vehicles.length
+                  )
+                ) : (
+                  0
+                )}
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Actions and Search */}
+      {/* Filters */}
+      <VehicleFiltersComponent onFiltersChange={handleFiltersChange} />
+
+      {/* Actions */}
       <div className="bg-white rounded-lg border p-6">
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-          <div className="flex-1 max-w-md">
-            <VehicleSearch onSearch={handleSearch} />
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Gestión de Vehículos
+            </h2>
+            <p className="text-sm text-gray-600">
+              Administra la flota de vehículos de la empresa
+            </p>
           </div>
 
-          <RoleBased allowedRoles={["admin", "administrativo"]}>
+          <div className="flex gap-2">
             <Button
-              onClick={openCreateDialog}
-              className="bg-blue-600 hover:bg-blue-700"
+              onClick={handleRefresh}
+              variant="outline"
+              disabled={isLoading}
+              className="gap-2"
             >
-              <PlusIcon className="mr-2 h-4 w-4" />
-              Nuevo Vehículo
+              {isLoading ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+              Actualizar
             </Button>
-          </RoleBased>
+
+            <RoleBased allowedRoles={["admin", "administrativo"]}>
+              <Button
+                onClick={openCreateDialog}
+                className="bg-blue-600 hover:bg-blue-700 gap-2"
+              >
+                <PlusIcon className="h-4 w-4" />
+                Nuevo Vehículo
+              </Button>
+            </RoleBased>
+          </div>
         </div>
       </div>
 
       {/* Vehicles Table */}
       <div className="bg-white rounded-lg border shadow-sm">
-        <VehiclesTable
-          vehicles={filteredVehicles}
-          isLoading={isLoading}
-          onEdit={openEditDialog}
-          onRefresh={refreshVehicles}
-          onViewDetails={openDetailDialog}
-        />
+        {!isLoading && vehicles.length === 0 ? (
+          <EmptyState
+            title="No hay vehículos registrados"
+            description="Comienza agregando vehículos a la flota de la empresa para poder administrarlos desde aquí."
+            showAddButton={true}
+            onAddClick={openCreateDialog}
+          />
+        ) : (
+          <VehiclesTable
+            vehicles={vehicles}
+            isLoading={isLoading}
+            onEdit={openEditDialog}
+            onRefresh={handleRefresh}
+            onViewDetails={openDetailDialog}
+          />
+        )}
       </div>
 
       {/* Diálogo de edición/creación */}
@@ -177,7 +212,7 @@ export default function VehiclesPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         vehicle={currentVehicle}
-        onSuccess={refreshVehicles}
+        onSuccess={handleRefresh}
       />
 
       {/* Diálogo de detalles con gráfico de consumo */}

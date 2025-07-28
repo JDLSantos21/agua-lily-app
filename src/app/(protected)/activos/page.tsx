@@ -11,7 +11,7 @@ import {
 
 import { motion } from "framer-motion";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { Truck, ArrowRight, Package, Activity } from "lucide-react";
+import { Truck, ArrowRight, Package, Activity, Settings } from "lucide-react";
 
 export default function AssetsPage() {
   const assetCategories = [
@@ -25,16 +25,16 @@ export default function AssetsPage() {
       stats: "Ir",
       bgIcon: "bg-blue-100",
     },
-    // {
-    //   title: "Refrigeradores",
-    //   description: "Control y mantenimiento de equipos de refrigeración",
-    //   icon: <Refrigerator className="h-12 w-12 text-green-600" />,
-    //   href: "/activos/refrigeradores",
-    //   color: "bg-green-50 hover:bg-green-100",
-    //   borderColor: "border-green-200",
-    //   stats: "8 equipos operativos",
-    //   bgIcon: "bg-green-100",
-    // },
+    {
+      title: "Equipos",
+      description: "Control y mantenimiento de equipos",
+      icon: <Settings className="h-12 w-12 text-green-600" />,
+      href: "/activos/equipments",
+      color: "bg-green-50 hover:bg-green-100",
+      borderColor: "border-green-200",
+      stats: "8 equipos operativos",
+      bgIcon: "bg-green-100",
+    },
     // {
     //   title: "Anaqueles",
     //   description: "Inventario y ubicación de anaqueles en almacén",

@@ -72,9 +72,9 @@ export default function PedidosPage() {
     scheduled_date?: string;
   }>({});
 
-  const [activeStatusFilter, setActiveStatusFilter] = useState<
-    OrderStatus | "all"
-  >("all");
+  // const [activeStatusFilter, setActiveStatusFilter] = useState<
+  //   OrderStatus | "all"
+  // >("all");
 
   // Estado para diálogos - centralizado y manejado localmente
   const [dialogs, setDialogs] = useState<DialogsState>({
@@ -114,7 +114,7 @@ export default function PedidosPage() {
 
   // Solo consultar estadísticas cuando se muestra la vista de estadísticas
   const { data: statsData, isLoading: isLoadingStats } = useOrderStats({
-    enabled: activeView === "stats" || activeStatusFilter !== "all",
+    enabled: activeView === "stats",
     refetchOnWindowFocus: false,
     placeholderData: (old) => old,
   });
@@ -208,17 +208,17 @@ export default function PedidosPage() {
   }, []);
 
   // Manejador de cambio de filtro de estado
-  const handleStatusFilterChange = useCallback(
-    (status: OrderStatus | "all") => {
-      setActiveStatusFilter(status);
-      setFilters((prev) => ({
-        ...prev,
-        order_status: status === "all" ? undefined : status,
-      }));
-      setCurrentPage(1);
-    },
-    []
-  );
+  // const handleStatusFilterChange = useCallback(
+  //   (status: OrderStatus | "all") => {
+  //     setActiveStatusFilter(status);
+  //     setFilters((prev) => ({
+  //       ...prev,
+  //       order_status: status === "all" ? undefined : status,
+  //     }));
+  //     setCurrentPage(1);
+  //   },
+  //   []
+  // );
 
   // Manejador de cambio de filtros generales
   const handleFiltersChange = useCallback((newFilters: typeof filters) => {
@@ -347,7 +347,7 @@ export default function PedidosPage() {
     <main className="min-h-screen bg-gray-50/50 p-6 pb-20">
       {/* Header con estadísticas y acciones principales */}
       <div className="bg-white rounded-xl border border-gray-200/80 shadow-sm p-2 xl:p-6 mb-6">
-        <div className="flex flex-col xl:flex-row lg:items-center justify-between gap-3 xl:gap-6">
+        <div className="flex  xl:flex-row lg:items-center justify-between gap-3 xl:gap-6">
           {/* Estadísticas simplificadas */}
           <div className="flex-1">
             <OrderStats
@@ -381,7 +381,7 @@ export default function PedidosPage() {
       <div className="bg-white rounded-xl border border-gray-200/80 shadow-sm p-6 mb-6">
         <div className="flex flex-col gap-4">
           {/* Filtros de estado */}
-          <div>
+          {/* <div>
             <h3 className="text-sm font-medium text-gray-700 mb-3">
               Filtrar por estado
             </h3>
@@ -429,10 +429,10 @@ export default function PedidosPage() {
                 Cancelados
               </StatusFilterButton>
             </div>
-          </div>
+          </div> */}
 
           {/* Filtros avanzados y vista */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-gray-200">
             <div className="flex-1">
               <OrderFilters
                 onChange={handleFiltersChange}
@@ -696,47 +696,47 @@ export default function PedidosPage() {
 }
 
 // Componente botón de filtro para estados
-interface StatusFilterButtonProps {
-  status: OrderStatus | "all";
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}
+// interface StatusFilterButtonProps {
+//   status: OrderStatus | "all";
+//   active: boolean;
+//   onClick: () => void;
+//   children: React.ReactNode;
+// }
 
-function StatusFilterButton({
-  status,
-  active,
-  onClick,
-  children,
-}: StatusFilterButtonProps) {
-  // Definir colores según el estado
-  const getStatusStyles = () => {
-    if (active) {
-      switch (status) {
-        case "pendiente":
-          return "bg-yellow-50 text-yellow-700 border-yellow-200 shadow-sm";
-        case "preparando":
-          return "bg-blue-50 text-blue-700 border-blue-200 shadow-sm";
-        case "despachado":
-          return "bg-purple-50 text-purple-700 border-purple-200 shadow-sm";
-        case "entregado":
-          return "bg-green-50 text-green-700 border-green-200 shadow-sm";
-        case "cancelado":
-          return "bg-red-50 text-red-700 border-red-200 shadow-sm";
-        default:
-          return "bg-blue-50 text-blue-700 border-blue-200 shadow-sm";
-      }
-    }
+// function StatusFilterButton({
+//   status,
+//   active,
+//   onClick,
+//   children,
+// }: StatusFilterButtonProps) {
+//   // Definir colores según el estado
+//   const getStatusStyles = () => {
+//     if (active) {
+//       switch (status) {
+//         case "pendiente":
+//           return "bg-yellow-50 text-yellow-700 border-yellow-200 shadow-sm";
+//         case "preparando":
+//           return "bg-blue-50 text-blue-700 border-blue-200 shadow-sm";
+//         case "despachado":
+//           return "bg-purple-50 text-purple-700 border-purple-200 shadow-sm";
+//         case "entregado":
+//           return "bg-green-50 text-green-700 border-green-200 shadow-sm";
+//         case "cancelado":
+//           return "bg-red-50 text-red-700 border-red-200 shadow-sm";
+//         default:
+//           return "bg-blue-50 text-blue-700 border-blue-200 shadow-sm";
+//       }
+//     }
 
-    return "bg-white hover:bg-gray-50 text-gray-600 border-gray-300 hover:border-gray-400";
-  };
+//     return "bg-white hover:bg-gray-50 text-gray-600 border-gray-300 hover:border-gray-400";
+//   };
 
-  return (
-    <button
-      className={`px-4 py-2 rounded-lg text-sm border transition-all duration-200 font-medium ${getStatusStyles()}`}
-      onClick={onClick}
-    >
-      {children}
-    </button>
-  );
-}
+//   return (
+//     <button
+//       className={`px-4 py-2 rounded-lg text-sm border transition-all duration-200 font-medium ${getStatusStyles()}`}
+//       onClick={onClick}
+//     >
+//       {children}
+//     </button>
+//   );
+// }

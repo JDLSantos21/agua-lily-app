@@ -128,10 +128,10 @@ export function useSocket() {
     socketInstance.on("disconnect", (reason) => {
       console.log("❌ Desconectado del servidor WebSocket:", reason);
       setIsConnected(false);
-      setShowDisconnectPopup(true);
 
       // Solo mostrar toast si no es una desconexión intencional
       if (reason !== "io client disconnect") {
+        setShowDisconnectPopup(true);
         toast.error("Conexión perdida con el servidor", {
           description: "Intentando reconectar...",
           duration: 3000,

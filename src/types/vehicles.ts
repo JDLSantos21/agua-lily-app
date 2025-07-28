@@ -11,6 +11,15 @@ export interface Vehicle {
   updated_at: string;
 }
 
+export interface VehicleFilters {
+  vehicle_id?: string;
+  current_tag?: string;
+  license_plate?: string;
+  chasis?: string;
+  model?: string;
+  brand?: string;
+}
+
 export interface VehicleChartData {
   monthlyData: MonthData[];
   recentRecords: RecentRecord[];

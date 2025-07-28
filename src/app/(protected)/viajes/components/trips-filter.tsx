@@ -26,10 +26,11 @@ import { toast } from "sonner";
 import { calculateFortnightDates } from "@/utils/calculateFortnightDays";
 import { useTripStore } from "@/stores/tripStore";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useVehiclesQuery } from "@/hooks/useVehiclesQuery";
+
 import { Vehicle } from "@/types/vehicles";
 import { months } from "@/const";
 import { TripFilters } from "@/hooks/useTripReports";
+import { useVehicles } from "@/shared/hooks/useVehicles";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -58,7 +59,7 @@ export default function TripsFilter() {
   );
 
   const { setActiveFilters, setShowResults } = useTripStore();
-  const { data: vehicles, isLoading, error } = useVehiclesQuery();
+  const { data: vehicles, isLoading, error } = useVehicles();
 
   const onSubmit = async (data: TripFilters) => {
     const finalFilters = { ...data };
@@ -336,8 +337,8 @@ export default function TripsFilter() {
                         <SelectValue placeholder="Periodo" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="primera">Primera (1-15)</SelectItem>
-                        <SelectItem value="segunda">Segunda (16-31)</SelectItem>
+                        <SelectItem value="primera">Primera (11-25)</SelectItem>
+                        <SelectItem value="segunda">Segunda (26-10)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

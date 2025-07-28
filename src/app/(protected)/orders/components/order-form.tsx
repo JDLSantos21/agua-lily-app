@@ -289,7 +289,7 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
         </DialogHeader>
 
         {/* Stepper compacto */}
-        <div className="flex justify-between items-center py-4 px-2 bg-gray-50/50 rounded-xl">
+        <div className="flex justify-between items-center py-2 px-2 bg-gray-50/50 rounded-xl">
           {STEPS.map((step, index) => {
             const isActive = index === currentStep;
             const isCompleted = index < currentStep;
@@ -408,7 +408,7 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
         </div>
 
         {/* Footer con navegación mejorada */}
-        <DialogFooter className="pt-6 border-t border-gray-100 bg-gray-50/50">
+        <DialogFooter className="p-2 border-t border-gray-100 bg-gray-50/50">
           <div className="flex justify-between items-center w-full gap-4">
             <div className="flex items-center gap-2">
               {currentStep > 0 && (

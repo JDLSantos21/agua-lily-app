@@ -197,7 +197,7 @@ export default function LabelsGenerateSection() {
                   min={1}
                   max={50}
                   placeholder="Cantidad"
-                  className="h-12 border-2 border-slate-200 rounded-lg bg-white/80 backdrop-blur-sm hover:border-purple-300 focus:border-purple-500 transition-all duration-300 focus:ring-4 focus:ring-purple-100 text-center text-lg font-medium"
+                  className="h-12 border-2 border-slate-200 rounded-lg bg-white/80 backdrop-blur-sm hover:border-purple-300 focus:border-purple-500 transition-all duration-300 focus:ring-4 focus:ring-purple-100 text-center text-lg font-medium noControls"
                   disabled={
                     generateLabelMutation.isPending || sessionInfo?.is_closed
                   }

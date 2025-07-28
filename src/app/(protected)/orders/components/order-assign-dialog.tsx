@@ -21,8 +21,8 @@ import { Order } from "@/types/orders.types";
 import { Loader2, TruckIcon, UserIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useAssignDelivery } from "@/hooks/useOrders";
-import { useVehiclesQuery } from "@/hooks/useVehiclesQuery";
 import { useEmployeesQuery } from "@/hooks/useEmployees";
+import { useVehicles } from "@/shared/hooks/useVehicles";
 
 interface OrderAssignDeliveryDialogProps {
   open: boolean;
@@ -38,7 +38,7 @@ const OrderAssignDeliveryDialog = memo(function OrderAssignDeliveryDialog({
   const [driverId, setDriverId] = useState<string>("");
   const [vehicleId, setVehicleId] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { data: vehicles } = useVehiclesQuery({ enabled: open });
+  const { data: vehicles } = useVehicles({}, { enabled: open });
   const { data: drivers } = useEmployeesQuery("driver", { enabled: open });
   const { mutateAsync: assignDelivery } = useAssignDelivery();
 

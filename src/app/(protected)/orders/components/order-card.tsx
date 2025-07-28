@@ -9,7 +9,7 @@ import {
   Clipboard,
   MoreHorizontal,
   Trash,
-  Edit,
+  // Edit,
   Settings,
   AlertTriangle,
   MapPin,
@@ -56,11 +56,11 @@ const OrderCard = memo(function OrderCard({
     }
   };
 
-  const handleEdit = () => {
-    if (onEdit) {
-      onEdit(order);
-    }
-  };
+  // const handleEdit = () => {
+  //   if (onEdit) {
+  //     onEdit(order);
+  //   }
+  // };
 
   const handleChangeStatus = () => {
     if (onChangeStatus) {
@@ -211,12 +211,12 @@ const OrderCard = memo(function OrderCard({
                     <Eye className="mr-2 h-4 w-4" />
                     Ver detalles
                   </DropdownMenuItem>
-                  {onEdit && (
+                  {/* {onEdit && (
                     <DropdownMenuItem onClick={handleEdit}>
                       <Edit className="mr-2 h-4 w-4" />
                       Editar
                     </DropdownMenuItem>
-                  )}
+                  )} */}
                   {onChangeStatus && (
                     <DropdownMenuItem onClick={handleChangeStatus}>
                       <Settings className="mr-2 h-4 w-4" />
@@ -264,17 +264,20 @@ const OrderCard = memo(function OrderCard({
       <CardContent className="p-6 h-full flex flex-col">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
-          <div className="flex items-start gap-3 flex-1">
+          <div className="flex items-start gap-3">
             {isUrgent && (
               <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-lg flex-shrink-0">
                 <AlertTriangle className="h-4 w-4 text-red-600" />
               </div>
             )}
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0">
               <div className="flex items-start justify-between gap-2 mb-2">
-                <h3 className="font-semibold text-gray-900 text-lg truncate leading-tight">
+                {/* hacer que las letras no salgan de la tarjeta */}
+
+                <h3 className="font-semibold text-gray-900 text-lg  leading-tight">
                   {order.customer_name || "Cliente sin asignar"}
                 </h3>
+
                 <button
                   onClick={copyTrackingCode}
                   className="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
@@ -417,19 +420,19 @@ const OrderCard = memo(function OrderCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              {onEdit && (
+              {/* {onEdit && (
                 <DropdownMenuItem onClick={handleEdit}>
                   <Edit className="mr-2 h-4 w-4" />
                   Editar
                 </DropdownMenuItem>
-              )}
+              )} */}
               {onChangeStatus && (
                 <DropdownMenuItem onClick={handleChangeStatus}>
                   <Settings className="mr-2 h-4 w-4" />
                   Cambiar estado
                 </DropdownMenuItem>
               )}
-              {onAssignDelivery && order.order_status === "preparando" && (
+              {onAssignDelivery && (
                 <DropdownMenuItem onClick={handleAssignDelivery}>
                   <Truck className="mr-2 h-4 w-4" />
                   Asignar entrega

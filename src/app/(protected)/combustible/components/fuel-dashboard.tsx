@@ -70,10 +70,9 @@ export const FuelDashboard = () => {
                   <div>
                     <p className="text-sm text-gray-600">Consumo Total</p>
                     <p className="text-2xl font-bold text-gray-900">
-                      {fuel_records?.reduce(
-                        (sum, record) => sum + record.gallons,
-                        0
-                      ) || 0}{" "}
+                      {fuel_records
+                        ?.reduce((sum, record) => sum + record.gallons, 0)
+                        .toFixed(2) || 0}{" "}
                       gal
                     </p>
                   </div>

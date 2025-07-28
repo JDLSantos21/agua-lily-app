@@ -77,12 +77,12 @@ const OrderStats = memo(function OrderStatsComponent({
   if (simplified) {
     return (
       <div className="flex items-center gap-3">
-        <StatSummaryCard
+        {/* <StatSummaryCard
           label="Total"
           value={stats.total_pedidos}
           icon={Package}
           color="slate"
-        />
+        /> */}
         <StatSummaryCard
           label="Pendientes"
           value={stats.pedidos_pendientes}
@@ -91,7 +91,9 @@ const OrderStats = memo(function OrderStatsComponent({
         />
         <StatSummaryCard
           label="En proceso"
-          value={stats.pedidos_preparando + stats.pedidos_despachados}
+          value={
+            Number(stats.pedidos_preparando) + Number(stats.pedidos_despachados)
+          }
           icon={Truck}
           color="blue"
         />
@@ -246,11 +248,11 @@ function StatSummaryCard({
 }: StatSummaryCardProps) {
   const colorClasses = {
     slate: "bg-gray-50 border-gray-200 text-gray-700",
-    blue: "bg-blue-50 border-blue-200 text-blue-700",
-    amber: "bg-amber-50 border-amber-200 text-amber-700",
-    purple: "bg-purple-50 border-purple-200 text-purple-700",
-    green: "bg-green-50 border-green-200 text-green-700",
-    red: "bg-red-50 border-red-200 text-red-700",
+    blue: "bg-blue-50/50 border-blue-200 text-blue-700",
+    amber: "bg-amber-50/50 border-amber-200 text-amber-700",
+    purple: "bg-purple-50/50 border-purple-200 text-purple-700",
+    green: "bg-green-50/50 border-green-200 text-green-700",
+    red: "bg-red-50/50 border-red-200 text-red-700",
   };
 
   const iconClasses = {
@@ -266,7 +268,9 @@ function StatSummaryCard({
     <div
       className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${colorClasses[color]} transition-all hover:shadow-sm`}
     >
-      <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-white shadow-sm">
+      <div
+        className={`flex items-center justify-center w-8 h-8 rounded-lg ${iconClasses[color]} shadow-sm`}
+      >
         <Icon className={`h-4 w-4 ${iconClasses[color]}`} />
       </div>
       <div>

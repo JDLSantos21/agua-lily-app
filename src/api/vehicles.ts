@@ -1,8 +1,22 @@
 import { api } from "@/services/api";
-import { Vehicle, VehicleChartData } from "@/types/vehicles";
+import { Vehicle, VehicleChartData, VehicleFilters } from "@/types/vehicles";
 
-export const getVehicles = async (): Promise<Vehicle[]> => {
-  const res = await api.get("/vehicles");
+export const getVehicles = async (
+  filters?: VehicleFilters
+): Promise<Vehicle[]> => {
+  const params = new URLSearchParams();
+
+  if (filters) {
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && value.trim() !== "") {
+        params.append(key, value);
+      }
+    });
+  }
+
+  const res = await api.get(
+    `/vehicles${params.toString() ? `?${params.toString()}` : ""}`
+  );
   return res.data;
 };
 

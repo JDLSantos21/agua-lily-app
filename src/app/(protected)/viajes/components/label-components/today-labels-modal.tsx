@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
+import { FaTag, FaTags } from "react-icons/fa";
 
 interface TodayLabelsModalProps {
   isOpen: boolean;
@@ -160,7 +161,11 @@ export default function TodayLabelsModal({
                                 {format(new Date(label.created_at), "hh:mm a")}
                               </div>
                               <div className="flex items-center gap-1">
-                                <Package className="h-4 w-4" />
+                                {label.quantity === 1 ? (
+                                  <FaTag className="h-4 w-4" />
+                                ) : (
+                                  <FaTags className="h-4 w-4" />
+                                )}
                                 {label.quantity}{" "}
                                 {label.quantity === 1
                                   ? "etiqueta"
