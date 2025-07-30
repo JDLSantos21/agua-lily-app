@@ -6,13 +6,9 @@ import { useState } from "react";
 import { useEquipmentFilters } from "@/hooks/useEquipmentFilters";
 import { EquipmentFilters } from "@/components/equipments/EquipmentFilters";
 import EquipmentDetailsModal from "./components/details-modal";
-import NewEquipmentModal from "./components/new-equipment-modal";
-import NewEquipmentModelModal from "./components/new-equipment-model-modal";
 import { LoaderSpin } from "@/components/Loader";
-import {
-  CreateEquipmentFormData,
-  CreateEquipmentModelFormData,
-} from "@/schemas/equipment";
+import TablePagination from "@/components/pagination";
+import { usePagination } from "@/hooks/usePagination";
 
 export default function EquipmentsPage() {
   const { data, isLoading, isError, updateFilters, hasActiveFilters } =
@@ -29,22 +25,13 @@ export default function EquipmentsPage() {
     setIsOpen(true);
   };
 
-  // Handlers para crear equipo
-  const handleCreateEquipment = (data: CreateEquipmentFormData) => {
-    console.log("Crear equipo:", data);
-    // Aquí implementarías la lógica para crear el equipo
-    // usando una mutación de TanStack Query
-  };
-
-  // Handler para crear modelo de equipo
-  const handleCreateEquipmentModel = (data: CreateEquipmentModelFormData) => {
-    console.log("Crear modelo:", data);
-    // Aquí implementarías la lógica para crear el modelo
-    // usando una mutación de TanStack Query
-  };
+  const { currentData, changePage, currentPage, totalPages } = usePagination(
+    data?.data,
+    8
+  );
 
   return (
-    <div className="p-6 relative">
+    <div className="p-6 relative min-h-[calc(100vh-185px)]">
       {/* Header con acciones */}
 
       {/* Filtros */}
@@ -58,18 +45,28 @@ export default function EquipmentsPage() {
           <p className="text-sm mt-1">Por favor, intenta nuevamente</p>
         </div>
       ) : (
-        <CustomTable
-          data={data?.data || []}
-          columns={MAIN_COLUMNS}
-          onRowClick={handleRowClick}
-          isLoading={isLoading}
-          emptyMessage={
-            hasActiveFilters
-              ? "No se encontraron equipos con los filtros aplicados"
-              : "No hay equipos registrados"
-          }
-          className="rounded-lg shadow-sm"
-        />
+        <>
+          <CustomTable
+            data={currentData || []}
+            columns={MAIN_COLUMNS}
+            onRowClick={handleRowClick}
+            isLoading={isLoading}
+            emptyMessage={
+              hasActiveFilters
+                ? "No se encontraron equipos con los filtros aplicados"
+                : "No hay equipos registrados"
+            }
+            className="rounded-lg shadow-sm mb-6"
+          />
+          {/* Paginación */}
+          <div className="absolute bottom-0 w-full">
+            <TablePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              handlePageChange={changePage}
+            />
+          </div>
+        </>
       )}
 
       {/* Modal de detalles */}

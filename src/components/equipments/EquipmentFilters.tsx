@@ -23,6 +23,7 @@ interface EquipmentFiltersProps {
 const EQUIPMENT_TYPES = [
   { value: "nevera", label: "Neveras" },
   { value: "anaquel", label: "Anaqueles" },
+  { value: "otro", label: "Otros" },
 ];
 
 const EQUIPMENT_STATUS = [

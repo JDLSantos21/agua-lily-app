@@ -15,7 +15,7 @@ export default function VehiclesLayout({
     <div className="p-6">
       <div>
         {/* Header */}
-        <div className="mb-8">
+        <div>
           <div className="flex items-center gap-4 mb-4">
             <Button variant="outline" size="sm" asChild className="h-9 w-9 p-0">
               <Link href="/activos">

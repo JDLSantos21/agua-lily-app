@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { TableColumn } from "@/components/ui/custom-table";
 import { Equipment } from "@/types/equipments.types";
 import { FileText } from "lucide-react";
+import { getStatusColor, getStatusText } from "./utils";
 
 export const MAIN_COLUMNS: TableColumn<Equipment>[] = [
   {
@@ -23,14 +24,14 @@ export const MAIN_COLUMNS: TableColumn<Equipment>[] = [
     width: "15%",
     render: (equipment) => (
       <Badge variant="outline" className="font-medium">
-        {equipment.type}
+        {equipment.type.toUpperCase()}
       </Badge>
     ),
   },
   {
     key: "model",
     label: "Modelo",
-    width: "25%",
+    width: "15%",
     render: (equipment) => (
       <div>
         <div className="font-medium text-gray-900">{equipment.model}</div>
@@ -51,19 +52,26 @@ export const MAIN_COLUMNS: TableColumn<Equipment>[] = [
   {
     key: "status",
     label: "Estado",
-    width: "15%",
+    width: "10%",
     render: (equipment) => (
-      <Badge variant="standardTrip">{equipment.status}</Badge>
+      <Badge
+        variant="outline"
+        className={`${getStatusColor(equipment.status)}`}
+      >
+        {getStatusText(equipment.status)}
+      </Badge>
     ),
   },
   {
-    key: "notes",
-    label: "Notas",
-    width: "15%",
+    key: "customer",
+    label: "Cliente asignado",
+    width: "25%",
     render: (equipment) => (
-      <div className="text-sm text-gray-600 max-w-xs truncate">
-        {equipment.notes || "Sin notas"}
-      </div>
+      <span className="text-sm text-gray-700">
+        {equipment.current_customer_id
+          ? equipment.customer_name || "Desconocido"
+          : "N/A"}
+      </span>
     ),
   },
 ];

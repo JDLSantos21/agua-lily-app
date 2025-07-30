@@ -48,13 +48,13 @@ export default function NewEquipmentModal({
   const [selectedModel, setSelectedModel] = useState<EquipmentModel | null>(
     null
   );
-  const { mutateAsync: createEquipment } = useEquipmentMutation();
+  const { mutateAsync: createEquipment, isPending } = useEquipmentMutation();
   const { data: customers } = useCustomers();
 
   const {
     data: modelsData,
     isError,
-    isLoading: modelsLoading,
+    isPending: modelsLoading,
   } = useEquipmentModels();
   const models = modelsData?.data || [];
 
@@ -114,19 +114,6 @@ export default function NewEquipmentModal({
     }
   };
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "nevera":
-        return "bg-blue-100 text-blue-800";
-      case "anaquel":
-        return "bg-green-100 text-green-800";
-      case "otro":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
@@ -144,7 +131,7 @@ export default function NewEquipmentModal({
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="text-xl font-semibold text-gray-900">
-                Crear Nuevo Equipo
+                Crear nuevo equipo
               </DialogTitle>
               <p className="text-gray-600 text-sm mt-1">
                 Registra un nuevo equipo en el sistema
@@ -214,7 +201,7 @@ export default function NewEquipmentModal({
             </div>
             {/* Selected Model Info */}
             {selectedModel && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="bg-gray-50 border border-gray-200 shadow-md rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                     <Info className="w-4 h-4 text-blue-600" />
@@ -236,11 +223,9 @@ export default function NewEquipmentModal({
                       </div>
                       <div>
                         <span className="text-gray-500">Tipo:</span>
-                        <Badge
-                          className={`text-xs ${getTypeColor(selectedModel.type)}`}
-                        >
-                          {selectedModel.type}
-                        </Badge>
+                        <p className="font-medium">
+                          {selectedModel.type.toUpperCase()}
+                        </p>
                       </div>
                       <div>
                         <span className="text-gray-500">Capacidad:</span>
@@ -306,7 +291,7 @@ export default function NewEquipmentModal({
                 htmlFor="current_customer_id"
                 className="text-sm font-medium text-gray-700"
               >
-                Asignar a Cliente
+                Asignar a Cliente (Opcional)
               </Label>
               <InputSelect
                 data={customers?.data || []}
@@ -351,16 +336,16 @@ export default function NewEquipmentModal({
                 type="button"
                 variant="outline"
                 onClick={() => handleOpenChange(false)}
-                disabled={isLoading}
+                disabled={isPending}
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
-                disabled={isLoading || !watchedModelId}
+                disabled={isPending || !watchedModelId}
                 className="bg-blue-600 hover:bg-blue-700"
               >
-                {isLoading ? (
+                {isPending ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     Creando...

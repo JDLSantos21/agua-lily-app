@@ -24,6 +24,7 @@ import {
 } from "@/schemas/equipment";
 import { useEffect, useState } from "react";
 import { Plus, X, Settings } from "lucide-react";
+import { useEquipmentModelMutation } from "@/hooks/useEquipments";
 
 interface NewEquipmentModelModalProps {
   onOpenChange?: (open: boolean) => void;
@@ -34,7 +35,6 @@ interface NewEquipmentModelModalProps {
 export default function NewEquipmentModelModal({
   onOpenChange,
   onSubmit,
-  isLoading = false,
 }: NewEquipmentModelModalProps) {
   const [open, setOpen] = useState(false);
 
@@ -49,10 +49,17 @@ export default function NewEquipmentModelModal({
     resolver: zodResolver(createEquipmentModelSchema),
   });
 
-  const handleFormSubmit = (data: CreateEquipmentModelFormData) => {
-    onSubmit?.(data);
-    reset();
-    setOpen(false);
+  const { mutateAsync: createEquipmentModel, isPending } =
+    useEquipmentModelMutation();
+
+  const handleFormSubmit = async (data: CreateEquipmentModelFormData) => {
+    const response = await createEquipmentModel(data);
+
+    if (response.success) {
+      reset();
+      setOpen(false);
+      return;
+    }
   };
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -90,7 +97,7 @@ export default function NewEquipmentModelModal({
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="text-xl font-semibold text-gray-900">
-                Crear Nuevo Modelo
+                Crear nuevo modelo
               </DialogTitle>
               <p className="text-gray-600 text-sm mt-1">
                 Registra un nuevo modelo de equipo
@@ -156,7 +163,7 @@ export default function NewEquipmentModelModal({
               </Label>
               <Input
                 {...register("description")}
-                placeholder="Ej: Refrigerador Industrial 500L"
+                placeholder="Ej: ANQ-50, NVR-100, EQP-200"
                 className="w-full"
               />
               {errors.description && (
@@ -197,7 +204,7 @@ export default function NewEquipmentModelModal({
                   type="number"
                   step="0.01"
                   {...register("capacity", { valueAsNumber: true })}
-                  placeholder="500"
+                  placeholder="Ej: 25, 50, 100"
                   className="w-full noControls"
                 />
                 {errors.capacity && (
@@ -233,16 +240,16 @@ export default function NewEquipmentModelModal({
                 type="button"
                 variant="outline"
                 onClick={() => handleOpenChange(false)}
-                disabled={isLoading}
+                disabled={isPending}
               >
                 Cancelar
               </Button>
               <Button
                 type="submit"
-                disabled={isLoading}
+                disabled={isPending}
                 className="bg-green-600 hover:bg-green-700"
               >
-                {isLoading ? (
+                {isPending ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     Creando...

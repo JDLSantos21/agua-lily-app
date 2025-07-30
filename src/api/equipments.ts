@@ -1,3 +1,4 @@
+import { CreateEquipmentModelFormData } from "@/schemas/equipment";
 import { api } from "@/services/api";
 import {
   Equipment,
@@ -54,6 +55,36 @@ export const getEquipmentModels =
     }
   };
 
+interface CreateEquipmentModelResponse {
+  success: boolean;
+  data: EquipmentModel;
+}
+
+export const createEquipmentModel = async (
+  data: CreateEquipmentModelFormData
+): Promise<CreateEquipmentModelResponse> => {
+  try {
+    const res = await api.post("/equipments/models", data);
+    return res.data;
+  } catch (error) {
+    console.error("Error creating equipment model:", error);
+    throw new Error("Ocurrió un problema al crear el modelo de equipo.");
+  }
+};
+
+export const updateEquipmentModel = async (
+  id: number,
+  data: Partial<CreateEquipmentModelFormData>
+): Promise<CreateEquipmentModelResponse> => {
+  try {
+    const res = await api.patch(`/equipments/models/${id}`, data);
+    return res.data;
+  } catch (error) {
+    console.error("Error updating equipment model:", error);
+    throw new Error("Ocurrió un problema al actualizar el modelo de equipo.");
+  }
+};
+
 export const createEquipment = async (
   data: CreateEquipmentParams
 ): Promise<Equipment> => {
@@ -63,5 +94,26 @@ export const createEquipment = async (
   } catch (error) {
     console.error("Error creating equipment:", error);
     throw new Error("Ocurrió un problema al crear el equipo.");
+  }
+};
+
+export const deleteEquipment = async (id: number): Promise<void> => {
+  try {
+    await api.delete(`/equipments/${id}`);
+  } catch (error) {
+    throw error;
+    // throw new Error("Ocurrió un problema al keliminar el equipo.");
+  }
+};
+
+export const updateEquipment = async (
+  id: number,
+  data: Partial<Equipment>
+): Promise<{ success: boolean; data: Equipment }> => {
+  try {
+    const res = await api.put(`/equipments/${id}`, data);
+    return res.data;
+  } catch (error) {
+    throw new Error("Ocurrió un problema al actualizar el equipo.");
   }
 };

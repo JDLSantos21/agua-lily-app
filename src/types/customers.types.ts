@@ -23,17 +23,21 @@ export interface Customer {
   id: number;
   name: string;
   contact_phone: string;
-  has_whatsapp?: boolean; // ← NUEVO CAMPO
-  contact_email: string | null;
+  has_whatsapp: boolean;
+  contact_email: string;
   address: string;
-  business_name?: string | null;
+  business_name: string;
   is_business: boolean;
-  rnc: string | null;
-  location_reference?: string | null;
+  rnc: string;
+  location_reference: string;
   notes: string | null;
-  status: CustomerStatus;
+  status: "activo" | "inactivo";
   created_at: string;
   updated_at: string;
+  coordinates_lat: string;
+  coordinates_lng: string;
+  coordinates_saved_at: string;
+  coordinates_save_by: number;
 }
 
 /**

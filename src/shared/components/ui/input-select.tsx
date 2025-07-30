@@ -74,7 +74,7 @@ export function InputSelect({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            `w-full justify-between outline-blue-200 h-10 font-normal`,
+            `w-full justify-between outline-blue-200 h-10 font-normal  `,
             className
           )}
         >
