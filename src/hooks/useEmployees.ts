@@ -1,6 +1,7 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 
 import { getAllEmployees } from "@/api/employees";
+import { Employee } from "@/types/employees.types";
 
 export const useEmployeesQuery = (
   role?: string,

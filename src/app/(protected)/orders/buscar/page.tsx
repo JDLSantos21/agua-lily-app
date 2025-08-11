@@ -74,6 +74,7 @@ export default function BuscarPedidosPage() {
     try {
       await refetchTracking();
     } catch (err) {
+      console.log("Error buscando pedido por tracking", err);
       setTrackingError(
         "Error al buscar el pedido. Verifique el código e intente nuevamente."
       );

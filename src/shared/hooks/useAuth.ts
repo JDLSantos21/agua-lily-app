@@ -18,10 +18,12 @@ export function useAuth() {
 
   const signOut = useCallback(async () => {
     const succes = await logout();
-    console.log(succes);
-    succes
-      ? router.push("/login")
-      : toast.error("Ocurrió un error al cerrar sesión");
+    if (succes) {
+      router.push("/login");
+    } else {
+      toast.error("Ocurrió un error al cerrar sesión");
+      return;
+    }
   }, [login, router]);
 
   return {

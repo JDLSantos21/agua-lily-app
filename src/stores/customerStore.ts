@@ -21,7 +21,7 @@ interface CustomerState {
 }
 
 export const useCustomerStore = create<CustomerState>()(
-  devtools((set, get) => ({
+  devtools((set) => ({
     dialogState: {
       viewDialog: { isOpen: false, customerId: null },
       formDialog: { isOpen: false, customer: null },

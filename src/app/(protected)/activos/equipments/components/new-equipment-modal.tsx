@@ -36,13 +36,11 @@ import { useCustomers } from "@/hooks/useCustomers";
 interface NewEquipmentModalProps {
   onOpenChange?: (open: boolean) => void;
   onSubmit?: (data: CreateEquipmentFormData) => void;
-  isLoading?: boolean;
 }
 
 export default function NewEquipmentModal({
   onOpenChange,
   onSubmit,
-  isLoading = false,
 }: NewEquipmentModalProps) {
   const [open, setOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState<EquipmentModel | null>(

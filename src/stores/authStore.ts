@@ -82,6 +82,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       await logoutApi(get().refreshToken);
     } catch (error) {
+      console.log("Error al cerrar sesión:", error);
       return false;
     }
 
@@ -138,6 +139,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       get()
         .refresh()
         .catch((refreshError) => {
+          console.log("Error al refrescar el token:", refreshError);
           if (isClient) {
             remove("accessToken");
             remove("refreshToken");

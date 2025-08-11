@@ -201,9 +201,11 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
       return;
     }
 
-    formData.customer_has_whatsapp == true
-      ? (formData.customer_has_whatsapp = true)
-      : (formData.customer_has_whatsapp = false);
+    if (formData.customer_has_whatsapp == true) {
+      formData.customer_has_whatsapp = true;
+    } else {
+      formData.customer_has_whatsapp = false;
+    }
 
     if (formData.scheduled_delivery_date) {
       // Convertir la fecha a formato UTC

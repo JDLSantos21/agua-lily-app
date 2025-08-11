@@ -217,13 +217,7 @@ const OrderViewDialog = memo(function OrderViewDialog({
                         <Truck className="h-4 w-4" />
                         <span>
                           Entrega:{" "}
-                          {format(
-                            new Date(
-                              formatDateToUTC(order.scheduled_delivery_date) ||
-                                ""
-                            ),
-                            { date: "medium" }
-                          )}
+                          {formatDateToUTC(order.scheduled_delivery_date)}
                         </span>
                       </div>
                     )}
@@ -447,12 +441,7 @@ const OrderDetailsTab = memo(function OrderDetailsTab({
                       Fecha de entrega
                     </p>
                     <p className="text-sm font-medium text-blue-800">
-                      {format(
-                        new Date(
-                          formatDateToUTC(order.scheduled_delivery_date) || ""
-                        ),
-                        { date: "long" }
-                      )}
+                      {formatDateToUTC(order.scheduled_delivery_date)}
                     </p>
                   </div>
                 </div>

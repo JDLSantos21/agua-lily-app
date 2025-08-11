@@ -31,7 +31,7 @@ export interface Customer {
   rnc: string;
   location_reference: string;
   notes: string | null;
-  status: "activo" | "inactivo";
+  status: CustomerStatus;
   created_at: string;
   updated_at: string;
   coordinates_lat: string;

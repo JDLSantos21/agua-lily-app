@@ -56,7 +56,7 @@ export const handleApiError = (error: unknown, context?: string): string => {
   const statusCode = getErrorStatusCode(error);
 
   // Log del error para debugging
-  console.error(`${context ? `[${context}] ` : ""}Error:`, {
+  console.log(`${context ? `[${context}] ` : ""}Error:`, {
     message,
     statusCode,
     error,

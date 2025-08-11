@@ -1,12 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -22,22 +17,19 @@ import {
   createEquipmentModelSchema,
   CreateEquipmentModelFormData,
 } from "@/schemas/equipment";
-import { useEffect, useState } from "react";
-import { Plus, X, Settings } from "lucide-react";
+import { useEffect } from "react";
+import { Plus, X } from "lucide-react";
 import { useEquipmentModelMutation } from "@/hooks/useEquipments";
 
 interface NewEquipmentModelModalProps {
   onOpenChange?: (open: boolean) => void;
-  onSubmit?: (data: CreateEquipmentModelFormData) => void;
-  isLoading?: boolean;
+  open?: boolean;
 }
 
 export default function NewEquipmentModelModal({
   onOpenChange,
-  onSubmit,
+  open = false,
 }: NewEquipmentModelModalProps) {
-  const [open, setOpen] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -57,13 +49,11 @@ export default function NewEquipmentModelModal({
 
     if (response.success) {
       reset();
-      setOpen(false);
       return;
     }
   };
 
   const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen);
     onOpenChange?.(newOpen);
     if (!newOpen) {
       reset();
@@ -82,12 +72,6 @@ export default function NewEquipmentModelModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Settings className="w-4 h-4 mr-2" />
-          Nuevo Modelo
-        </Button>
-      </DialogTrigger>
       <DialogContent
         aria-describedby={undefined}
         className="max-w-lg max-h-[90vh] overflow-hidden p-0 [&>button]:hidden"

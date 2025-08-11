@@ -43,7 +43,6 @@ interface OrderCardProps {
 const OrderCard = memo(function OrderCard({
   order,
   onView,
-  onEdit,
   onChangeStatus,
   onAssignDelivery,
   onDelete,
@@ -87,12 +86,20 @@ const OrderCard = memo(function OrderCard({
     }
   };
 
-  const scheduled_delivery_date = order.scheduled_delivery_date
-    ? format(
-        new Date(formatDateToUTC(order.scheduled_delivery_date) || new Date()),
-        { date: "long" }
-      )
-    : null;
+  console.log("OrderCard rendered for order:", order);
+
+  let scheduled_delivery_date = null;
+  if (order?.scheduled_delivery_date) {
+    const formattedDate = formatDateToUTC(order.scheduled_delivery_date);
+    scheduled_delivery_date = formattedDate;
+  }
+
+  // const scheduled_delivery_date = order?.scheduled_delivery_date
+  //   ? format(
+  //       new Date(formatDateToUTC(order?.scheduled_delivery_date) || new Date()),
+  //       { date: "long" }
+  //     )
+  //   : null;
 
   // Determinar si es un pedido urgente (menos de 24 horas para entregar)
   const isUrgent = order.scheduled_delivery_date
@@ -420,12 +427,6 @@ const OrderCard = memo(function OrderCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              {/* {onEdit && (
-                <DropdownMenuItem onClick={handleEdit}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Editar
-                </DropdownMenuItem>
-              )} */}
               {onChangeStatus && (
                 <DropdownMenuItem onClick={handleChangeStatus}>
                   <Settings className="mr-2 h-4 w-4" />

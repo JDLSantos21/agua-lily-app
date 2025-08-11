@@ -84,11 +84,12 @@ export default function NewAjustDialog() {
     setIsConfirmOpen(true);
   };
 
-  isLoading && (
-    <div className="flex items-center justify-center h-full">
-      <p>Cargando materiales...</p>
-    </div>
-  );
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p>Cargando materiales...</p>
+      </div>
+    );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

@@ -34,7 +34,7 @@ export const useRegisterTrip = () => {
 
   return useMutation({
     mutationFn: registerTrip,
-    onSuccess: async (response, variables) => {
+    onSuccess: async (response) => {
       toast.success(`Nuevo viaje registrado satisfactoriamente`, {
         description: `Al camión ${response.trip.vehicle_tag}`,
       });

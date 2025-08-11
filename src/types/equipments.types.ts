@@ -10,6 +10,8 @@ export interface Equipment {
   contract_details: any;
   status: string;
   last_maintenance_date: any;
+  show_in_mobile: 0 | 1;
+  require_gps_update: 0 | 1;
   notes: string;
   created_at: string;
   updated_at: string;

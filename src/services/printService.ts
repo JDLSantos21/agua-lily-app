@@ -51,7 +51,7 @@ class PrinterService {
       }) // Cantidad
       .setCopies(quantity);
 
-    return await printLabel(label, "http://localhost:30081");
+    return await printLabel(label, "http://localhost:30080");
   }
   async printEquipmentLabel(
     equipment: Equipment,

@@ -281,7 +281,6 @@ export default function ClientesPage() {
                           onEdit={(customer: Customer) =>
                             openFormDialog(customer)
                           }
-                          onDelete={openDeleteDialog}
                           equipmentCount={0}
                         />
                       </motion.div>
@@ -398,7 +397,6 @@ const CustomerTableRow = memo(function CustomerTableRow({
   customer,
   onView,
   onEdit,
-  onDelete,
 }: CustomerTableRowProps) {
   return (
     <TableRow className="hover:bg-gray-50 transition-colors border-gray-100">

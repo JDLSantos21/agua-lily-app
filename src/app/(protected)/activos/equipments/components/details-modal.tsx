@@ -8,6 +8,9 @@ import {
 } from "@/components/ui/popover";
 import {
   useDeleteEquipmentMutation,
+  useEquipment,
+  useGPSUpdateMutation,
+  useShowInMobileMutation,
   useUpdateEquipmentMutation,
 } from "@/hooks/useEquipments";
 import formatPhoneNumber from "@/shared/utils/formatNumber";
@@ -22,21 +25,30 @@ import {
   Phone,
   X,
   EllipsisVertical,
+  UserMinus,
+  Users,
+  Package,
+  Loader2,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getStatusColor, getStatusText } from "../utils";
 import { printerService } from "@/services/printService";
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import AssignCustomerModal from "./assign-customer-modal";
+import RemoveAssignmentModal from "./remove-assignment-modal";
+
+import { CiGps, CiMobile3 } from "react-icons/ci";
 
 interface DetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   equipment: Equipment | null;
-  onEdit?: (equipment: Equipment) => void;
+  equipment_id: number | null;
 }
 
 interface EditEquipmentForm {
@@ -52,12 +64,17 @@ const formatDate = (dateString: string | null) => {
   });
 };
 
-export default function EquipmentDetailsModal({
+const EquipmentDetailsModal = memo(function EquipmentDetailsModal({
   isOpen,
   onClose,
-  equipment,
-  onEdit,
+  equipment_id,
 }: DetailsModalProps) {
+  const { data: equipmentData } = useEquipment(
+    isOpen && equipment_id ? equipment_id : null
+  );
+
+  const equipment = equipmentData?.data;
+
   const {
     register,
     handleSubmit,
@@ -73,7 +90,15 @@ export default function EquipmentDetailsModal({
     useUpdateEquipmentMutation();
   const { mutateAsync: deleteEquipment, isPending: isDeletePending } =
     useDeleteEquipmentMutation();
+  const { mutateAsync: showInMobile, isPending: isShowInMobilePending } =
+    useShowInMobileMutation();
+  const { mutateAsync: setGPSUpdate, isPending: isGPSUpdatePending } =
+    useGPSUpdateMutation();
   const [isEditing, setIsEditing] = useState(false);
+
+  // Estados para los modales de asignación
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [removeModalOpen, setRemoveModalOpen] = useState(false);
 
   // Resetear el estado de edición cuando se cierra el modal
   useEffect(() => {
@@ -111,6 +136,19 @@ export default function EquipmentDetailsModal({
       reset(); // Resetear el formulario si se cancela
     }
     setIsEditing(!isEditing);
+  };
+
+  // Handlers para los modales de asignación
+  const handleAssignModal = () => {
+    setAssignModalOpen(true);
+  };
+
+  const handleRemoveModal = () => {
+    setRemoveModalOpen(true);
+  };
+
+  const handleModalSuccess = () => {
+    console.log("Success");
   };
   const handleDelete = async (id: number) => {
     const confirmed = await confirm(
@@ -175,41 +213,216 @@ export default function EquipmentDetailsModal({
                 {equipment.brand} {equipment.model}
               </p>
             </div>
+
             <div className="flex items-center gap-3">
+              {equipment.show_in_mobile ? (
+                <Badge variant="outline">
+                  <Eye className="w-4 h-4 mr-2" /> Marcado como visible en la
+                  app
+                </Badge>
+              ) : null}
+
+              {!equipment.require_gps_update &&
+              equipment.location_created_at ? (
+                <Badge variant="standardTrip">GPS Actualizado</Badge>
+              ) : equipment.require_gps_update ? (
+                <Badge variant="destructive">Actualización GPS Pendiente</Badge>
+              ) : null}
               <Popover>
-                <PopoverTrigger>
-                  <EllipsisVertical className="h-5 hover:text-gray-500" />
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative hover:bg-gray-100 transition-colors"
+                  >
+                    <EllipsisVertical className="h-5 w-5 text-gray-600" />
+                  </Button>
                 </PopoverTrigger>
-                <PopoverContent>
-                  <ul className="">
-                    <li>
+                <PopoverContent className="w-64 p-2" align="end" sideOffset={8}>
+                  <div className="flex flex-col gap-1">
+                    {/* Header del popover */}
+                    <div className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide border-b border-gray-100 mb-1">
+                      Acciones del Equipo
+                    </div>
+
+                    {/* Opción de editar */}
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="hover:bg-blue-50 w-full text-left px-3 py-2.5 rounded-md text-sm text-gray-700 flex items-center gap-3 transition-colors group"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                        <Wrench className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium">Editar equipo</div>
+                        <div className="text-xs text-gray-500">
+                          Modificar información y notas
+                        </div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        showInMobile({
+                          id: equipment.id,
+                          show: !equipment.show_in_mobile,
+                        })
+                      }
+                      className="hover:bg-blue-50 w-full text-left px-3 py-2.5 rounded-md text-sm text-gray-700 flex items-center gap-3 transition-colors group"
+                      disabled={isShowInMobilePending}
+                    >
+                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                        {isShowInMobilePending ? (
+                          <Loader2 className="animate-spin h-4 w-5 text-blue-600" />
+                        ) : (
+                          <CiMobile3 className="h-4 w-4 text-blue-600" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium">
+                          {equipment.show_in_mobile
+                            ? "Ocultar en la App"
+                            : "Mostrar en la App"}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {equipment.show_in_mobile ? "Ocultar" : "Mostrar"}{" "}
+                          este equipo en la aplicación movil
+                        </div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        setGPSUpdate({
+                          id: equipment.id,
+                          need_update: !equipment.require_gps_update,
+                        })
+                      }
+                      className="hover:bg-blue-50 w-full text-left px-3 py-2.5 rounded-md text-sm text-gray-700 flex items-center gap-3 transition-colors group"
+                      disabled={isGPSUpdatePending}
+                    >
+                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                        {isGPSUpdatePending ? (
+                          <Loader2 className="animate-spin h-4 w-5 text-blue-600" />
+                        ) : (
+                          <CiGps className="h-4 w-4 text-blue-600" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium">
+                          {!equipment.require_gps_update
+                            ? "Solicitar actualización de GPS"
+                            : "Cancelar Solicitud GPS"}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {!equipment.require_gps_update
+                            ? "Enviar solicitud de actualización de GPS"
+                            : "Cancelar solicitud de actualización de GPS"}
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Opción de asignar cliente */}
+                    {!equipment.current_customer_id && (
                       <button
-                        onClick={() => setIsEditing(true)}
-                        className="w-full text-left px-2 py-1 hover:bg-gray-100 active:opacity-75"
+                        onClick={handleAssignModal}
+                        className="hover:bg-green-50 w-full text-left px-3 py-2.5 rounded-md text-sm text-gray-700 flex items-center gap-3 transition-colors group"
+                        disabled={!!equipment.current_customer_id}
                       >
-                        Editar
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={() => handlePrintLabel(equipment)}
-                        className="w-full text-left px-2 py-1 hover:bg-gray-100 active:opacity-75"
-                      >
-                        Imprimir Etiqueta
-                      </button>
-                    </li>
-                    <li>
-                      <RoleBased allowedRoles={["admin", "administrativo"]}>
-                        <button
-                          onClick={() => handleDelete(equipment.id)}
-                          className="w-full text-left px-2 py-1 text-red-500 hover:bg-gray-100 active:opacity-75"
-                          disabled={isDeletePending}
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                            equipment.current_customer_id
+                              ? "bg-gray-100"
+                              : "bg-green-100 group-hover:bg-green-200"
+                          }`}
                         >
-                          Eliminar
-                        </button>
-                      </RoleBased>
-                    </li>
-                  </ul>
+                          <Users
+                            className={`h-4 w-4 ${
+                              equipment.current_customer_id
+                                ? "text-gray-400"
+                                : "text-green-600"
+                            }`}
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <div
+                            className={`font-medium ${
+                              equipment.current_customer_id
+                                ? "text-gray-400"
+                                : "text-gray-900"
+                            }`}
+                          >
+                            {equipment.current_customer_id
+                              ? "Ya tiene cliente"
+                              : "Asignar cliente"}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {equipment.current_customer_id
+                              ? "El equipo ya está asignado"
+                              : "Asignar equipo a un cliente"}
+                          </div>
+                        </div>
+                      </button>
+                    )}
+
+                    {/* Opción de quitar asignación */}
+                    {/* Opción de remover cliente (solo si tiene cliente) */}
+                    {equipment.current_customer_id && (
+                      <button
+                        onClick={handleRemoveModal}
+                        className="hover:bg-red-50 w-full text-left px-3 py-2.5 rounded-md text-sm text-gray-700 flex items-center gap-3 transition-colors group"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center group-hover:bg-red-200 transition-colors">
+                          <UserMinus className="h-4 w-4 text-red-600" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900">
+                            Remover cliente
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Quitar asignación del cliente actual
+                          </div>
+                        </div>
+                      </button>
+                    )}
+
+                    {/* Separador */}
+                    <div className="my-1 border-t border-gray-200" />
+
+                    {/* Opción de imprimir etiqueta */}
+                    <button
+                      onClick={() => handlePrintLabel(equipment)}
+                      className="hover:bg-purple-50 w-full text-left px-3 py-2.5 rounded-md text-sm text-gray-700 flex items-center gap-3 transition-colors group"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                        <Package className="h-4 w-4 text-purple-600" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium">Imprimir etiqueta</div>
+                        <div className="text-xs text-gray-500">
+                          Generar etiqueta del equipo
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Opción de eliminar (solo para admin) */}
+                    <RoleBased allowedRoles={["admin", "administrativo"]}>
+                      <button
+                        onClick={() => handleDelete(equipment.id)}
+                        className="hover:bg-red-50 w-full text-left px-3 py-2.5 rounded-md text-sm text-red-600 flex items-center gap-3 transition-colors group"
+                        disabled={isDeletePending}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center group-hover:bg-red-200 transition-colors">
+                          <X className="h-4 w-4 text-red-600" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-medium">Eliminar equipo</div>
+                          <div className="text-xs text-red-500">
+                            Esta acción no se puede deshacer
+                          </div>
+                        </div>
+                      </button>
+                    </RoleBased>
+                  </div>
                 </PopoverContent>
               </Popover>
               <button
@@ -391,7 +604,7 @@ export default function EquipmentDetailsModal({
               </div>
 
               {/* Customer Information */}
-              {equipment.customer_name && (
+              {equipment.current_customer_id && (
                 <div className="bg-white border rounded-lg lg:col-span-2">
                   <div className="px-6 py-4 border-b bg-gray-50">
                     <h4 className="font-medium text-gray-900 flex items-center gap-2">
@@ -406,7 +619,8 @@ export default function EquipmentDetailsModal({
                           Nombre
                         </label>
                         <p className="text-gray-900 mt-1">
-                          {equipment.customer_name}
+                          {equipment.customer_name ||
+                            "No se proporcionó nombre"}
                         </p>
                       </div>
                       {equipment.customer_phone && (
@@ -516,6 +730,23 @@ export default function EquipmentDetailsModal({
           </div>
         )}
       </DialogContent>
+
+      {/* Modales de asignación */}
+      <AssignCustomerModal
+        open={assignModalOpen}
+        onOpenChange={setAssignModalOpen}
+        equipmentId={equipment?.id}
+        onSuccess={handleModalSuccess}
+      />
+
+      <RemoveAssignmentModal
+        open={removeModalOpen}
+        onOpenChange={setRemoveModalOpen}
+        equipment={equipment}
+        onSuccess={handleModalSuccess}
+      />
     </Dialog>
   );
-}
+});
+
+export default EquipmentDetailsModal;

@@ -48,7 +48,7 @@ export const getCustomerWithEquipment = async (
  * Crea un nuevo cliente
  */
 export const createCustomer = async (
-  customer: Omit<Customer, "id">
+  customer: any
 ): Promise<CustomerResponse> => {
   const res = await api.post(`customers`, customer);
   return res.data;

@@ -23,6 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAssignDelivery } from "@/hooks/useOrders";
 import { useEmployeesQuery } from "@/hooks/useEmployees";
 import { useVehicles } from "@/shared/hooks/useVehicles";
+import { Employee } from "@/types/employees.types";
 
 interface OrderAssignDeliveryDialogProps {
   open: boolean;

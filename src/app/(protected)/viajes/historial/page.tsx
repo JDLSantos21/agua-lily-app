@@ -61,6 +61,7 @@ export default function TripHistory() {
 
   async function onSubmit(formData: any) {
     // El hook se actualiza automáticamente cuando cambia la fecha
+    console.log("Fecha seleccionada:", formData.date);
   }
 
   return (

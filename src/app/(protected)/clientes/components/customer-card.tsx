@@ -35,7 +35,6 @@ interface CustomerCardProps {
   customer: Customer;
   onView: (id: number) => void;
   onEdit: (customer: Customer) => void;
-  onDelete?: (customer: Customer) => void;
   equipmentCount?: number;
   isSelectable?: boolean;
   isSelected?: boolean;
@@ -47,7 +46,6 @@ export const CustomerCard = memo(function CustomerCard({
   customer,
   onView,
   onEdit,
-  onDelete,
   equipmentCount = 0,
   isSelectable = false,
   isSelected = false,

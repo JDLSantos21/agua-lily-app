@@ -25,6 +25,7 @@ import {
   CustomerStatsResponse,
 } from "@/types/customers.types";
 import { toast } from "sonner";
+import { CustomerFormValues } from "@/app/(protected)/clientes/components/customer-form-dialog";
 
 // Claves de cache consistentes para evitar duplicaciones
 const CACHE_KEYS = {
@@ -91,7 +92,7 @@ export const useCreateCustomer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (customer: Omit<Customer, "id">) => createCustomer(customer),
+    mutationFn: (customer: CustomerFormValues) => createCustomer(customer),
     onSuccess: () => {
       // Invalidar todas las listas de clientes para refrescarlas
       queryClient.invalidateQueries({ queryKey: CACHE_KEYS.lists() });

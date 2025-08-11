@@ -20,6 +20,60 @@ interface EquipmentsModelsResponse {
   data: EquipmentModel[];
 }
 
+interface equipmentResponse {
+  success: boolean;
+  data: Equipment;
+}
+
+export const getEquipmentByID = async (
+  equipment_id: number | null
+): Promise<equipmentResponse> => {
+  if (!equipment_id) throw new Error("Equipment ID is required");
+  try {
+    const res = await api.get(`/equipments/${equipment_id}`);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching equipment by ID:", error);
+    throw new Error("Ocurrió un problema al obtener el equipo.");
+  }
+};
+
+interface ShowInMobileMutationResponse {
+  success: boolean;
+  message: string;
+}
+
+export const setShowOnMobile = async (
+  equipment_id: number,
+  show: boolean
+): Promise<ShowInMobileMutationResponse> => {
+  console.log(equipment_id, show);
+  try {
+    const res = await api.patch(`/equipments/${equipment_id}/show-on-mobile`, {
+      show,
+    });
+
+    return res.data;
+  } catch (error) {
+    console.log("Error setting show on mobile:", error);
+    throw new Error(
+      "Ocurrió un problema al actualizar la visibilidad en móvil."
+    );
+  }
+};
+
+export const setGPSUpdate = async (id: number, need_update: boolean) => {
+  try {
+    const res = await api.patch(`/equipments/${id}/gps-update`, {
+      need_update,
+    });
+    return res.data;
+  } catch (error) {
+    console.log("Error setting GPS update:", error);
+    throw new Error("Ocurrió un problema al actualizar la ubicación GPS.");
+  }
+};
+
 export const getEquipments = async (
   filters?: EquipmentFilter
 ): Promise<EquipmentsResponse> => {
@@ -114,6 +168,42 @@ export const updateEquipment = async (
     const res = await api.put(`/equipments/${id}`, data);
     return res.data;
   } catch (error) {
+    console.log("Error updating equipment:", error);
     throw new Error("Ocurrió un problema al actualizar el equipo.");
+  }
+};
+
+// Interfaces para asignación de equipos
+export interface EquipmentAssignment {
+  equipment_id: number;
+  customer_id: number;
+  notes?: string;
+  weekly_commitment?: number;
+}
+
+export interface EquipmentRemoval {
+  removal_reason: string;
+}
+
+export const assignEquipmentToCustomer = async (
+  data: EquipmentAssignment
+): Promise<{ success: boolean; message: string }> => {
+  try {
+    const res = await api.post("/equipments/assign", data);
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const removeEquipmentFromCustomer = async (
+  equipmentId: number,
+  data: EquipmentRemoval
+): Promise<{ success: boolean; message: string }> => {
+  try {
+    const res = await api.post(`/equipments/${equipmentId}/remove`, data);
+    return res.data;
+  } catch (error) {
+    throw error;
   }
 };

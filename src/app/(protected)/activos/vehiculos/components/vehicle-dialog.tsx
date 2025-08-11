@@ -24,7 +24,6 @@ export function VehicleDialog({
   open,
   onOpenChange,
   vehicle,
-  onSuccess,
 }: VehicleDialogProps) {
   const [formData, setFormData] = useState<VehicleFormData>(defaultFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});

@@ -149,7 +149,6 @@ export default function FuelRegisterForm() {
     data.signature = user_id;
 
     const requestPromise = registerFuelConsumption(data);
-    z;
     // Desencadena el toast "promise"
     toast.promise(requestPromise, {
       loading: "Registrando consumo de combustible...",

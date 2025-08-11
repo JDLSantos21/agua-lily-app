@@ -2,7 +2,7 @@
 import { CustomTable } from "@/components/ui/custom-table";
 import { Equipment } from "@/types/equipments.types";
 import { MAIN_COLUMNS } from "./constants";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useEquipmentFilters } from "@/hooks/useEquipmentFilters";
 import { EquipmentFilters } from "@/components/equipments/EquipmentFilters";
 import EquipmentDetailsModal from "./components/details-modal";
@@ -20,14 +20,23 @@ export default function EquipmentsPage() {
   const [isOpen, setIsOpen] = useState(false);
 
   // Manejar clic en fila
-  const handleRowClick = (equipment: Equipment, index: number) => {
+  const handleRowClick = useCallback((equipment: Equipment) => {
     setSelectedEquipment(equipment);
     setIsOpen(true);
-  };
+  }, []);
+
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+    setTimeout(() => {
+      setSelectedEquipment(null);
+    }, 300);
+  }, []);
+
+  const TOTAL_PAGES = 8;
 
   const { currentData, changePage, currentPage, totalPages } = usePagination(
     data?.data,
-    8
+    TOTAL_PAGES
   );
 
   return (
@@ -70,11 +79,14 @@ export default function EquipmentsPage() {
       )}
 
       {/* Modal de detalles */}
-      <EquipmentDetailsModal
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        equipment={selectedEquipment}
-      />
+      {isOpen && (
+        <EquipmentDetailsModal
+          equipment_id={selectedEquipment?.id || null}
+          isOpen={isOpen}
+          onClose={() => handleClose()}
+          equipment={selectedEquipment}
+        />
+      )}
     </div>
   );
 }

@@ -99,7 +99,7 @@ export function CustomerList() {
       refetch();
       toast.success("Cliente eliminado correctamente");
     } catch (error) {
-      // El error ya está manejado por el hook
+      console.log("Error al eliminar cliente:", error);
     } finally {
       setCustomerToDelete(null);
     }

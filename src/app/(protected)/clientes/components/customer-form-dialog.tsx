@@ -100,7 +100,7 @@ const businessValidationSchema = customerFormSchema.refine(
   }
 );
 
-type CustomerFormValues = z.infer<typeof customerFormSchema>;
+export type CustomerFormValues = z.infer<typeof customerFormSchema>;
 
 interface CustomerFormDialogProps {
   open: boolean;
@@ -124,7 +124,8 @@ export const CustomerFormDialog = memo(function CustomerFormDialog({
   const createCustomerMutation = useCreateCustomer();
   const updateCustomerMutation = useUpdateCustomer();
 
-  const isEditMode = !!customer?.id;
+  const isEditMode =
+    !!customer && customer.id !== undefined && customer.id !== null;
   const isSubmitting =
     createCustomerMutation.isPending || updateCustomerMutation.isPending;
 
@@ -214,6 +215,12 @@ export const CustomerFormDialog = memo(function CustomerFormDialog({
 
   // Función para enviar el formulario
   const onSubmit = async (data: CustomerFormValues) => {
+    if (data.business_name === "") {
+      delete data.business_name;
+    }
+
+    console.log("estos son los datos ", Object.keys(data));
+
     try {
       if (isEditMode && customer) {
         // Actualizar cliente existente

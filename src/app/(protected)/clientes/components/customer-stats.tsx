@@ -202,7 +202,6 @@ export const CustomerStats = memo(function CustomerStats() {
           description="Actualmente en el sistema"
           icon={<UserCheck className="w-6 h-6 text-green-600" />}
           gradient="from-green-50 to-emerald-50"
-          progressColor="bg-green-500"
           delay={0.1}
         />
 
@@ -214,7 +213,6 @@ export const CustomerStats = memo(function CustomerStats() {
           description="Clientes corporativos"
           icon={<Building2 className="w-6 h-6 text-blue-600" />}
           gradient="from-blue-50 to-cyan-50"
-          progressColor="bg-blue-500"
           delay={0.2}
         />
 
@@ -226,7 +224,6 @@ export const CustomerStats = memo(function CustomerStats() {
           description="Clientes particulares"
           icon={<Users className="w-6 h-6 text-purple-600" />}
           gradient="from-purple-50 to-pink-50"
-          progressColor="bg-purple-500"
           delay={0.3}
         />
       </div>
@@ -279,7 +276,6 @@ interface StatCardProps {
   description: string;
   icon: React.ReactNode;
   gradient: string;
-  progressColor: string;
   delay?: number;
 }
 
@@ -290,7 +286,6 @@ function StatCard({
   description,
   icon,
   gradient,
-  progressColor,
   delay = 0,
 }: StatCardProps) {
   return (

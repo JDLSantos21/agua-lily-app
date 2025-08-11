@@ -12,7 +12,7 @@ import SessionStatusIndicator from "./session-status-indicator";
 import PrintMultipleModal from "./print-multiple-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { List, Printer, Loader2, AlertCircle, Hash, Tag } from "lucide-react";
+import { List, Printer, Loader2, AlertCircle, Hash } from "lucide-react";
 import { toast } from "sonner";
 import { printerService } from "@/services/printService";
 import { Label } from "@/types/label.types";
@@ -143,21 +143,6 @@ export default function LabelsGenerateSection() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
-            <Tag className="w-5 h-5 text-white" />
-          </div>
-          <h2 className="text-2xl font-bold text-slate-800">
-            Generador de Etiquetas
-          </h2>
-        </div>
-        <p className="text-slate-600">
-          Imprime etiquetas para los botellones de agua.
-        </p>
-      </div>
-
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Input Section */}
