@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { DatePicker } from "@/app/(protected)/settings/labels/components/date-picker";
 import { Clock, CalendarCheck, FileText, Truck } from "lucide-react";
-import { formatDateToUTC } from "@/shared/utils/formatDateToUTC";
+import { parseDateFromISO } from "@/shared/utils/formatDateToUTC";
 
 interface DeliveryDetailsProps {
   initialData: {
@@ -41,9 +41,7 @@ export default function DeliveryDetails({
 }: DeliveryDetailsProps) {
   // Estado para fecha de entrega
   const [deliveryDate, setDeliveryDate] = useState<Date | undefined>(
-    initialData.scheduled_delivery_date
-      ? new Date(formatDateToUTC(initialData.scheduled_delivery_date) || "")
-      : undefined
+    parseDateFromISO(initialData.scheduled_delivery_date)
   );
 
   // Estado para franja horaria
