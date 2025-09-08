@@ -72,11 +72,8 @@ export default function DeliveryDetails({
       <div className="grid md:grid-cols-2 gap-6">
         {/* Detalles de la entrega */}
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-md flex items-center gap-1">
-              <Truck className="h-4 w-4" />
-              Detalles de Entrega
-            </CardTitle>
+          <CardHeader className="pb-1">
+            <CardTitle />
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -89,9 +86,6 @@ export default function DeliveryDetails({
                 setDate={setDeliveryDate}
                 className="w-full"
               />
-              <p className="text-xs text-gray-500">
-                Si no selecciona una fecha, se programará según disponibilidad.
-              </p>
             </div>
 
             <div className="space-y-2">
@@ -111,9 +105,6 @@ export default function DeliveryDetails({
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-500">
-                La franja horaria está sujeta a disponibilidad.
-              </p>
             </div>
 
             <div className="space-y-2">

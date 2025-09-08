@@ -14,11 +14,11 @@ import { Button } from "@/components/ui/button";
 import {
   Loader2,
   PlusCircle,
-  Users,
   Package,
   Truck,
   FileText,
   CheckCircle,
+  User,
 } from "lucide-react";
 import { CreateOrderRequest, OrderItem } from "@/types/orders.types";
 import { toast } from "sonner";
@@ -42,7 +42,7 @@ const STEPS = [
   {
     id: "customer",
     title: "Cliente",
-    icon: Users,
+    icon: User,
     description: "Información del cliente",
   },
   {
@@ -278,20 +278,20 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-4xl max-h-[95vh] overflow-hidden flex flex-col">
-        <DialogHeader className="pb-6 border-b border-gray-100">
-          <DialogTitle className="text-2xl font-semibold flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
-              <PlusCircle className="h-5 w-5 text-white" />
-            </div>
-            Crear Nuevo Pedido
+        <DialogHeader className="border-b border-gray-100 gap-2 flex flex-row items-center pb-1">
+          <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
+            <PlusCircle className="h-5 w-5 text-white" />
+          </div>
+          <DialogTitle className="text-xl font-semibold flex flex-col">
+            Crear nuevo pedido
+            <DialogDescription>
+              Complete la información requerida para crear el pedido
+            </DialogDescription>
           </DialogTitle>
-          <DialogDescription className="text-gray-600 mt-2">
-            Complete la información requerida para crear un nuevo pedido
-          </DialogDescription>
         </DialogHeader>
 
         {/* Stepper compacto */}
-        <div className="flex justify-between items-center py-2 px-2 bg-gray-50/50 rounded-xl">
+        <div className="flex justify-between items-center py-1 px-2 bg-gray-50 rounded-xl">
           {STEPS.map((step, index) => {
             const isActive = index === currentStep;
             const isCompleted = index < currentStep;
@@ -302,7 +302,7 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
                 <div className="flex items-center gap-3 w-full">
                   <button
                     onClick={() => setCurrentStep(index)}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !canContinue()}
                     className={cn(
                       "flex items-center justify-center w-8 h-8 rounded-lg border transition-all duration-200",
                       isActive
@@ -348,7 +348,7 @@ export default function OrderForm({ open, onOpenChange }: OrderFormProps) {
 
         {/* Contenido del formulario con animaciones */}
         <div className="flex-1 overflow-y-auto">
-          <div className="space-y-6 p-1">
+          <div className="space-y-5">
             {/* Paso 1: Cliente */}
             {currentStep === 0 && (
               <div className="animate-in slide-in-from-right-5 duration-300">

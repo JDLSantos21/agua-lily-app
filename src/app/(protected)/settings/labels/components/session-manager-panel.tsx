@@ -34,18 +34,18 @@ import { confirm } from "@tauri-apps/plugin-dialog";
 
 export default function SessionManagerPanel() {
   const [date, setDate] = useState<Date | undefined>(undefined);
-  const [startDate, setStartDate] = useState<Date>(
+  const [startDate, setStartDate] = useState<Date | undefined>(
     new Date(new Date().getFullYear(), new Date().getMonth(), 1)
   );
-  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
   const [showHistory, setShowHistory] = useState(false);
 
   const reopenDaySessionMutation = useReopenDaySession();
   const userRole = useAuthStore((state) => state.role);
 
   const { data: labelStats, isLoading } = useLabelStats(
-    format(startDate, "yyyy-MM-dd"),
-    format(endDate, "yyyy-MM-dd")
+    format(startDate || new Date(), "yyyy-MM-dd"),
+    format(endDate || new Date(), "yyyy-MM-dd")
   );
 
   // Solo mostrar para administradores
@@ -197,8 +197,9 @@ export default function SessionManagerPanel() {
             <CardHeader>
               <CardTitle>Historial de sesiones</CardTitle>
               <CardDescription>
-                Periodo: {format(startDate, "dd/MM/yyyy")} -{" "}
-                {format(endDate, "dd/MM/yyyy")}
+                {startDate && endDate
+                  ? `Periodo: ${format(startDate, "dd/MM/yyyy")} - ${format(endDate, "dd/MM/yyyy")}`
+                  : "Seleccionar fechas"}
               </CardDescription>
             </CardHeader>
             <CardContent>

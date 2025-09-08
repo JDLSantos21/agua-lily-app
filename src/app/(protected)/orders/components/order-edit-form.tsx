@@ -15,7 +15,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Loader2,
   Info,
-  FileEdit,
   Package,
   Truck,
   Users,
@@ -34,6 +33,8 @@ import { useProducts, useUpdateOrder } from "@/hooks/useOrders";
 import CustomerEditCard from "./customer-edit-card";
 import { formatDateForDB } from "@/utils/formatDate";
 import { es } from "date-fns/locale";
+import { RiEditCircleFill } from "react-icons/ri";
+import { formatDateToUTC } from "@/shared/utils/formatDateToUTC";
 
 interface OrderEditFormProps {
   open: boolean;
@@ -261,36 +262,47 @@ export default function OrderEditForm({
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-4xl max-h-[95vh] overflow-hidden flex flex-col">
-        <DialogHeader className="pb-6 border-b border-gray-100">
-          <DialogTitle className="text-2xl font-semibold flex items-center gap-3">
+        <DialogHeader className="border-b border-gray-100">
+          <div className="flex items-center gap-3 mb-4">
             <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
-              <FileEdit className="h-5 w-5 text-white" />
+              <RiEditCircleFill className="h-5 w-5 text-white" />
             </div>
-            Actualizar Pedido
-          </DialogTitle>
-          <DialogDescription className="text-gray-600 mt-2">
-            Modifique la información del pedido según sea necesario
-          </DialogDescription>
-
-          <div className="flex items-center justify-between mt-4 p-4 bg-gray-50 rounded-xl">
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-gray-900">
-                Código de seguimiento
-              </span>
-              <span className="font-mono text-lg text-blue-600">
+            <div className="flex-1">
+              <DialogTitle className="text-xl font-semibold">
+                Actualizar pedido
+              </DialogTitle>
+              <DialogDescription className="text-gray-600">
                 {order.tracking_code}
-              </span>
+              </DialogDescription>
             </div>
-            <div className="flex flex-col items-end">
-              <span className="text-sm text-gray-500">
-                {format(
-                  new Date(order.order_date || ""),
-                  "dd 'de' MMMM yyyy, hh:mm a",
-                  { locale: es }
+            <OrderStatusBadge
+              status={order.order_status || "pendiente"}
+              size="md"
+            />
+          </div>
+
+          <div className="bg-gray-50 rounded-xl p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <span>
+                    {format(
+                      new Date(order.order_date || ""),
+                      "dd 'de' MMMM yyyy, hh:mm a",
+                      { locale: es }
+                    )}
+                  </span>
+                </div>
+                {order.scheduled_delivery_date && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Truck className="h-4 w-4" />
+                    <span>
+                      Entrega: {formatDateToUTC(order.scheduled_delivery_date)}
+                    </span>
+                  </div>
                 )}
-              </span>
-              <div className="flex gap-2 mt-1">
-                <OrderStatusBadge status={order.order_status || "pendiente"} />
+              </div>
+              <div className="flex items-center gap-2 text-sm">
                 {isRegisteredCustomer && (
                   <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700">
                     Cliente Registrado
@@ -302,7 +314,7 @@ export default function OrderEditForm({
         </DialogHeader>
 
         {/* Stepper compacto */}
-        <div className="flex justify-between items-center py-4 px-2 bg-gray-50/50 rounded-xl">
+        <div className="flex justify-between items-center p-2 bg-gray-50 rounded-xl">
           {STEPS.map((step, index) => {
             const isActive = index === currentStep;
             const isCompleted = index < currentStep;
@@ -359,27 +371,27 @@ export default function OrderEditForm({
 
         {/* Contenido del formulario con animaciones */}
         <div className="flex-1 overflow-y-auto">
-          <div className="space-y-6 p-1">
+          <div className="space-y-6">
             {/* Paso 1: Cliente */}
             {currentStep === 0 && (
               <div className="animate-in slide-in-from-right-5 duration-300">
                 <Card className="border-0 shadow-none bg-transparent">
-                  <CardHeader className="px-0 pb-4">
-                    <CardTitle className="text-lg font-semibold text-gray-900">
-                      Información del Cliente
+                  <CardHeader className="px-0 pb-2">
+                    <CardTitle className="text-base font-semibold text-gray-900">
+                      {STEPS[0].description}
                     </CardTitle>
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-4">
-                      <div className="flex gap-3">
-                        <div className="flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full flex-shrink-0 mt-0.5">
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl py-2 px-4 mt-4">
+                      <div className="flex gap-2 items-center">
+                        <div className="flex items-center justify-center w-7 h-7 bg-blue-100 rounded-full flex-shrink-0 mt-0.5">
                           <Info className="h-4 w-4 text-blue-600" />
                         </div>
                         <div>
                           <p className="text-sm text-blue-800 font-medium">
                             {isRegisteredCustomer
-                              ? "Cliente Registrado"
-                              : "Cliente del Pedido"}
+                              ? "Cliente registrado"
+                              : "Cliente del pedido"}
                           </p>
-                          <p className="text-sm text-blue-700 mt-1">
+                          <p className="text-xs text-blue-700">
                             {isRegisteredCustomer
                               ? "Este pedido pertenece a un cliente registrado. Solo puedes editar la dirección de entrega."
                               : "Estás editando la información del cliente para este pedido específico."}
@@ -421,9 +433,9 @@ export default function OrderEditForm({
             {currentStep === 2 && (
               <div className="animate-in slide-in-from-right-5 duration-300">
                 <Card className="border-0 shadow-none bg-transparent">
-                  <CardHeader className="px-0 pb-6">
-                    <CardTitle className="text-lg font-semibold text-gray-900">
-                      Detalles de Entrega
+                  <CardHeader className="px-0 pb-4">
+                    <CardTitle className="text-base font-semibold text-gray-900">
+                      Cambiar información de entrega
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="px-0">
@@ -445,7 +457,7 @@ export default function OrderEditForm({
         </div>
 
         {/* Footer con navegación mejorada */}
-        <DialogFooter className="pt-6 border-t border-gray-100 bg-gray-50/50">
+        <DialogFooter className="p-1 flex items-center justify-center border-t border-gray-100 bg-gray-50/50">
           <div className="flex justify-between items-center w-full gap-4">
             <div className="flex items-center gap-2">
               {currentStep > 0 && (
@@ -479,7 +491,7 @@ export default function OrderEditForm({
                 <Button
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="gap-2 px-8 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg shadow-green-600/25"
+                  className="gap-2 px-8 bg-green-600 hover:bg-green-700"
                 >
                   {isSubmitting ? (
                     <>

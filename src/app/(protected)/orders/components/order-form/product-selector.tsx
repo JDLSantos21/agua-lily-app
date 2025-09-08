@@ -17,6 +17,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useDebounce } from "use-debounce";
+import { LiaCartPlusSolid } from "react-icons/lia";
 
 interface ProductSelectorProps {
   products: Product[];
@@ -124,12 +125,12 @@ export default function ProductSelector({
   return (
     <Card className="border-0 shadow-none bg-transparent">
       <CardHeader className="px-0 pb-6">
-        <CardTitle className="text-lg font-semibold text-gray-900">
-          Selección de Productos
+        <CardTitle className="text-base font-semibold text-gray-900">
+          Selección de productos
         </CardTitle>
-        <div className="mt-4">
+        <div className="mt-2">
           <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-4 h-4 w-4 text-gray-400" />
             <Input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -149,12 +150,11 @@ export default function ProductSelector({
         </div>
       </CardHeader>
 
-      <CardContent className="px-0 space-y-6">
+      <CardContent className="px-0 space-y-5">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Lista de productos disponibles */}
-          <div className="space-y-4">
-            <h3 className="font-medium text-gray-900 flex items-center gap-2">
-              <Package className="h-4 w-4 text-blue-500" />
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-gray-900 flex items-center">
               Productos Disponibles
             </h3>
             <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
@@ -180,7 +180,7 @@ export default function ProductSelector({
                       <div
                         key={product.id}
                         className={`
-                          p-3 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-sm
+                          py-2 px-3 rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-sm
                           ${
                             selectedProduct?.id === product.id
                               ? "border-blue-500 bg-blue-50 shadow-sm"
@@ -191,20 +191,16 @@ export default function ProductSelector({
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-gray-900 truncate">
+                            <p className="text-sm font-medium text-gray-900 truncate">
                               {product.name}
                             </p>
-                            {product.description && (
-                              <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                                {product.description}
-                              </p>
-                            )}
+
                             <div className="flex items-center gap-2 mt-2">
-                              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
+                              <span className="inline-flex items-center px-2 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
                                 {product.unit}
                               </span>
                               {product.size && (
-                                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700">
+                                <span className="inline-flex items-center px-2 rounded-md text-xs font-medium bg-blue-100 text-blue-700">
                                   {product.size}
                                 </span>
                               )}
@@ -227,29 +223,25 @@ export default function ProductSelector({
           </div>
 
           {/* Panel de agregar producto */}
-          <div className="space-y-4">
-            <h3 className="font-medium text-gray-900 flex items-center gap-2">
-              <Plus className="h-4 w-4 text-green-500" />
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium text-gray-900 flex items-center gap-2">
+              <Plus className="h-3 w-3 text-green-500" />
               Agregar al Pedido
             </h3>
             <div className="bg-white rounded-xl border border-gray-200 p-4">
               {selectedProduct ? (
-                <div className="space-y-4">
-                  <div className="bg-gray-50 rounded-lg p-3">
+                <div className="space-y-2">
+                  <div className="bg-gray-50 rounded-lg py-2 px-3">
                     <p className="font-medium text-gray-900">
                       {selectedProduct.name}
                     </p>
-                    {selectedProduct.description && (
-                      <p className="text-sm text-gray-600 mt-1">
-                        {selectedProduct.description}
-                      </p>
-                    )}
+
                     <div className="flex items-center gap-2 mt-2">
-                      <span className="text-xs bg-gray-200 px-2 py-1 rounded">
+                      <span className="text-xs bg-gray-200 px-2 rounded">
                         {selectedProduct.unit}
                       </span>
                       {selectedProduct.size && (
-                        <span className="text-xs bg-blue-200 px-2 py-1 rounded">
+                        <span className="text-xs bg-blue-200 px-2 rounded">
                           {selectedProduct.size}
                         </span>
                       )}
@@ -274,7 +266,7 @@ export default function ProductSelector({
                           setQuantity(Number(e.target.value) || null)
                         }
                         placeholder="Ingrese cantidad"
-                        className="mt-1 h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                        className="mt-1 h-10 border-gray-200 noControls focus:border-blue-500 focus:ring-blue-500"
                       />
                     </div>
 
@@ -290,7 +282,7 @@ export default function ProductSelector({
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Notas opcionales para este producto..."
-                        rows={3}
+                        rows={2}
                         className="mt-1 border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
                       />
                     </div>
@@ -307,8 +299,8 @@ export default function ProductSelector({
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 text-gray-500">
-                  <Package className="h-8 w-8 mb-3 text-gray-300" />
-                  <p className="text-center">
+                  <LiaCartPlusSolid className="h-8 w-8 mb-3 text-gray-300" />
+                  <p className="text-xs text-center">
                     Seleccione un producto para agregarlo al pedido
                   </p>
                 </div>
@@ -323,7 +315,7 @@ export default function ProductSelector({
             <div className="flex items-center justify-between">
               <h3 className="font-medium text-gray-900 flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-green-500" />
-                Productos en el Pedido ({selectedItems.length})
+                Productos en el pedido ({selectedItems.length})
               </h3>
               <Button
                 variant="outline"
@@ -336,7 +328,7 @@ export default function ProductSelector({
               </Button>
             </div>
 
-            <div className="bg-green-50 rounded-xl border border-green-200 p-4">
+            <div className="bg-gray-50 rounded-xl border border-green-200 p-2">
               <div className="space-y-3">
                 {selectedItems.map((item, index) => (
                   <div
@@ -344,22 +336,25 @@ export default function ProductSelector({
                     className="flex items-center justify-between bg-white rounded-lg p-3 border border-green-200"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 text-sm">
                         {item.product_name}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+                        <span className="text-xs bg-gray-100 px-2 rounded">
                           {item.unit}
                         </span>
                         {item.size && (
-                          <span className="text-xs bg-blue-100 px-2 py-1 rounded">
+                          <span className="text-xs bg-blue-100 px-2 rounded">
                             {item.size}
                           </span>
                         )}
                       </div>
                       {item.notes && (
-                        <p className="text-sm text-gray-600 mt-1 italic">
-                          Nota: {item.notes}
+                        <p className="text-sm text-gray-600 mt-1">
+                          Nota:{" "}
+                          <span className="font-medium italic text-gray-900">
+                            {item.notes}
+                          </span>
                         </p>
                       )}
                     </div>
@@ -408,7 +403,7 @@ export default function ProductSelector({
         )}
 
         {selectedItems.length === 0 && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2">
             <div className="flex gap-3">
               <div className="flex items-center justify-center w-6 h-6 bg-amber-100 rounded-full flex-shrink-0 mt-0.5">
                 <span className="text-amber-600 text-sm font-bold">!</span>

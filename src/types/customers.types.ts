@@ -69,19 +69,21 @@ export interface CustomerFilter {
  */
 export interface Equipment {
   id: number;
-  type: string;
-  brand: string;
-  model: string;
   serial_number: string;
+  type: string;
+  description: string;
+  brand: string;
   status: string;
-  customer_id?: number;
-  assigned_date?: string;
-  removed_date?: string | null;
-  notes?: string | null;
+  assigned_date: string;
+  removed_date: string | null;
+  removal_reason: string | null;
+  weekly_commitment: string | null;
+  notes: string | null;
+  assigned_by: string;
 }
 
 export interface CustomerWithEquipment extends Customer {
-  current_equipment: Equipment[];
+  current_equipments: Equipment[];
   equipment_history: Equipment[];
 }
 

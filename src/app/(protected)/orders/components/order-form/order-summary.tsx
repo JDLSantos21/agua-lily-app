@@ -43,7 +43,7 @@ export default function OrderSummary({
     <div className="space-y-6">
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle>Resumen del Pedido</CardTitle>
+          <CardTitle className="text-xl">Resumen del Pedido</CardTitle>
           <CardDescription>
             Verifique los detalles antes de crear el pedido
           </CardDescription>

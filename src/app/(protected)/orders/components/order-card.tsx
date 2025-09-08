@@ -263,25 +263,24 @@ const OrderCard = memo(function OrderCard({
   return (
     <Card
       className={cn(
-        "transition-all duration-200 hover:shadow-lg border-l-4 bg-white group h-full",
+        "transition-all duration-200 hover:shadow-lg border-l-2 bg-white group h-full",
         getBorderColor(),
         isUrgent && "ring-1 ring-red-200 shadow-red-500/30 shadow-md"
       )}
     >
-      <CardContent className="p-6 h-full flex flex-col">
+      <CardContent className="px-5 py-4 h-full flex flex-col">
         {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-start gap-3">
+        <div className="flex items-start justify-between mb-4 min-w-full">
+          <div className="flex items-start gap-3 w-full">
             {isUrgent && (
               <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-lg flex-shrink-0">
                 <AlertTriangle className="h-4 w-4 text-red-600" />
               </div>
             )}
-            <div className="min-w-0">
-              <div className="flex items-start justify-between gap-2 mb-2">
+            <div className="min-w-0 w-full">
+              <div className="flex items-start justify-between gap-2 mb-2 w-full">
                 {/* hacer que las letras no salgan de la tarjeta */}
-
-                <h3 className="font-semibold text-gray-900 text-lg  leading-tight">
+                <h3 className="font-semibold text-gray-900 text-base leading-tight">
                   {order.customer_name || "Cliente sin asignar"}
                 </h3>
 
@@ -293,8 +292,11 @@ const OrderCard = memo(function OrderCard({
                   <Clipboard className="h-4 w-4" />
                 </button>
               </div>
-              <div className="flex items-center gap-2 mb-3">
-                <OrderStatusBadge status={order.order_status || "pendiente"} />
+              <div className="flex items-center gap-2">
+                <OrderStatusBadge
+                  size="sm"
+                  status={order.order_status || "pendiente"}
+                />
                 <span className="text-sm text-gray-500 font-mono">
                   #{order.tracking_code}
                 </span>
@@ -304,12 +306,12 @@ const OrderCard = memo(function OrderCard({
         </div>
 
         {/* Información detallada */}
-        <div className="space-y-3 mb-4 flex-1">
+        <div className="space-y-2 mb-2 flex-1">
           {/* Información de fechas */}
           <div
             className={`${isUrgent ? "bg-gray-50" : "bg-gray-50"} rounded-lg p-3 space-y-2`}
           >
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2 text-gray-600">
                 <Calendar className="h-4 w-4" />
                 <span>Creado</span>
@@ -329,7 +331,7 @@ const OrderCard = memo(function OrderCard({
             </div>
 
             {scheduled_delivery_date && (
-              <div className="flex items-center justify-between text-sm border-t border-gray-200 pt-2">
+              <div className="flex items-center justify-between text-xs border-t border-gray-200 pt-2">
                 <div className="flex items-center gap-2 text-gray-600">
                   <Truck className="h-4 w-4" />
                   <span>Entrega</span>
@@ -350,7 +352,7 @@ const OrderCard = memo(function OrderCard({
 
           {/* Dirección del cliente */}
           {order.customer_address && (
-            <div className="flex items-start gap-2 text-sm bg-blue-50 p-3 rounded-lg">
+            <div className="flex items-start gap-2 text-xs bg-blue-50 p-2 rounded-lg">
               <MapPin className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
                 <span className="text-blue-600 text-xs font-medium block">
@@ -363,10 +365,10 @@ const OrderCard = memo(function OrderCard({
 
           {/* Información de entrega adicional */}
           {order.scheduled_delivery_date && !scheduled_delivery_date && (
-            <div className="flex items-start gap-2 text-sm bg-amber-50 p-3 rounded-lg">
+            <div className="flex items-start gap-2 text-xs bg-amber-50 p-2 rounded-lg">
               <Clock className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
               <div>
-                <span className="text-amber-600 text-xs font-medium block">
+                <span className="text-amber-600 font-medium block">
                   Entrega programada:
                 </span>
                 <span className="text-gray-700 block">
@@ -383,35 +385,22 @@ const OrderCard = memo(function OrderCard({
             </div>
           )}
 
-          {order.driver_name && (
-            <div className="flex justify-between gap-2 text-sm p-3 rounded-lg">
-              <div>
-                <span className=" text-xs font-medium block">Conductor</span>
-                <span className="text-gray-700">{order.driver_name}</span>
-              </div>
-              <div>
-                <span className=" text-xs font-medium block">Vehículo</span>
-                <span className="text-gray-700">{order.vehicle_tag}</span>
-              </div>
-            </div>
-          )}
-
           {/* Información de notas si existe */}
           {order.notes && (
-            <div className="flex items-start gap-2 text-sm">
+            <div className="flex items-start gap-2 text-xs">
               <BiComment className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
               <span className="text-gray-600 line-clamp-2">{order.notes}</span>
             </div>
           )}
         </div>
 
-        {/* Acciones - siempre al fondo */}
+        {/* Acciones*/}
         <div className="flex items-center justify-between pt-4 border-t border-gray-200 mt-auto">
           <Button
             variant="outline"
-            size="sm"
+            size="xs"
             onClick={handleView}
-            className="gap-2"
+            className="text-xs"
           >
             Ver detalles
           </Button>

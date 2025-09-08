@@ -259,7 +259,7 @@ export default function BusquedaPage() {
 
       {/* Diálogos */}
       <CustomerViewDialog
-        customerId={dialogState.viewDialog.customerId}
+        customerId={dialogState.viewDialog.customerId!}
         onClose={closeViewDialog}
         onEdit={(customer) => {
           closeViewDialog();

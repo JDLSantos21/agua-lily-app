@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 // import { Button } from "@/components/ui/button";
 import { User, Phone, MapPin, Building } from "lucide-react";
 import { useCustomer } from "@/hooks/useCustomers";
@@ -112,30 +111,10 @@ export default function CustomerEditCard({
 
   return (
     <Card className="border-blue-100">
-      <CardContent className="pt-6 space-y-5">
-        {/* {isRegisteredCustomer && (
-          <div className="bg-blue-50 p-3 rounded-md text-sm mb-2 flex items-start">
-            <InfoIcon className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-blue-600 font-medium">Cliente registrado</p>
-              <p className="text-blue-500 mt-1">
-                Este pedido está asociado a un cliente registrado (ID:{" "}
-                {customerId}). Los datos del cliente no se pueden modificar
-                desde aquí. Solo puedes cambiar la dirección de entrega para
-                este pedido específico.
-              </p>
-            </div>
-          </div>
-        )} */}
-
+      <CardContent className="pt-5 space-y-5">
         <div className="space-y-4">
           <div className="grid gap-2">
-            <Label htmlFor="customer-name" className="flex items-center gap-1">
-              {isRegisteredCustomer ? (
-                <Building className="h-4 w-4 text-gray-500" />
-              ) : (
-                <User className="h-4 w-4 text-gray-500" />
-              )}
+            <Label htmlFor="customer-name" className="flex items-center gap-1 ">
               {isRegisteredCustomer
                 ? "Nombre de la empresa/cliente"
                 : "Nombre del cliente"}{" "}
@@ -170,8 +149,7 @@ export default function CustomerEditCard({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="customer-phone" className="flex items-center gap-1">
-              <Phone className="h-4 w-4 text-gray-500" />
+            <Label htmlFor="customer-phone" className="flex items-center">
               Teléfono de contacto *
             </Label>
             <div className="relative">
@@ -199,11 +177,10 @@ export default function CustomerEditCard({
               htmlFor="customer-address"
               className="flex items-center gap-1"
             >
-              <MapPin className="h-4 w-4 text-gray-500" />
               Dirección de entrega *
             </Label>
             <div className="relative">
-              <Textarea
+              <Input
                 id="customer-address"
                 value={customerAddress}
                 onChange={(e) => handleAddressChange(e.target.value)}
@@ -212,7 +189,6 @@ export default function CustomerEditCard({
                     ? "Dirección específica para este pedido (puede ser diferente a la registrada)"
                     : "Dirección completa para entrega"
                 }
-                rows={3}
                 className="resize-none pl-10 pt-2"
                 required
               />
@@ -225,20 +201,6 @@ export default function CustomerEditCard({
             )}
           </div>
         </div>
-
-        {/* {isRegisteredCustomer && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="mt-2 w-full gap-1"
-            onClick={() => {
-              window.open(`/customers/${customerId}`, "_blank");
-            }}
-          >
-            <Search className="h-3.5 w-3.5" />
-            Ver información completa del cliente
-          </Button>
-        )} */}
       </CardContent>
     </Card>
   );

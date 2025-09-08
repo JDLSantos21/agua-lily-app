@@ -1,4 +1,3 @@
-// src/hooks/useSocket.ts - VERSIÓN ACTUALIZADA
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -6,69 +5,16 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/authStore";
 import { toast } from "sonner";
 import io, { Socket } from "socket.io-client";
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from "@/types/sockets.type";
 
 // Configuración
 const SOCKET_URL =
   process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000";
 const RECONNECT_DELAY = 1000;
 const MAX_RECONNECT_ATTEMPTS = 5;
-
-// Eventos que el servidor puede enviar
-interface ServerToClientEvents {
-  // Eventos de pedidos
-  "order:created": (data: {
-    order: any;
-    message: string;
-    timestamp: number;
-  }) => void;
-  "order:updated": (data: {
-    orderId: number;
-    order: any;
-    message: string;
-    timestamp: number;
-  }) => void;
-  "order:status_changed": (data: {
-    orderId: number;
-    status: string;
-    message: string;
-    trackingCode: string;
-    timestamp: number;
-  }) => void;
-  "order:deleted": (data: {
-    orderId: number;
-    trackingCode: string;
-    message: string;
-    timestamp: number;
-  }) => void;
-
-  // Eventos de sistema
-  notification: (data: {
-    type: "success" | "info" | "warning" | "error";
-    message: string;
-    title?: string;
-    timestamp: number;
-    userId?: number;
-  }) => void;
-  user_count: (count: number) => void;
-  "user:connected": (data: {
-    user: any;
-    message: string;
-    timestamp: number;
-  }) => void;
-  "user:disconnected": (data: {
-    userId: number;
-    message: string;
-    timestamp: number;
-  }) => void;
-}
-
-// Eventos que el cliente puede enviar
-interface ClientToServerEvents {
-  join_room: (room: string) => void;
-  leave_room: (room: string) => void;
-  ping: () => void;
-  request_data_refresh: (entity: string) => void;
-}
 
 export function useSocket() {
   const [socket, setSocket] = useState<Socket<
@@ -180,27 +126,14 @@ export function useSocket() {
     // ======================
 
     socketInstance.on("order:created", async (data) => {
-      console.log("📦 Nuevo pedido creado:", data);
-
       // Invalidar queries para refrescar listas
       queryClient.invalidateQueries({ queryKey: ["orders"] });
 
-      // await notify(
-      //   "Se ha creado un nuevo pedido",
-      //   `Se ha recibido un nuevo pedido a nombre de ${data.order.customer_name}`
-      // );
-
+      console.log("📦 Pedido creado:", data);
       // Mostrar notificación
-      toast.success(data.message, {
-        description: `Cliente: ${data.order.customer_name}`,
+      toast.info(data.message, {
+        description: `Se ha creado un pedido para ${data.order.customer_name}`,
         duration: 5000,
-        action: {
-          label: "Ver pedido",
-          onClick: () => {
-            // Aquí podrías navegar al pedido específico
-            console.log("Navegando al pedido:", data.order.id);
-          },
-        },
       });
     });
 

@@ -25,7 +25,7 @@ export interface Order {
   customer_display_name?: string;
   customer_phone: string;
   customer_address: string;
-  order_date?: string;
+  order_date: string;
   scheduled_delivery_date?: string | Date;
   delivery_time_slot?: string | null;
   order_status?: OrderStatus;
@@ -37,7 +37,7 @@ export interface Order {
   notes?: string | null;
   created_by?: number;
   items?: OrderItem[];
-  status_history?: OrderStatusHistoryEntry[];
+  status_history: OrderStatusHistoryEntry[];
   created_at: string;
   updated_at: string;
 }

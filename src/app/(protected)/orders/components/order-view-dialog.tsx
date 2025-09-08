@@ -17,7 +17,6 @@ import {
   Clock,
   User,
   Truck,
-  Edit,
   Trash,
   Clipboard,
   CalendarClock,
@@ -25,8 +24,8 @@ import {
   AlertTriangle,
   ArrowLeft,
   Eye,
-  Settings,
-  FileText,
+  UserPlus,
+  UserPen,
 } from "lucide-react";
 import {
   Order,
@@ -41,6 +40,16 @@ import { useOrder } from "@/hooks/useOrders";
 import formatPhoneNumber from "@/shared/utils/formatNumber";
 import { formatDateToUTC } from "@/shared/utils/formatDateToUTC";
 import { cn } from "@/lib/utils";
+import InfoCard from "./order-view/info-card";
+import {
+  MdPublishedWithChanges,
+  MdProductionQuantityLimits,
+} from "react-icons/md";
+import { RiEditCircleFill } from "react-icons/ri";
+import { CiBoxList } from "react-icons/ci";
+import { TbPointFilled } from "react-icons/tb";
+import { FaRegNoteSticky } from "react-icons/fa6";
+import { FiInfo } from "react-icons/fi";
 
 interface OrderViewDialogProps {
   orderId: number | null;
@@ -56,7 +65,7 @@ const STEPS = [
   {
     id: "details",
     title: "Información",
-    icon: Eye,
+    icon: FiInfo,
     description: "Detalles del pedido",
   },
   {
@@ -167,7 +176,7 @@ const OrderViewDialog = memo(function OrderViewDialog({
           </div>
         ) : (
           <>
-            <DialogHeader className="pb-6 border-b border-gray-100">
+            <DialogHeader className="border-b border-gray-100">
               <div className="flex items-center gap-3 mb-4">
                 <Button
                   variant="ghost"
@@ -181,8 +190,8 @@ const OrderViewDialog = memo(function OrderViewDialog({
                   <Eye className="h-5 w-5 text-white" />
                 </div>
                 <div className="flex-1">
-                  <DialogTitle className="text-2xl font-semibold flex items-center gap-3">
-                    Pedido {order.tracking_code}
+                  <DialogTitle className="text-xl font-semibold flex items-center gap-3">
+                    {order.tracking_code}
                     <button
                       className="text-gray-400 hover:text-gray-600 transition-colors"
                       onClick={copyTrackingCode}
@@ -190,13 +199,13 @@ const OrderViewDialog = memo(function OrderViewDialog({
                       <Clipboard className="w-5 h-5" />
                     </button>
                   </DialogTitle>
-                  <DialogDescription className="text-gray-600 mt-1">
+                  <DialogDescription className="text-gray-600">
                     {order.customer_name}
                   </DialogDescription>
                 </div>
                 <OrderStatusBadge
                   status={order.order_status || "pendiente"}
-                  size="lg"
+                  size="md"
                 />
               </div>
 
@@ -233,7 +242,7 @@ const OrderViewDialog = memo(function OrderViewDialog({
             </DialogHeader>
 
             {/* Stepper compacto */}
-            <div className="flex justify-between items-center py-4 px-2 bg-gray-50/50 rounded-xl">
+            <div className="flex justify-between items-center p-2 bg-gray-50 rounded-xl">
               {STEPS.map((step, index) => {
                 const isActive = index === currentStep;
                 const isCompleted = index < currentStep;
@@ -245,29 +254,19 @@ const OrderViewDialog = memo(function OrderViewDialog({
                       <button
                         onClick={() => setCurrentStep(index)}
                         className={cn(
-                          "flex items-center justify-center w-8 h-8 rounded-lg border transition-all duration-200",
+                          "flex items-center justify-center w-8 h-8 rounded-lg border transition-all duration-200 ",
                           isActive
                             ? "bg-blue-500 border-blue-500 text-white shadow-sm"
-                            : isCompleted
-                              ? "bg-green-500 border-green-500 text-white"
-                              : "bg-white border-gray-200 text-gray-400 hover:border-gray-300"
+                            : "bg-white border-gray-200 text-gray-400 hover:border-gray-300"
                         )}
                       >
-                        {isCompleted ? (
-                          <CheckCircle className="h-4 w-4" />
-                        ) : (
-                          <Icon className="h-4 w-4" />
-                        )}
+                        <Icon className="h-4 w-4" />
                       </button>
                       <div className="hidden sm:block">
                         <p
                           className={cn(
                             "text-sm font-medium",
-                            isActive
-                              ? "text-blue-600"
-                              : isCompleted
-                                ? "text-green-600"
-                                : "text-gray-500"
+                            isActive ? "text-blue-600" : "text-gray-500"
                           )}
                         >
                           {step.title}
@@ -314,81 +313,67 @@ const OrderViewDialog = memo(function OrderViewDialog({
             </div>
 
             {/* Footer con botones de acción mejorados */}
-            <DialogFooter className="pt-6 border-t border-gray-100 bg-gray-50/50">
+            <DialogFooter className="pt-6 border-t border-gray-100 flex justify-center items-center">
               <div className="flex justify-between items-center w-full gap-4">
-                <div className="flex items-center gap-2">
-                  {currentStep > 0 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setCurrentStep(currentStep - 1)}
-                      className="gap-2 px-6"
-                    >
-                      ← Anterior
-                    </Button>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between gap-3 w-full">
                   <span className="text-sm text-gray-500">
                     Vista {currentStep + 1} de {STEPS.length}
                   </span>
 
-                  {currentStep < STEPS.length - 1 ? (
-                    <Button
-                      type="button"
-                      onClick={() => setCurrentStep(currentStep + 1)}
-                      className="gap-2 px-6 bg-blue-600 hover:bg-blue-700"
-                    >
-                      Siguiente →
-                    </Button>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      {/* Botones de acción principales */}
-                      {onChangeStatus && (
-                        <Button
-                          variant="outline"
-                          onClick={handleChangeStatus}
-                          className="gap-2 px-4 border-amber-300 text-amber-700 hover:bg-amber-50 hover:border-amber-400"
-                        >
-                          <Settings className="h-4 w-4" />
-                          Estado
-                        </Button>
-                      )}
+                  <div className="flex items-center gap-2">
+                    {/* Botones de acción principales */}
+                    {onChangeStatus && (
+                      <Button
+                        variant="outline"
+                        onClick={handleChangeStatus}
+                        className="gap-2 px-4"
+                      >
+                        <MdPublishedWithChanges className="h-5 w-5" />
+                        Cambiar estado
+                      </Button>
+                    )}
 
-                      {onAssignDelivery && (
-                        <Button
-                          variant="outline"
-                          onClick={handleAssignDelivery}
-                          className="gap-2 px-4 border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400"
-                        >
-                          <Truck className="h-4 w-4" />
-                          Entrega
-                        </Button>
-                      )}
+                    {onAssignDelivery && (
+                      <Button
+                        variant="outline"
+                        onClick={handleAssignDelivery}
+                        className="gap-2 px-4"
+                      >
+                        {order.driver_name ? (
+                          <>
+                            <UserPen className="h-4 w-4" />
+                            Editar conductor
+                          </>
+                        ) : (
+                          <>
+                            <UserPlus className="h-4 w-4" />
+                            Asignar conductor
+                          </>
+                        )}
+                      </Button>
+                    )}
 
-                      {onEdit && (
-                        <Button
-                          onClick={handleEdit}
-                          className="gap-2 px-4 bg-blue-600 hover:bg-blue-700"
-                        >
-                          <Edit className="h-4 w-4" />
-                          Editar
-                        </Button>
-                      )}
+                    {onEdit && (
+                      <Button
+                        onClick={handleEdit}
+                        className="gap-2 px-4 bg-blue-600 hover:bg-blue-700"
+                      >
+                        <RiEditCircleFill className="h-4 w-4" />
+                        Editar
+                      </Button>
+                    )}
 
-                      {onDelete && (
-                        <Button
-                          variant="destructive"
-                          onClick={handleDelete}
-                          className="gap-2 px-4"
-                        >
-                          <Trash className="h-4 w-4" />
-                          Eliminar
-                        </Button>
-                      )}
-                    </div>
-                  )}
+                    {onDelete && (
+                      <Button
+                        variant="destructive"
+                        onClick={handleDelete}
+                        className="gap-2 px-4"
+                      >
+                        <Trash className="h-4 w-4" />
+                        Eliminar
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             </DialogFooter>
@@ -411,54 +396,39 @@ const OrderDetailsTab = memo(function OrderDetailsTab({
         {/* Información del pedido */}
         <Card className="border-gray-200 shadow-sm">
           <CardHeader className="pb-4">
-            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <CalendarClock className="h-5 w-5 text-blue-500" />
+            <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2">
+              <CalendarClock className="h-5 w-5" />
               Información del Pedido
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <CalendarClock className="h-4 w-4 text-gray-500" />
-                <div>
-                  <p className="text-xs text-gray-500 font-medium">
-                    Fecha de pedido
-                  </p>
-                  <p className="text-sm font-medium">
-                    {format(order.order_date || "", {
-                      date: "long",
-                      time: "short",
-                    })}
-                  </p>
-                </div>
-              </div>
+              <InfoCard
+                icon={CalendarClock}
+                label="Fecha de pedido"
+                value={format(order.order_date, {
+                  date: "long",
+                  time: "short",
+                })}
+              />
 
               {order.scheduled_delivery_date && (
-                <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                  <Truck className="h-4 w-4 text-blue-500" />
-                  <div>
-                    <p className="text-xs text-blue-600 font-medium">
-                      Fecha de entrega
-                    </p>
-                    <p className="text-sm font-medium text-blue-800">
-                      {formatDateToUTC(order.scheduled_delivery_date)}
-                    </p>
-                  </div>
-                </div>
+                <InfoCard
+                  icon={Truck}
+                  label="Fecha de entrega"
+                  value={formatDateToUTC(order.scheduled_delivery_date)}
+                  valueClassName="text-gray-800"
+                />
               )}
 
               {order.delivery_time_slot && (
-                <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg">
-                  <Clock className="h-4 w-4 text-purple-500" />
-                  <div>
-                    <p className="text-xs text-purple-600 font-medium">
-                      Horario de entrega
-                    </p>
-                    <p className="text-sm font-medium text-purple-800">
-                      {order.delivery_time_slot}
-                    </p>
-                  </div>
-                </div>
+                <InfoCard
+                  icon={Clock}
+                  label="Horario de entrega"
+                  value={order.delivery_time_slot}
+                  labelClassName="text-gray-600"
+                  valueClassName="text-gray-800"
+                />
               )}
             </div>
 
@@ -492,46 +462,33 @@ const OrderDetailsTab = memo(function OrderDetailsTab({
         {/* Información del cliente */}
         <Card className="border-gray-200 shadow-sm">
           <CardHeader className="pb-4">
-            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <User className="h-5 w-5 text-green-500" />
-              Información del Cliente
+            <CardTitle className="text-base font-semibold text-gray-900 flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Información del cliente
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                <User className="h-4 w-4 text-green-500" />
-                <div>
-                  <p className="text-xs text-green-600 font-medium">
-                    Nombre del cliente
-                  </p>
-                  <p className="text-sm font-medium text-green-800">
-                    {order.customer_name}
-                  </p>
-                </div>
-              </div>
+              <InfoCard
+                icon={User}
+                label="Nombre del cliente"
+                value={order.customer_name}
+                valueClassName="text-gray-800"
+              />
 
-              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                <Phone className="h-4 w-4 text-blue-500" />
-                <div>
-                  <p className="text-xs text-blue-600 font-medium">Teléfono</p>
-                  <p className="text-sm font-medium text-blue-800">
-                    {formatPhoneNumber(order.customer_phone)}
-                  </p>
-                </div>
-              </div>
+              <InfoCard
+                icon={Phone}
+                label="Teléfono"
+                value={formatPhoneNumber(order.customer_phone)}
+                valueClassName="text-gray-800"
+              />
 
-              <div className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg">
-                <MapPin className="h-4 w-4 text-orange-500 mt-0.5" />
-                <div>
-                  <p className="text-xs text-orange-600 font-medium">
-                    Dirección de entrega
-                  </p>
-                  <p className="text-sm font-medium text-orange-800">
-                    {order.customer_address}
-                  </p>
-                </div>
-              </div>
+              <InfoCard
+                icon={MapPin}
+                label="Dirección de entrega"
+                value={order.customer_address}
+                valueClassName="text-gray-800"
+              />
             </div>
           </CardContent>
         </Card>
@@ -586,7 +543,7 @@ const OrderProductsTab = memo(function OrderProductsTab({
     return (
       <div className="text-center py-12 text-gray-500">
         <div className="flex items-center justify-center w-16 h-16 bg-gray-100 rounded-xl mx-auto mb-4">
-          <Package className="h-8 w-8 text-gray-300" />
+          <MdProductionQuantityLimits className="h-8 w-8 text-gray-300" />
         </div>
         <h3 className="text-lg font-medium text-gray-700 mb-2">
           No hay productos
@@ -601,21 +558,22 @@ const OrderProductsTab = memo(function OrderProductsTab({
   const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header con resumen */}
-      <div className="bg-blue-50 rounded-xl p-4">
+      <div className="bg-gray-50 rounded-xl p-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-blue-500 rounded-lg">
-              <Package className="h-5 w-5 text-white" />
+            <div className="flex items-center justify-center w-10 h-10 bg-gray-500 rounded-lg">
+              <CiBoxList className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-blue-900">
+              <h3 className="font-semibold text-gray-900">
                 Lista de Productos
               </h3>
-              <p className="text-sm text-blue-600">
-                {items.length} {items.length === 1 ? "producto" : "productos"} •
-                Total: {totalQuantity} unidades
+              <p className="text-sm text-gray-600 inline-flex items-center gap-2">
+                {items.length} {items.length === 1 ? "producto" : "productos"}{" "}
+                <TbPointFilled className="h-4 w-4 text-gray-500" />
+                Total {totalQuantity} unidades
               </p>
             </div>
           </div>
@@ -629,7 +587,7 @@ const OrderProductsTab = memo(function OrderProductsTab({
             key={index}
             className="border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200"
           >
-            <CardContent className="p-4">
+            <CardContent className="px-4 py-2">
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start gap-3">
@@ -642,7 +600,7 @@ const OrderProductsTab = memo(function OrderProductsTab({
                       </h4>
 
                       {(item.unit || item.size) && (
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2">
                           {item.size && (
                             <span className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-md">
                               {item.size}
@@ -672,10 +630,10 @@ const OrderProductsTab = memo(function OrderProductsTab({
 
                 {/* Cantidad destacada */}
                 <div className="ml-4 text-right flex-shrink-0">
-                  <div className="inline-flex items-center justify-center w-12 h-12 bg-green-500 text-white rounded-xl">
+                  <div className="inline-flex items-center justify-center text-gray-800">
                     <span className="text-lg font-bold">{item.quantity}</span>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1 text-center">
+                  <p className="text-xs text-gray-500">
                     {item.quantity === 1 ? "unidad" : "unidades"}
                   </p>
                 </div>
@@ -686,26 +644,6 @@ const OrderProductsTab = memo(function OrderProductsTab({
       </div>
 
       {/* Resumen final */}
-      <div className="bg-gray-50 rounded-xl p-4 border-t-4 border-blue-500">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-500" />
-            <span className="font-semibold text-gray-900">
-              Resumen del pedido
-            </span>
-          </div>
-          <div className="text-right">
-            <p className="text-sm text-gray-600">Total de productos</p>
-            <p className="text-xl font-bold text-gray-900">{items.length}</p>
-          </div>
-        </div>
-        <div className="mt-2 pt-2 border-t border-gray-200">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600">Cantidad total de unidades:</span>
-            <span className="font-semibold text-gray-900">{totalQuantity}</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 });
@@ -735,16 +673,14 @@ const OrderHistoryTab = memo(function OrderHistoryTab({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-purple-50 rounded-xl p-4">
+      <div className="bg-gray-50 rounded-xl px-4 py-2">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 bg-purple-500 rounded-lg">
+          <div className="flex items-center justify-center w-10 h-10 bg-gray-500 rounded-lg">
             <Clock className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h3 className="font-semibold text-purple-900">
-              Historial de Estados
-            </h3>
-            <p className="text-sm text-purple-600">
+            <h3 className="font-semibold">Historial de estados</h3>
+            <p className="text-sm">
               {history.length}{" "}
               {history.length === 1
                 ? "cambio registrado"
@@ -757,7 +693,7 @@ const OrderHistoryTab = memo(function OrderHistoryTab({
       {/* Timeline */}
       <div className="relative">
         {/* Línea temporal */}
-        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-purple-500 to-green-500" />
+        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b bg-gray-400" />
 
         <div className="space-y-6">
           {history.map((entry, index) => {
@@ -770,8 +706,8 @@ const OrderHistoryTab = memo(function OrderHistoryTab({
                 {/* Punto en la timeline */}
                 <div
                   className={cn(
-                    "absolute left-0 top-2 w-12 h-12 rounded-xl border-4 border-white shadow-lg flex items-center justify-center",
-                    isLatest ? "bg-blue-500" : `bg-${statusColor}-500`
+                    "absolute left-0 w-12 h-12 rounded-xl shadow-lg flex items-center justify-center",
+                    `bg-${statusColor}-500`
                   )}
                 >
                   {React.cloneElement(StatusIcon, {
@@ -784,37 +720,25 @@ const OrderHistoryTab = memo(function OrderHistoryTab({
                   <Card
                     className={cn(
                       "border-l-4 shadow-sm transition-all duration-200 hover:shadow-md",
-                      isLatest
-                        ? "border-l-blue-500 bg-blue-50/50"
-                        : `border-l-${statusColor}-500 bg-${statusColor}-50/30`
+                      `border-l-${statusColor}-500 bg-${statusColor}-50/30`
                     )}
                   >
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
+                    <CardContent className="px-4 py-2">
+                      <div className="flex items-start justify-between mb-2">
                         <div>
                           <h4
-                            className={cn(
-                              "font-semibold text-lg flex items-center gap-2",
-                              isLatest
-                                ? "text-blue-900"
-                                : `text-${statusColor}-900`
-                            )}
+                            className={
+                              "font-medium text-base flex items-center gap-2"
+                            }
                           >
                             {getStatusLabel(entry.status)}
                             {isLatest && (
-                              <span className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                              <span className="inline-flex items-center text-blue-700 bg-blue-100 px-5 rounded-sm text-xs font-bold">
                                 Actual
                               </span>
                             )}
                           </h4>
-                          <p
-                            className={cn(
-                              "text-sm mt-1",
-                              isLatest
-                                ? "text-blue-700"
-                                : `text-${statusColor}-700`
-                            )}
-                          >
+                          <p className={"text-sm mt-1"}>
                             {format(entry.created_at, {
                               date: "full",
                               time: "short",
@@ -832,9 +756,9 @@ const OrderHistoryTab = memo(function OrderHistoryTab({
 
                       {/* Notas */}
                       {entry.notes && (
-                        <div className="mb-3 p-3 bg-white rounded-lg border border-gray-200">
+                        <div className="mb-3 px-3 py-1 bg-white rounded-lg border border-gray-200">
                           <p className="text-sm text-gray-700 leading-relaxed flex items-start gap-2">
-                            <FileText className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                            <FaRegNoteSticky className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
                             {entry.notes}
                           </p>
                         </div>
@@ -842,7 +766,7 @@ const OrderHistoryTab = memo(function OrderHistoryTab({
 
                       {/* Usuario que hizo el cambio */}
                       {entry.updated_by_name && (
-                        <div className="flex items-center gap-2 text-xs text-gray-600 pt-2 border-t border-gray-200">
+                        <div className="flex items-center gap-2 text-xs text-gray-600 pt-1 border-t border-gray-200">
                           <User className="h-3 w-3" />
                           <span>Actualizado por: </span>
                           <span className="font-medium">
@@ -860,24 +784,6 @@ const OrderHistoryTab = memo(function OrderHistoryTab({
       </div>
 
       {/* Estadísticas del historial */}
-      <div className="bg-gray-50 rounded-xl p-4">
-        <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-          <CheckCircle className="h-4 w-4 text-green-500" />
-          Resumen del historial
-        </h4>
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <p className="text-gray-600">Total de cambios:</p>
-            <p className="font-semibold text-gray-900">{history.length}</p>
-          </div>
-          <div>
-            <p className="text-gray-600">Estado actual:</p>
-            <p className="font-semibold text-gray-900">
-              {getStatusLabel(history[0]?.status)}
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 });
@@ -943,7 +849,7 @@ function getStatusIcon(status: string) {
 function getStatusColor(status: string) {
   switch (status) {
     case "pendiente":
-      return "yellow";
+      return "amber";
     case "preparando":
       return "blue";
     case "despachado":

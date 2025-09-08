@@ -189,8 +189,12 @@ const EquipmentDetailsModal = memo(function EquipmentDetailsModal({
     );
 
     if (isConfirmed) {
-      console.log("Imprimiendo etiqueta...");
-      printerService.printEquipmentLabel(equipment);
+      const response = await printerService.printEquipmentLabel(equipment);
+      if (response.success) {
+        toast.success("Etiqueta impresa correctamente.");
+      } else {
+        toast.error("Ocurrió un problema al imprimir la etiqueta.");
+      }
     }
   };
 

@@ -13,73 +13,19 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Order, OrderStatus } from "@/types/orders.types";
-import {
-  CheckIcon,
-  Loader2,
-  Settings,
-  ArrowLeft,
-  Clock,
-  Package,
-  Truck,
-  CheckCircle,
-  AlertTriangle,
-  FileText,
-} from "lucide-react";
+import { CheckIcon, Loader2, FileText, ArrowLeft } from "lucide-react";
 import OrderStatusBadge from "./order-status-badge";
 import { useUpdateOrderStatus } from "@/hooks/useOrders";
 import { cn } from "@/lib/utils";
-import { formatRelative } from "date-fns";
-import { es } from "date-fns/locale";
+import { MdPublishedWithChanges } from "react-icons/md";
+import { STATUS_OPTION } from "../contants";
+import { format } from "@formkit/tempo";
 
 interface OrderStatusDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   order: Order | null;
 }
-
-const statusOptions: {
-  value: OrderStatus;
-  label: string;
-  description: string;
-  icon: React.ElementType;
-  color: string;
-}[] = [
-  {
-    value: "pendiente",
-    label: "Pendiente",
-    description: "Pedido recibido, esperando procesamiento",
-    icon: Clock,
-    color: "amber",
-  },
-  {
-    value: "preparando",
-    label: "Preparando",
-    description: "Preparando productos para despacho",
-    icon: Package,
-    color: "blue",
-  },
-  {
-    value: "despachado",
-    label: "Despachado",
-    description: "En camino hacia el cliente",
-    icon: Truck,
-    color: "purple",
-  },
-  {
-    value: "entregado",
-    label: "Entregado",
-    description: "Pedido completado exitosamente",
-    icon: CheckCircle,
-    color: "green",
-  },
-  {
-    value: "cancelado",
-    label: "Cancelado",
-    description: "Pedido cancelado",
-    icon: AlertTriangle,
-    color: "red",
-  },
-];
 
 const OrderStatusDialog = memo(function OrderStatusDialog({
   open,
@@ -122,19 +68,14 @@ const OrderStatusDialog = memo(function OrderStatusDialog({
     }
   };
 
-  const lastStatus = order.status_history?.[0];
+  const lastStatus = order?.status_history?.[0];
+
   const lastStatusDateFormatted = () => {
     if (!lastStatus || !lastStatus.created_at) {
-      return formatRelative(new Date(order.updated_at), new Date(), {
-        locale: es,
-      });
+      return format(order.updated_at, { time: "short" });
     }
-    return formatRelative(new Date(lastStatus.created_at), new Date(), {
-      locale: es,
-    });
+    return format(lastStatus.created_at, { time: "short" });
   };
-
-  console.log("order", order);
 
   const canSubmit =
     selectedStatus && selectedStatus !== order?.order_status && !isPending;
@@ -163,34 +104,36 @@ const OrderStatusDialog = memo(function OrderStatusDialog({
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl">
-              <Settings className="h-5 w-5 text-white" />
+            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
+              <MdPublishedWithChanges className="h-5 w-5 text-white" />
             </div>
             <div className="flex-1">
-              <DialogTitle className="text-2xl font-semibold">
-                Cambiar Estado del Pedido
+              <DialogTitle className="text-xl font-semibold">
+                Cambiar estado del pedido
               </DialogTitle>
-              <DialogDescription className="text-gray-600 mt-1">
-                Pedido {order?.tracking_code}
+              <DialogDescription className="text-gray-600">
+                {order?.tracking_code}
               </DialogDescription>
             </div>
           </div>
 
           {/* Estado actual destacado */}
-          <div className="bg-gray-50 rounded-xl p-4">
+          <div className="bg-gray-50 rounded-xl py-2 px-4">
             <div className="flex items-center justify-between">
               <div>
                 <Label className="text-sm font-medium text-gray-700 mb-2 block">
                   Estado actual
                 </Label>
                 {order?.order_status ? (
-                  <OrderStatusBadge status={order.order_status} size="lg" />
+                  <OrderStatusBadge status={order.order_status} size="md" />
                 ) : (
                   <span className="text-gray-500 text-sm">No disponible</span>
                 )}
               </div>
-              <div className="text-right">
-                <p className="text-xs text-gray-500">Última actualización</p>
+              <div className="text-right flex flex-col justify-between">
+                <Label className="text-sm font-medium text-gray-500">
+                  Última actualización
+                </Label>
                 <p className="text-sm font-medium text-gray-700">
                   {lastStatusDateFormatted()}
                 </p>
@@ -200,7 +143,7 @@ const OrderStatusDialog = memo(function OrderStatusDialog({
         </DialogHeader>
 
         {/* Contenido principal */}
-        <div className="flex-1 overflow-y-auto py-6">
+        <div className="flex-1 overflow-y-auto pb-2">
           <div className="space-y-6">
             {/* Selector de estado mejorado */}
             <div className="space-y-4">
@@ -214,7 +157,7 @@ const OrderStatusDialog = memo(function OrderStatusDialog({
                 }
                 className="space-y-3"
               >
-                {statusOptions.map((option) => {
+                {STATUS_OPTION.map((option) => {
                   const Icon = option.icon;
                   const isCurrentStatus = order?.order_status === option.value;
                   const isSelected = selectedStatus === option.value;
@@ -223,7 +166,7 @@ const OrderStatusDialog = memo(function OrderStatusDialog({
                     <div
                       key={option.value}
                       className={cn(
-                        "relative rounded-xl border-2 p-4 transition-all duration-200 cursor-pointer group",
+                        "relative rounded-xl border-1 p-2 transition-all duration-200 cursor-pointer group",
                         isSelected
                           ? "border-blue-500 bg-blue-50 shadow-sm"
                           : isCurrentStatus
@@ -271,11 +214,11 @@ const OrderStatusDialog = memo(function OrderStatusDialog({
                             >
                               {option.label}
                             </h3>
-                            {isSelected && (
-                              <CheckIcon className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                            )}
+
                             {isCurrentStatus && (
-                              <span className="text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded-md">
+                              <span
+                                className={`text-xs bg-blue-500 text-white mr-5 px-2 py-1 rounded-md`}
+                              >
                                 Estado actual
                               </span>
                             )}
@@ -298,7 +241,7 @@ const OrderStatusDialog = memo(function OrderStatusDialog({
                       {/* Indicador visual de selección */}
                       {isSelected && (
                         <div className="absolute inset-0 rounded-xl border-2 border-blue-500 pointer-events-none">
-                          <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                          <div className="absolute -top-0.5 -right-0.5 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                             <CheckIcon className="h-3 w-3 text-white" />
                           </div>
                         </div>

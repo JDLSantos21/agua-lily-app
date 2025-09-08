@@ -17,7 +17,7 @@ export default function AssetsPage() {
   const assetCategories = [
     {
       title: "Vehículos",
-      description: "Gestión completa de la flota vehicular de la empresa",
+      description: "Gestión de flota vehicular",
       icon: <Truck className="h-12 w-12 text-blue-600" />,
       href: "/activos/vehiculos",
       color: "bg-blue-50 hover:bg-blue-100",
@@ -32,19 +32,9 @@ export default function AssetsPage() {
       href: "/activos/equipments",
       color: "bg-green-50 hover:bg-green-100",
       borderColor: "border-green-200",
-      stats: "8 equipos operativos",
+      stats: " ",
       bgIcon: "bg-green-100",
     },
-    // {
-    //   title: "Anaqueles",
-    //   description: "Inventario y ubicación de anaqueles en almacén",
-    //   icon: <LayoutGrid className="h-12 w-12 text-amber-600" />,
-    //   href: "/activos/anaqueles",
-    //   color: "bg-amber-50 hover:bg-amber-100",
-    //   borderColor: "border-amber-200",
-    //   stats: "45 anaqueles registrados",
-    //   bgIcon: "bg-amber-100",
-    // }
   ];
 
   return (

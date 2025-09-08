@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Customer } from "@/types/customers.types";
 import { useDebounce } from "use-debounce";
-import { Search, X, User, Plus } from "lucide-react";
+import { Search, X, User, Plus, UserSearch, UserRoundX } from "lucide-react";
 import { LoaderSpin } from "@/components/Loader";
 
 // API para buscar clientes
@@ -187,46 +187,46 @@ export default function CustomerSelector({
 
   return (
     <Card className="border-0 shadow-none bg-transparent">
-      <CardHeader className="px-0 pb-6">
-        <CardTitle className="text-lg font-semibold text-gray-900">
+      <CardHeader className="px-0">
+        <CardTitle className="text-base font-semibold text-gray-900">
           Información del Cliente
         </CardTitle>
-        <CardDescription className="text-gray-600">
+        <CardDescription className="text-gray-600 text-xs">
           Seleccione un cliente existente o registre uno nuevo
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="px-0 space-y-6">
+      <CardContent className="px-0 space-y-5">
         <Tabs
           value={activeTab}
           onValueChange={(v) => handleTabChange(v as "existing" | "new")}
           className="w-full"
         >
-          <TabsList className="grid grid-cols-2 w-full bg-gray-100 p-1 rounded-xl">
+          <TabsList className="grid grid-cols-2 w-full bg-gray-100 rounded-xl">
             <TabsTrigger
               value="existing"
               className="flex gap-2 items-center rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
             >
-              <User className="h-4 w-4" />
-              Cliente Registrado
+              <UserSearch className="h-4 w-4" />
+              Cliente registrado
             </TabsTrigger>
             <TabsTrigger
               value="new"
               className="flex gap-2 items-center rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
             >
               <Plus className="h-4 w-4" />
-              Cliente Nuevo
+              Cliente nuevo
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="existing" className="space-y-6 mt-6">
+          <TabsContent value="existing" className="space-y-3">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Buscar cliente por nombre, teléfono, RNC..."
-                className="pl-10 pr-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                className="pl-10 pr-10 h-10 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
               {searchTerm && (
                 <button
@@ -246,14 +246,21 @@ export default function CustomerSelector({
                   <p className="text-gray-500 mt-3">Buscando clientes...</p>
                 </div>
               ) : searchTerm && debouncedSearchTerm.length < 2 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                <div className="flex flex-col items-center justify-center xl:py-12 text-gray-500">
                   <Search className="h-8 w-8 mb-3 text-gray-300" />
                   <p>Introduzca al menos 2 caracteres para buscar</p>
                 </div>
+              ) : searchTerm.length === 0 ? (
+                <div className="flex flex-col items-center justify-center xl:py-12 text-gray-500">
+                  <UserSearch className="h-8 w-8 mb-3 text-gray-300" />
+                  <p>
+                    Realice una búsqueda para encontrar clientes registrados
+                  </p>
+                </div>
               ) : searchResults.length === 0 &&
                 debouncedSearchTerm.length >= 2 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-                  <User className="h-8 w-8 mb-3 text-gray-300" />
+                <div className="flex flex-col items-center justify-center xl:py-12 text-gray-500">
+                  <UserRoundX className="h-8 w-8 mb-3 text-gray-300" />
                   <p className="mb-3">No se encontraron clientes</p>
                   <Button
                     variant="outline"
@@ -265,15 +272,21 @@ export default function CustomerSelector({
                   </Button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {searchResults.map((customer) => (
-                    <CustomerCard
-                      key={customer.id}
-                      customer={customer}
-                      isSelected={selectedCustomer?.id === customer.id}
-                      onSelect={() => handleSelectCustomer(customer)}
-                    />
-                  ))}
+                <div className="space-y-2">
+                  <span className="font-medium text-gray-700">
+                    Seleccione un cliente a continuación:
+                  </span>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {searchResults.map((customer) => (
+                      <CustomerCard
+                        key={customer.id}
+                        customer={customer}
+                        isSelected={selectedCustomer?.id === customer.id}
+                        onSelect={() => handleSelectCustomer(customer)}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -323,9 +336,9 @@ export default function CustomerSelector({
             )}
           </TabsContent>
 
-          <TabsContent value="new" className="space-y-6 mt-6">
-            <div className="grid gap-6">
-              <div className="grid gap-3">
+          <TabsContent value="new" className="space-y-4 mt-3">
+            <div className="grid gap-4">
+              <div className="grid gap-0.5">
                 <Label
                   htmlFor="name"
                   className="text-sm font-medium text-gray-700"
@@ -342,7 +355,7 @@ export default function CustomerSelector({
                 />
               </div>
 
-              <div className="grid gap-3">
+              <div className="grid gap-0.5">
                 <Label
                   htmlFor="phone"
                   className="text-sm font-medium text-gray-700"
@@ -378,7 +391,7 @@ export default function CustomerSelector({
                 )}
               </div>
 
-              <div className="grid gap-3">
+              <div className="grid gap-0.5">
                 <Label
                   htmlFor="address"
                   className="text-sm font-medium text-gray-700"
@@ -396,7 +409,7 @@ export default function CustomerSelector({
                 />
               </div>
 
-              <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
+              <div className="flex items-center space-x-3 px-4 py-2 bg-gray-50 rounded-xl">
                 <Checkbox
                   id="save-customer"
                   checked={saveCustomer}
@@ -414,7 +427,7 @@ export default function CustomerSelector({
               </div>
             </div>
 
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-2 px-4">
               <div className="flex gap-3">
                 <div className="flex items-center justify-center w-6 h-6 bg-amber-100 rounded-full flex-shrink-0 mt-0.5">
                   <span className="text-amber-600 text-sm font-bold">!</span>

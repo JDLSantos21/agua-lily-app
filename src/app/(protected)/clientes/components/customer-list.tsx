@@ -256,7 +256,7 @@ export function CustomerList() {
       />
 
       <CustomerViewDialog
-        customerId={selectedCustomerId}
+        customerId={selectedCustomerId!}
         onClose={() => setSelectedCustomerId(null)}
         onEdit={handleEditCustomer}
       />

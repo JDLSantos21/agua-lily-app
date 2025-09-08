@@ -1,7 +1,7 @@
 {
-  "version": "v1.2.9",
-  "pub_date": "2025-08-11T00:00:00Z",
-  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSEc5T0J3ampzb2h4cG1mbDBwclp0am5HSTN0L2RjaE9Sck4wVEtWVWlLQ3RZN2t3UmIwVjNkLzNlcG1UK0drdjlRMDYvK3orcFU1WXJUZkRsS09SQXdBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzU0OTQ1NzQxCWZpbGU6QWd1YSBMaWx5IEFwcF8xLjIuOV94NjRfZXMtRVMubXNpClExTjBzcERTVlhYanlzTjkxZW9oWmVWUWs0ZS9xVUJiQ2htNkhWcW1tMit5Z1gxR1hWYzZpRW1TM1VXQkt3ZUJlQStSTDZlMGJPMlB4ek9Ga2hWd0NnPT0K",
+  "version": "v1.3.1",
+  "pub_date": "2025-08-30T00:00:00Z",
+  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSEtFeUpaZXNaeXlMZzdrTHJSeDAyNGlHWmZ5NGw5YklmdGZGQnhOcnBudFNqQ1Zqa1FncGdrK3NuU2xHNnUwTUIrdVFaWTN2VzNSUEFGa2ExV3o4UndzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzU2NTY4MDI1CWZpbGU6QWd1YSBMaWx5IEFwcF8xLjMuMV94NjRfZXMtRVMubXNpCno3czQ1eUtqbjdtcnFlQ3ZwMkMvblNXK1V4bXBzOHp4SVNSVk12cVFic0RuTkNxMUZ3Y2pvZXJoS0NsWDdHNFN2L3J0a0ExQWd2NkN1RitvUUdBekFRPT0K",
   "url": "https://github.com/JDLSantos21/agua-lily-app/releases/latest/download/setup.msi",
-  "notes": "Implementacion de feature en modulo de activos, se implemento el control de equipos."
+  "notes": "Feats and bug fixes"
 }

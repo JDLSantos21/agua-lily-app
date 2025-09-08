@@ -344,9 +344,9 @@ export default function PedidosPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50/50 p-6 pb-20">
+    <main className="min-h-screen bg-gray-50/50 p-3 pb-20">
       {/* Header con estadísticas y acciones principales */}
-      <div className="bg-white rounded-xl border border-gray-200/80 shadow-sm p-2 xl:p-6 mb-6">
+      <div className="bg-white rounded-xl border border-gray-200/80 shadow-sm p-2 xl:p-3 mb-3">
         <div className="flex  xl:flex-row lg:items-center justify-between gap-3 xl:gap-6">
           {/* Estadísticas simplificadas */}
           <div className="flex-1">
@@ -378,59 +378,8 @@ export default function PedidosPage() {
       </div>
 
       {/* Filtros y controles */}
-      <div className="bg-white rounded-xl border border-gray-200/80 shadow-sm p-6 mb-6">
+      <div className="bg-white rounded-xl border border-gray-200/80 shadow-sm p-3 mb-3">
         <div className="flex flex-col gap-4">
-          {/* Filtros de estado */}
-          {/* <div>
-            <h3 className="text-sm font-medium text-gray-700 mb-3">
-              Filtrar por estado
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              <StatusFilterButton
-                status="all"
-                active={activeStatusFilter === "all"}
-                onClick={() => handleStatusFilterChange("all")}
-              >
-                Todos
-              </StatusFilterButton>
-              <StatusFilterButton
-                status="pendiente"
-                active={activeStatusFilter === "pendiente"}
-                onClick={() => handleStatusFilterChange("pendiente")}
-              >
-                Pendientes
-              </StatusFilterButton>
-              <StatusFilterButton
-                status="preparando"
-                active={activeStatusFilter === "preparando"}
-                onClick={() => handleStatusFilterChange("preparando")}
-              >
-                Preparando
-              </StatusFilterButton>
-              <StatusFilterButton
-                status="despachado"
-                active={activeStatusFilter === "despachado"}
-                onClick={() => handleStatusFilterChange("despachado")}
-              >
-                Despachados
-              </StatusFilterButton>
-              <StatusFilterButton
-                status="entregado"
-                active={activeStatusFilter === "entregado"}
-                onClick={() => handleStatusFilterChange("entregado")}
-              >
-                Entregados
-              </StatusFilterButton>
-              <StatusFilterButton
-                status="cancelado"
-                active={activeStatusFilter === "cancelado"}
-                onClick={() => handleStatusFilterChange("cancelado")}
-              >
-                Cancelados
-              </StatusFilterButton>
-            </div>
-          </div> */}
-
           {/* Filtros avanzados y vista */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-gray-200">
             <div className="flex-1">
@@ -488,7 +437,7 @@ export default function PedidosPage() {
       </div>
 
       {/* Contenido según la vista seleccionada */}
-      <div className="mt-6">
+      <div className="mt-3">
         {isLoadingOrders ? (
           <div className="flex justify-center py-12">
             <LoaderSpin text="Cargando pedidos..." />

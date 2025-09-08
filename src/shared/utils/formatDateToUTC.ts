@@ -24,6 +24,7 @@ export function parseDateFromISO(
 ): Date | undefined {
   if (!dateString) return undefined;
 
+  console.log("fecha a verificar: ", dateString);
   try {
     // Si ya es un objeto Date, lo retornamos directamente
     if (dateString instanceof Date) {
@@ -32,13 +33,12 @@ export function parseDateFromISO(
 
     // Si es un string ISO, lo convertimos a Date
     const date = new Date(dateString);
-
     // Verificar que la fecha sea válida
     if (isNaN(date.getTime())) {
       return undefined;
     }
-
-    return date;
+    const finalDate = toZonedTime(date, "UTC");
+    return finalDate;
   } catch (error) {
     console.log("Error parseando fecha:", error);
     return undefined;

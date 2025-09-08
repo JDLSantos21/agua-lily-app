@@ -30,13 +30,15 @@ import { toast } from "sonner";
 export default function LabelsHistory() {
   const [isLoading, setIsLoading] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    new Date()
+  );
   const [status, setStatus] = useState<string>("");
 
   const fetchLabels = async () => {
     setIsLoading(true);
     try {
-      const formattedDate = format(selectedDate, "yyyy-MM-dd");
+      const formattedDate = format(selectedDate || new Date(), "yyyy-MM-dd");
       const filters = {
         date: formattedDate,
         ...(status != "all" ? { status } : {}),
