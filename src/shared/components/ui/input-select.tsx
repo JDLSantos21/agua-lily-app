@@ -29,7 +29,7 @@ interface InputSelectProps {
   searchPlaceholder?: string;
   emptyMessage?: string;
   className?: string;
-  displayProperty?: keyof SelectItem; // Propiedad a mostrar (por defecto 'name')
+  displayProperty?: keyof SelectItem | ((item: SelectItem) => string); // Propiedad a mostrar o función
   valueProperty?: keyof SelectItem; // Propiedad para el valor (por defecto 'id')
   selectedValue?: string | number | null; // Valor seleccionado desde el exterior
   allowClear?: boolean; // Permitir deseleccionar
@@ -50,6 +50,14 @@ export function InputSelect({
   clearText = "Sin selección",
 }: InputSelectProps) {
   const [open, setOpen] = useState(false);
+
+  // Función helper para obtener el texto a mostrar
+  const getDisplayText = (item: SelectItem): string => {
+    if (typeof displayProperty === "function") {
+      return displayProperty(item);
+    }
+    return String(item[displayProperty] || "");
+  };
 
   // Encontrar el item seleccionado basado en selectedValue
   const selectedItem = selectedValue
@@ -78,7 +86,7 @@ export function InputSelect({
             className
           )}
         >
-          {selectedItem ? selectedItem[displayProperty] : placeholder}
+          {selectedItem ? getDisplayText(selectedItem) : placeholder}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -110,10 +118,10 @@ export function InputSelect({
               {data.map((item) => (
                 <CommandItem
                   key={item[valueProperty]}
-                  value={String(item[displayProperty])}
+                  value={getDisplayText(item)}
                   onSelect={() => handleSelectItem(item)}
                 >
-                  {String(item[displayProperty])}
+                  {getDisplayText(item)}
                   <Check
                     className={cn(
                       "ml-auto",

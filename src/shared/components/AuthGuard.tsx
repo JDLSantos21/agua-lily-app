@@ -26,8 +26,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
           router.replace("/login");
           return;
         }
-
-        console.log("Usuario autenticado correctamente");
       } catch (error) {
         console.error("Error verificando autenticación:", error);
         router.replace("/login");

@@ -36,10 +36,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const isExpired = state.accessToken
       ? isTokenExpired(state.accessToken)
       : true;
-    console.log("Token expirado:", isExpired);
 
     if (isExpired) {
-      console.log("Token expirado, intentando refrescar...");
       get()
         .refresh()
         .then(() => {
@@ -51,11 +49,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         });
     }
 
-    // salio del isExpired
-    console.log(
-      "Store: Usuario autenticado:",
-      !!state.accessToken && !isExpired
-    );
     return !!state.accessToken && !isTokenExpired(state.accessToken);
   },
 

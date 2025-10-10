@@ -26,6 +26,7 @@ import {
   equipmentAssignmentSchema,
   EquipmentAssignmentFormData,
 } from "@/schemas/equipment";
+import { InputSelect } from "@/shared/components/ui/input-select";
 
 interface AssignCustomerModalProps {
   onOpenChange?: (open: boolean) => void;
@@ -105,6 +106,7 @@ export default function AssignCustomerModal({
   };
 
   const onSubmit = async (data: EquipmentAssignmentFormData) => {
+    console.log("Submitting assignment:", data);
     try {
       await assignMutation.mutateAsync({
         equipment_id: data.equipment_id,
@@ -225,43 +227,23 @@ export default function AssignCustomerModal({
                 name="customer_id"
                 control={control}
                 render={({ field }) => (
-                  <Select
-                    value={field.value?.toString()}
-                    onValueChange={(value) => field.onChange(Number(value))}
-                  >
-                    <SelectTrigger
-                      className={`w-full ${errors.customer_id ? "border-red-500" : ""}`}
-                    >
-                      <SelectValue placeholder="Seleccione un cliente" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {customers?.data?.length === 0 ? (
-                        <div className="px-3 py-2 text-sm text-gray-500">
-                          No hay clientes disponibles
-                        </div>
-                      ) : (
-                        customers?.data?.map((customer) => (
-                          <SelectItem
-                            key={customer.id}
-                            value={customer.id.toString()}
-                          >
-                            <div className="flex flex-col">
-                              <span className="font-medium">
-                                {customer.name}
-                              </span>
-                              {customer.contact_phone && (
-                                <span className="text-xs text-gray-500">
-                                  Tel: {customer.contact_phone}
-                                </span>
-                              )}
-                            </div>
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
+                  <InputSelect
+                    data={customers?.data || []}
+                    selectedValue={field.value}
+                    onSelect={(item) => field.onChange(item?.id)}
+                    placeholder="Selecciona un cliente"
+                    searchPlaceholder="Buscar cliente..."
+                    emptyMessage="No se encontró cliente."
+                    displayProperty={(item) =>
+                      item.business_name || item.name || "Sin nombre"
+                    }
+                    valueProperty={"id"}
+                    allowClear
+                    clearText="Quitar selección"
+                  />
                 )}
               />
+
               {errors.customer_id && (
                 <p className="text-sm text-red-600">
                   {errors.customer_id.message}
@@ -284,7 +266,11 @@ export default function AssignCustomerModal({
                     min="0"
                     max="7"
                     placeholder="Ej: 3 (días por semana)"
-                    className={errors.weekly_commitment ? "border-red-500" : ""}
+                    className={
+                      errors.weekly_commitment
+                        ? "border-red-500 noControls"
+                        : "noControls"
+                    }
                     {...field}
                     onChange={(e) => {
                       const value = e.target.value
