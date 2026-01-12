@@ -2,7 +2,7 @@
 "use client";
 
 import SideNav from "@/ui/sidenav/sidenav";
-// import { ClientesNav } from "./components/clientes-nav";
+import { ClientesNav } from "./components/clientes-nav";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useState } from "react";
 import { CustomerFormDialog } from "./components/customer-form-dialog";
@@ -21,8 +21,8 @@ export default function ClientesLayout({
           <SideNav />
         </div>
         <div className="flex-grow md:overflow-y-auto">
-          {/* <ClientesNav onNewCustomer={() => setIsNewCustomerDialogOpen(true)} /> */}
-          <div className="mt-5">{children}</div>
+          <ClientesNav />
+          <div>{children}</div>
 
           <CustomerFormDialog
             open={isNewCustomerDialogOpen}

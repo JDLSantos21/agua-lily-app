@@ -48,10 +48,13 @@ export default function RootLayout({
   }, [setUpdate]);
 
   return (
-    <html lang="en">
+    <html lang="es">
+      <head>
+        <meta charSet="UTF-8" />
+      </head>
       <body>
         <h1 className="absolute top-0 right-2 text-sm text-gray-800/40">
-          Version 1.3.1
+          Version 1.3.3
         </h1>
         <UpdateModal />
         <QueryClientProvider client={queryClient}>

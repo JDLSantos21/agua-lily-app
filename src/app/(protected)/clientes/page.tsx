@@ -7,13 +7,20 @@ import CustomerFormDialog from "./components/customer-form-dialog";
 import CustomerViewDialog from "./components/customer-view-dialog";
 import { Customer, CustomerFilter } from "@/types/customers.types";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, AlertCircle } from "lucide-react";
+import {
+  Plus,
+  Users,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { LoaderSpin } from "@/components/Loader";
 import { useCustomers } from "@/hooks/useCustomers";
 import { CustomTable } from "@/components/ui/custom-table";
 import { CUSTOMER_COLUMNS } from "./constants";
-import TablePagination from "@/components/pagination";
-import { usePagination } from "@/hooks/usePagination";
+
+// Configuración de paginación
+const ITEMS_PER_PAGE = 10;
 
 export default function ClientesPage() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,31 +31,115 @@ export default function ClientesPage() {
     dialogState,
     openViewDialog,
     openFormDialog,
-    openDeleteDialog,
     closeViewDialog,
     closeFormDialog,
   } = useCustomerStore();
 
-  const CUSTOMERS_PER_PAGE = 10;
-
+  // Calcular offset basado en la página actual
   const offset = useMemo(
-    () => (currentPage - 1) * CUSTOMERS_PER_PAGE,
+    () => (currentPage - 1) * ITEMS_PER_PAGE,
     [currentPage]
   );
 
+  // Filtros con paginación
+  const filtersWithPagination = useMemo(
+    () => ({
+      ...filters,
+      limit: ITEMS_PER_PAGE,
+      offset: offset,
+    }),
+    [filters, offset]
+  );
+
+  // Consultas de datos con TanStack Query
   const {
-    data: customers,
+    data: customersResponse,
     isLoading,
     refetch: customersRefetch,
     error,
-  } = useCustomers({ ...filters, offset, limit: CUSTOMERS_PER_PAGE });
+  } = useCustomers(filtersWithPagination, {
+    refetchOnWindowFocus: false,
+    placeholderData: (old) => old,
+  });
 
-  const pagination = useMemo(() => customers?.pagination || null, [customers]);
+  // Memoizar la lista de clientes para evitar re-renderizados
+  const customers = useMemo(
+    () => customersResponse?.data || [],
+    [customersResponse]
+  );
 
+  const pagination = useMemo(
+    () => customersResponse?.pagination,
+    [customersResponse]
+  );
+
+  // Calcular información de paginación
   const totalPages = useMemo(
-    () => Math.ceil((pagination?.total || 0) / CUSTOMERS_PER_PAGE),
+    () => Math.ceil((pagination?.total || 0) / ITEMS_PER_PAGE),
     [pagination?.total]
   );
+
+  // Manejador de cambio de filtros generales
+  const handleFiltersChange = useCallback((newFilters: typeof filters) => {
+    setFilters(newFilters);
+    setCurrentPage(1);
+  }, []);
+
+  // Funciones de paginación
+  const handlePreviousPage = useCallback(() => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  }, []);
+
+  const handleNextPage = useCallback(() => {
+    const paginationData = customersResponse?.pagination;
+    const total = paginationData?.total || 0;
+    const maxPages = Math.ceil(total / ITEMS_PER_PAGE);
+    if (currentPage < maxPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  }, [currentPage, customersResponse?.pagination]);
+
+  const handlePageClick = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, []);
+
+  const canGoPrevious = currentPage > 1;
+  const canGoNext = currentPage < totalPages;
+
+  // Generar números de página para mostrar
+  const pageNumbers = useMemo(() => {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      const start = Math.max(1, currentPage - 2);
+      const end = Math.min(totalPages, currentPage + 2);
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      if (start > 1) {
+        pages.unshift(1);
+        if (start > 2) {
+          pages.splice(1, 0, -1);
+        }
+      }
+
+      if (end < totalPages) {
+        if (end < totalPages - 1) {
+          pages.push(-1);
+        }
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  }, [currentPage, totalPages]);
 
   // Manejar clic en fila
   const handleRowClick = useCallback(
@@ -61,12 +152,6 @@ export default function ClientesPage() {
   const handleClose = useCallback(() => {
     closeViewDialog();
   }, [closeViewDialog]);
-
-  // Paginación usando el hook personalizado
-  const { currentData, changePage } = usePagination(
-    customers?.data || [],
-    CUSTOMERS_PER_PAGE
-  );
 
   // Estado de error
   if (error) {
@@ -103,7 +188,9 @@ export default function ClientesPage() {
             <Users className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Clientes</h1>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Lista de Clientes
+            </h1>
             <p className="text-sm text-gray-500">
               {pagination?.total
                 ? `${pagination.total} cliente${pagination.total !== 1 ? "s" : ""} registrado${pagination.total !== 1 ? "s" : ""}`
@@ -121,7 +208,10 @@ export default function ClientesPage() {
       </div>
 
       {/* Filtros */}
-      <CustomerFilters onChange={setFilters} initialFilters={filters} />
+      <CustomerFilters
+        onChange={handleFiltersChange}
+        initialFilters={filters}
+      />
 
       {/* Tabla de clientes */}
       {isLoading ? (
@@ -129,7 +219,7 @@ export default function ClientesPage() {
       ) : (
         <>
           <CustomTable
-            data={currentData || []}
+            data={customers}
             columns={CUSTOMER_COLUMNS}
             onRowClick={handleRowClick}
             isLoading={isLoading}
@@ -142,16 +232,59 @@ export default function ClientesPage() {
           />
 
           {/* Paginación */}
-          {customers && customers.data.length > 0 && (
-            <div className="absolute bottom-0 w-full">
-              <TablePagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                handlePageChange={(page) => {
-                  setCurrentPage(page);
-                  changePage(page);
-                }}
-              />
+          {pagination && totalPages > 1 && (
+            <div className="flex justify-center mt-8">
+              <div className="flex items-center gap-1 bg-white rounded-lg border border-gray-200 shadow-sm p-1">
+                {/* Botón Anterior */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handlePreviousPage}
+                  disabled={!canGoPrevious}
+                  className="flex items-center gap-1 text-gray-600 hover:text-gray-900 disabled:opacity-50"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+
+                {/* Números de página */}
+                <div className="flex gap-1 mx-2">
+                  {pageNumbers.map((pageNum, index) =>
+                    pageNum === -1 ? (
+                      <span
+                        key={`ellipsis-${index}`}
+                        className="px-3 py-1 text-gray-500"
+                      >
+                        ...
+                      </span>
+                    ) : (
+                      <Button
+                        key={pageNum}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handlePageClick(pageNum)}
+                        className={`px-3 ${
+                          currentPage === pageNum
+                            ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
+                            : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                        }`}
+                      >
+                        {pageNum}
+                      </Button>
+                    )
+                  )}
+                </div>
+
+                {/* Botón Siguiente */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleNextPage}
+                  disabled={!canGoNext}
+                  className="flex items-center gap-1 text-gray-600 hover:text-gray-900 disabled:opacity-50"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           )}
         </>
@@ -175,7 +308,6 @@ export default function ClientesPage() {
             closeViewDialog();
             openFormDialog(customer);
           }}
-          onDelete={openDeleteDialog}
         />
       )}
     </div>

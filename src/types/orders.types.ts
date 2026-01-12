@@ -67,6 +67,24 @@ export interface OrderFilter {
   order_direction?: "ASC" | "DESC";
 }
 
+// Tipo para rangos de fechas predefinidos
+export type DateRangePreset =
+  | "today"
+  | "yesterday"
+  | "this_week"
+  | "last_week"
+  | "this_month"
+  | "last_month"
+  | "this_year"
+  | "custom";
+
+export interface DateRangeFilter {
+  preset: DateRangePreset;
+  start_date: string;
+  end_date: string;
+  label?: string;
+}
+
 export interface Product {
   id: number;
   name: string;

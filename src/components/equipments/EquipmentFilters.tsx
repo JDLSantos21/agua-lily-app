@@ -11,10 +11,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, X } from "lucide-react";
-import { EquipmentFilterFormData } from "@/types/equipments.types";
+import { EquipmentFilter } from "@/types/equipments.types";
 
 interface EquipmentFiltersProps {
-  onFilterChange: (filters: EquipmentFilterFormData) => void;
+  onFilterChange: (filters: EquipmentFilter) => void;
   isLoading?: boolean;
   className?: string;
 }
@@ -38,7 +38,7 @@ export function EquipmentFilters({
   isLoading = false,
   className = "",
 }: EquipmentFiltersProps) {
-  const [filters, setFilters] = useState<EquipmentFilterFormData>({
+  const [filters, setFilters] = useState<EquipmentFilter>({
     type: "",
     status: "",
     search: "",
@@ -55,16 +55,19 @@ export function EquipmentFilters({
   // Aplicar filtros con debounce para el search
   useEffect(() => {
     const timer = setTimeout(() => {
-      onFilterChange(filters);
+      // Limpiar valores vacíos antes de enviar
+      const cleanedFilters: EquipmentFilter = {};
+      if (filters.type) cleanedFilters.type = filters.type;
+      if (filters.status) cleanedFilters.status = filters.status;
+      if (filters.search) cleanedFilters.search = filters.search;
+
+      onFilterChange(cleanedFilters);
     }, 300); // 300ms debounce para búsqueda
 
     return () => clearTimeout(timer);
   }, [filters, onFilterChange]);
 
-  const handleFilterChange = (
-    key: keyof EquipmentFilterFormData,
-    value: string
-  ) => {
+  const handleFilterChange = (key: keyof EquipmentFilter, value: string) => {
     setFilters((prev) => ({
       ...prev,
       [key]: value,

@@ -179,8 +179,10 @@ export const getProducts = async (): Promise<ProductsResponse> => {
 /**
  * Obtiene estadísticas de pedidos
  */
-export const getOrderStats = async (): Promise<StatsResponse> => {
-  const res = await api.get(`/orders/stats`);
+export const getOrderStats = async (
+  filters?: Pick<OrderFilter, "start_date" | "end_date">
+): Promise<StatsResponse> => {
+  const res = await api.get(`/orders/stats`, { params: filters });
   return res.data;
 };
 

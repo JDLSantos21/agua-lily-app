@@ -139,7 +139,7 @@ const OrderAssignDeliveryDialog = memo(function OrderAssignDeliveryDialog({
                 <SelectContent>
                   {drivers?.map((driver: Employee) => (
                     <SelectItem key={driver.id} value={driver.id.toString()}>
-                      {driver.name}
+                      {`${driver.name} ${driver.last_name}`}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -30,9 +30,12 @@ import OrderAssignDeliveryDialog from "./components/order-assign-dialog";
 import OrderStats from "./components/orders-stats";
 import OrderForm from "./components/order-form";
 import OrderEditForm from "./components/order-edit-form";
+import { DateRangeSelector } from "./components/date-range-selector";
 
 // Hooks de TanStack Query
 import { useOrders, useOrderStats, useDeleteOrder } from "@/hooks/useOrders";
+import { format, startOfMonth } from "date-fns";
+import { es } from "date-fns/locale";
 import { ReceptorWindow } from "@/shared/tauri/windows/receptor";
 
 // Type para el estado de diálogos
@@ -63,12 +66,20 @@ export default function PedidosPage() {
   // Estado para paginación
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Estado para rango de fechas - inicializar con el mes actual
+  const [dateRange, setDateRange] = useState(() => {
+    const today = new Date();
+    const startOfThisMonth = startOfMonth(today);
+    return {
+      start_date: format(startOfThisMonth, "yyyy-MM-dd"),
+      end_date: format(today, "yyyy-MM-dd"),
+    };
+  });
+
   // Estado para filtros
   const [filters, setFilters] = useState<{
     order_status?: OrderStatus;
     search?: string;
-    start_date?: string;
-    end_date?: string;
     scheduled_date?: string;
   }>({});
 
@@ -92,14 +103,24 @@ export default function PedidosPage() {
     [currentPage]
   );
 
-  // Filtros con paginación
+  // Filtros con paginación y rango de fechas
   const filtersWithPagination = useMemo(
     () => ({
       ...filters,
+      ...dateRange,
       limit: ITEMS_PER_PAGE,
       offset: offset,
     }),
-    [filters, offset]
+    [filters, dateRange, offset]
+  );
+
+  // Filtros solo de fecha para estadísticas
+  const statsFilters = useMemo(
+    () => ({
+      start_date: dateRange.start_date,
+      end_date: dateRange.end_date,
+    }),
+    [dateRange]
   );
 
   // Consultas de datos con TanStack Query
@@ -112,12 +133,14 @@ export default function PedidosPage() {
     placeholderData: (old) => old,
   });
 
-  // Solo consultar estadísticas cuando se muestra la vista de estadísticas
-  const { data: statsData, isLoading: isLoadingStats } = useOrderStats({
-    enabled: activeView === "stats",
-    refetchOnWindowFocus: false,
-    placeholderData: (old) => old,
-  });
+  // Consultar estadísticas con filtros de fecha
+  const { data: statsData, isLoading: isLoadingStats } = useOrderStats(
+    statsFilters,
+    {
+      refetchOnWindowFocus: false,
+      placeholderData: (old) => old,
+    }
+  );
 
   // Mutación para eliminar pedidos
   const deleteOrderMutation = useDeleteOrder();
@@ -225,6 +248,15 @@ export default function PedidosPage() {
     setFilters(newFilters);
     setCurrentPage(1);
   }, []);
+
+  // Manejador de cambio de rango de fechas
+  const handleDateRangeChange = useCallback(
+    (newRange: { start_date: string; end_date: string }) => {
+      setDateRange(newRange);
+      setCurrentPage(1);
+    },
+    []
+  );
 
   // Manejador de eliminación de pedido
   const handleDeleteOrder = useCallback(() => {
@@ -380,8 +412,24 @@ export default function PedidosPage() {
       {/* Filtros y controles */}
       <div className="bg-white rounded-xl border border-gray-200/80 shadow-sm p-3 mb-3">
         <div className="flex flex-col gap-4">
+          {/* Selector de rango de fechas */}
+          <div className="flex items-center justify-between border-b border-gray-200 pb-3">
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700">
+                Rango de fechas
+              </h3>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Filtra pedidos y estadísticas por período
+              </p>
+            </div>
+            <DateRangeSelector
+              value={dateRange}
+              onChange={handleDateRangeChange}
+            />
+          </div>
+
           {/* Filtros avanzados y vista */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-gray-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex-1">
               <OrderFilters
                 onChange={handleFiltersChange}
@@ -447,26 +495,133 @@ export default function PedidosPage() {
             {activeView === "stats" ? (
               // Vista de estadísticas
               <div className="space-y-6">
+                {/* Estadísticas principales */}
                 <OrderStats
                   stats={statsData?.data}
                   isLoading={isLoadingStats}
                 />
 
-                <Card className="bg-white border border-gray-200/80 shadow-sm">
-                  <CardContent className="pt-6">
-                    <div className="text-center py-4">
-                      <p className="text-sm text-gray-500 mb-4">
-                        Para un análisis más detallado y gráficos interactivos,
-                        visite el panel de estadísticas.
-                      </p>
-                      <Link href="/orders/estadisticas">
-                        <Button variant="outline">
-                          Ver Estadísticas Completas
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
+                {/* Información adicional */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Resumen del período */}
+                  <Card className="bg-white border border-gray-200/80 shadow-sm">
+                    <CardContent className="pt-6">
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                            Resumen del Período Seleccionado
+                          </h3>
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                              <span className="text-sm text-gray-600">
+                                Fecha de inicio
+                              </span>
+                              <span className="text-sm font-semibold text-gray-900">
+                                {(() => {
+                                  const [year, month, day] =
+                                    dateRange.start_date.split("-").map(Number);
+                                  return format(
+                                    new Date(year, month - 1, day),
+                                    "dd MMM yyyy",
+                                    { locale: es }
+                                  );
+                                })()}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                              <span className="text-sm text-gray-600">
+                                Fecha de fin
+                              </span>
+                              <span className="text-sm font-semibold text-gray-900">
+                                {(() => {
+                                  const [year, month, day] = dateRange.end_date
+                                    .split("-")
+                                    .map(Number);
+                                  return format(
+                                    new Date(year, month - 1, day),
+                                    "dd MMM yyyy",
+                                    { locale: es }
+                                  );
+                                })()}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center py-2">
+                              <span className="text-sm text-gray-600">
+                                Días en el rango
+                              </span>
+                              <span className="text-sm font-semibold text-gray-900">
+                                {(() => {
+                                  const [startYear, startMonth, startDay] =
+                                    dateRange.start_date.split("-").map(Number);
+                                  const [endYear, endMonth, endDay] =
+                                    dateRange.end_date.split("-").map(Number);
+                                  const start = new Date(
+                                    startYear,
+                                    startMonth - 1,
+                                    startDay
+                                  );
+                                  const end = new Date(
+                                    endYear,
+                                    endMonth - 1,
+                                    endDay
+                                  );
+                                  return (
+                                    Math.ceil(
+                                      (end.getTime() - start.getTime()) /
+                                        (1000 * 60 * 60 * 24)
+                                    ) + 1
+                                  );
+                                })()}{" "}
+                                días
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Acciones rápidas */}
+                  <Card className="bg-white border border-gray-200/80 shadow-sm">
+                    <CardContent className="pt-6">
+                      <div className="space-y-4">
+                        <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                          Acciones Rápidas
+                        </h3>
+                        <div className="space-y-2">
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start"
+                            onClick={openNewOrderDialog}
+                          >
+                            <PlusIcon className="h-4 w-4 mr-2" />
+                            Crear Nuevo Pedido
+                          </Button>
+                          <Link href="/orders/estadisticas" className="block">
+                            <Button
+                              variant="outline"
+                              className="w-full justify-start"
+                            >
+                              <BarChartIcon className="h-4 w-4 mr-2" />
+                              Ver Análisis Detallado
+                            </Button>
+                          </Link>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start"
+                            onClick={() => {
+                              // Cambiar a vista de lista para ver todos los pedidos
+                              setActiveView("grid");
+                            }}
+                          >
+                            <Grid2X2 className="h-4 w-4 mr-2" />
+                            Ver Todos los Pedidos
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             ) : activeView === "list" ? (
               // Vista de lista
@@ -643,49 +798,3 @@ export default function PedidosPage() {
     </main>
   );
 }
-
-// Componente botón de filtro para estados
-// interface StatusFilterButtonProps {
-//   status: OrderStatus | "all";
-//   active: boolean;
-//   onClick: () => void;
-//   children: React.ReactNode;
-// }
-
-// function StatusFilterButton({
-//   status,
-//   active,
-//   onClick,
-//   children,
-// }: StatusFilterButtonProps) {
-//   // Definir colores según el estado
-//   const getStatusStyles = () => {
-//     if (active) {
-//       switch (status) {
-//         case "pendiente":
-//           return "bg-yellow-50 text-yellow-700 border-yellow-200 shadow-sm";
-//         case "preparando":
-//           return "bg-blue-50 text-blue-700 border-blue-200 shadow-sm";
-//         case "despachado":
-//           return "bg-purple-50 text-purple-700 border-purple-200 shadow-sm";
-//         case "entregado":
-//           return "bg-green-50 text-green-700 border-green-200 shadow-sm";
-//         case "cancelado":
-//           return "bg-red-50 text-red-700 border-red-200 shadow-sm";
-//         default:
-//           return "bg-blue-50 text-blue-700 border-blue-200 shadow-sm";
-//       }
-//     }
-
-//     return "bg-white hover:bg-gray-50 text-gray-600 border-gray-300 hover:border-gray-400";
-//   };
-
-//   return (
-//     <button
-//       className={`px-4 py-2 rounded-lg text-sm border transition-all duration-200 font-medium ${getStatusStyles()}`}
-//       onClick={onClick}
-//     >
-//       {children}
-//     </button>
-//   );
-// }

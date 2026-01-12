@@ -15,6 +15,7 @@ import {
   deleteCustomer,
   searchCustomers,
   getCustomerStats,
+  getInactiveCustomers,
 } from "@/api/customers";
 import {
   Customer,
@@ -23,6 +24,7 @@ import {
   CustomerResponse,
   CustomerWithEquipmentResponse,
   CustomerStatsResponse,
+  InactiveCustomersResponse,
 } from "@/types/customers.types";
 import { toast } from "sonner";
 import { CustomerFormValues } from "@/app/(protected)/clientes/components/customer-form-dialog";
@@ -39,6 +41,8 @@ const CACHE_KEYS = {
   search: (term: string, limit?: number) =>
     [...CACHE_KEYS.lists(), "search", term, limit] as const,
   stats: () => [...CACHE_KEYS.all, "stats"] as const,
+  inactive: (daysThreshold: number) =>
+    [...CACHE_KEYS.all, "inactive", daysThreshold] as const,
 };
 
 /**
@@ -46,11 +50,28 @@ const CACHE_KEYS = {
  */
 export const useCustomers = (
   filters?: CustomerFilter,
-  options?: UseQueryOptions<CustomersResponse>
+  options?: Partial<UseQueryOptions<CustomersResponse>>
 ) => {
+  // Limpiar filtros vacíos para evitar consultas innecesarias
+  const cleanFilters = filters ? { ...filters } : {};
+
+  // Remover campos undefined para normalizar la cache key
+  Object.keys(cleanFilters).forEach((key) => {
+    if (
+      cleanFilters[key as keyof CustomerFilter] === undefined ||
+      cleanFilters[key as keyof CustomerFilter] === ""
+    ) {
+      delete cleanFilters[key as keyof CustomerFilter];
+    }
+  });
+
   return useQuery({
-    queryKey: CACHE_KEYS.list(filters),
-    queryFn: () => getCustomers(filters),
+    queryKey: CACHE_KEYS.list(cleanFilters),
+    queryFn: () => getCustomers(cleanFilters),
+    // Mantener data anterior mientras se carga nueva página
+    placeholderData: (old) => old,
+    // Cache por 30 segundos para evitar refetches frecuentes
+    staleTime: 30 * 1000,
     ...options,
   });
 };
@@ -215,6 +236,22 @@ export const useCustomerStats = (
     queryKey: CACHE_KEYS.stats(),
     queryFn: () => getCustomerStats(),
     staleTime: 5 * 60 * 1000, // 5 minutos - las estadísticas no se actualizan tan frecuentemente
+    ...options,
+  });
+};
+
+/**
+ * Hook para obtener clientes inactivos con equipos
+ */
+export const useInactiveCustomers = (
+  daysThreshold: number = 14,
+  options?: Partial<UseQueryOptions<InactiveCustomersResponse>>
+) => {
+  return useQuery({
+    queryKey: CACHE_KEYS.inactive(daysThreshold),
+    queryFn: () => getInactiveCustomers(daysThreshold),
+    staleTime: 5 * 60 * 1000, // 5 minutos - cache por tiempo razonable
+    refetchOnWindowFocus: true, // Refetch al volver a la ventana
     ...options,
   });
 };

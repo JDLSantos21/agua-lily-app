@@ -127,3 +127,35 @@ export interface CustomerWithEquipmentResponse extends ApiResponse {
 export interface CustomerStatsResponse extends ApiResponse {
   data: CustomerStats;
 }
+
+/**
+ * Interfaces para clientes inactivos con equipos
+ */
+export interface InactiveEquipment {
+  equipment_id: number;
+  equipment_type: string;
+  equipment_model: string;
+  equipment_serial: string;
+  assigned_date: string;
+  weekly_commitment: number | null;
+  last_order_date: string | null;
+  days_without_order: number;
+  expected_product_type: string;
+}
+
+export interface InactiveCustomer {
+  id: number;
+  name: string;
+  business_name: string | null;
+  contact_phone: string;
+  address: string;
+  status: CustomerStatus;
+  max_days_without_order: number;
+  inactive_equipments: InactiveEquipment[];
+}
+
+export interface InactiveCustomersResponse extends ApiResponse {
+  threshold_days: number;
+  count: number;
+  data: InactiveCustomer[];
+}

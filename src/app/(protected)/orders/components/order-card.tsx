@@ -55,12 +55,6 @@ const OrderCard = memo(function OrderCard({
     }
   };
 
-  // const handleEdit = () => {
-  //   if (onEdit) {
-  //     onEdit(order);
-  //   }
-  // };
-
   const handleChangeStatus = () => {
     if (onChangeStatus) {
       onChangeStatus(order);
@@ -93,13 +87,6 @@ const OrderCard = memo(function OrderCard({
     const formattedDate = formatDateToUTC(order.scheduled_delivery_date);
     scheduled_delivery_date = formattedDate;
   }
-
-  // const scheduled_delivery_date = order?.scheduled_delivery_date
-  //   ? format(
-  //       new Date(formatDateToUTC(order?.scheduled_delivery_date) || new Date()),
-  //       { date: "long" }
-  //     )
-  //   : null;
 
   // Determinar si es un pedido urgente (menos de 24 horas para entregar)
   const isUrgent = order.scheduled_delivery_date
@@ -263,9 +250,7 @@ const OrderCard = memo(function OrderCard({
   return (
     <Card
       className={cn(
-        "transition-all duration-200 hover:shadow-lg border-l-2 bg-white group h-full",
-        getBorderColor(),
-        isUrgent && "ring-1 ring-red-200 shadow-red-500/30 shadow-md"
+        "transition-all duration-200 hover:shadow-lg border-l-2 bg-white group h-full"
       )}
     >
       <CardContent className="px-5 py-4 h-full flex flex-col">

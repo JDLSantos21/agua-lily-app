@@ -10,9 +10,11 @@ import {
 interface EquipmentsResponse {
   success: boolean;
   data: Equipment[];
-  total?: number;
-  page?: number;
-  limit?: number;
+  pagination?: {
+    total: number;
+    limit: number;
+    offset: number;
+  };
 }
 
 interface EquipmentsModelsResponse {

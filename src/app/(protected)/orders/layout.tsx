@@ -19,11 +19,7 @@ export default function PedidosLayout({
 }) {
   const pathname = usePathname();
 
-  // Usar el hook de TanStack Query con staleTime para evitar peticiones frecuentes
-  const { data: statsResponse } = useOrderStats({
-    staleTime: 5 * 60 * 1000, // 5 minutos - tiempo suficiente para el layout
-    refetchOnWindowFocus: false, // Evitar refetch constante al cambiar el foco
-  });
+  const { data: statsResponse } = useOrderStats();
 
   const orderStats = statsResponse?.data;
 

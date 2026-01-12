@@ -4,7 +4,7 @@
     Id="*"
     Name="Agua Lily App"
     Language="1033"
-    Version="1.3.1"
+    Version="1.3.3"
     Manufacturer="Jose A. De Los Santos"
     UpgradeCode="a350924d-7631-580c-b39c-00d5f5a39e53"
   >
@@ -21,7 +21,7 @@
     <MediaTemplate EmbedCab="yes" />
 
     <!-- Define the icon for the installer -->
-    <Icon Id="icon.ico" SourceFile="C:\Users\JDLSa\Desktop\Workspace\agua-lily-app\src-tauri\icons\icon.ico" />
+    <Icon Id="icon.ico" SourceFile="C:\Workspace\agua-lily-app\src-tauri\icons\icon.ico" />
     <Property Id="ARPPRODUCTICON" Value="icon.ico" />
 
     <!-- Define the directory structure -->
@@ -40,7 +40,7 @@
       <Component Id="MainExecutable" Guid="*" Win64="yes">
         <File
           Id="MainExe"
-          Source="C:\Users\JDLSa\Desktop\Workspace\agua-lily-app\src-tauri\target\release\agua-lily-app.exe"
+          Source="C:\Workspace\agua-lily-app\src-tauri\target\release\agua-lily-app.exe"
           KeyPath="yes"
         />
         <!-- Register the application in the system -->
@@ -130,7 +130,7 @@
     <!-- UI Configuration -->
     <UIRef Id="WixUI_InstallDir" />
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
-    <WixVariable Id="WixUIBannerBmp" Value="C:\Users\JDLSa\Desktop\Workspace\agua-lily-app\src-tauri\windows\banner.bmp" />
-    <WixVariable Id="WixUIDialogBmp" Value="C:\Users\JDLSa\Desktop\Workspace\agua-lily-app\src-tauri\windows\dialog.bmp" />
+    <WixVariable Id="WixUIBannerBmp" Value="C:\Workspace\agua-lily-app\src-tauri\windows\banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="C:\Workspace\agua-lily-app\src-tauri\windows\dialog.bmp" />
   </Product>
 </Wix>

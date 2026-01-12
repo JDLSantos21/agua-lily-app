@@ -12,7 +12,7 @@ export const CUSTOMER_COLUMNS: TableColumn<Customer>[] = [
     width: "35%",
     render: (customer) => (
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white">
+        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white">
           {customer.is_business ? (
             <Building2 className="w-5 h-5" />
           ) : (

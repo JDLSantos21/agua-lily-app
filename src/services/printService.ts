@@ -57,6 +57,7 @@ class PrinterService {
       }) // Cantidad
       .setCopies(quantity);
 
+    // console.log("Printing bottle label:", label);
     return await printLabel(label);
   }
   async printEquipmentLabel(

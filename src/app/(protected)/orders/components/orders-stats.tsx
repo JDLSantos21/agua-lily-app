@@ -1,5 +1,5 @@
 // src/app/orders/components/order-stats.tsx
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Package,
@@ -9,6 +9,9 @@ import {
   XCircle,
   TrendingUp,
   Users,
+  Calendar,
+  ShoppingCart,
+  BarChart3,
 } from "lucide-react";
 import { type OrderStats } from "@/types/orders.types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,6 +27,26 @@ const OrderStats = memo(function OrderStatsComponent({
   stats,
   isLoading = false,
 }: OrderStatsComponentProps) {
+  // Obtener día de la semana con más pedidos (debe estar antes de cualquier return condicional)
+  const dayWithMostOrders = useMemo(() => {
+    if (!stats?.por_dia_semana || stats.por_dia_semana.length === 0)
+      return null;
+
+    const maxDay = stats.por_dia_semana.reduce((prev, current) =>
+      current.cantidad > prev.cantidad ? current : prev
+    );
+
+    // Backend: 1=Domingo, 2=Lunes, 3=Martes, 4=Miércoles, 5=Jueves, 6=Viernes, 7=Sábado
+    const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+    return {
+      name: dayNames[maxDay.dia_semana - 1],
+      cantidad: maxDay.cantidad,
+    };
+  }, [stats?.por_dia_semana]);
+
+  // Calcular porcentajes
+  const totalPedidos = stats?.total_pedidos || 1;
+
   // Si está cargando, mostrar skeleton
   if (isLoading) {
     return simplified ? (
@@ -107,60 +130,59 @@ const OrderStats = memo(function OrderStatsComponent({
     );
   }
 
-  // Calcular porcentajes
-  const totalPedidos = stats.total_pedidos || 1;
-
   // Versión completa
   return (
     <div className="space-y-6">
       {/* Resumen principal */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg">
+        <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-100 text-sm font-medium">
+                <p className="text-gray-500 text-sm font-medium">
                   Total de Pedidos
                 </p>
-                <p className="text-3xl font-bold mt-1">{stats.total_pedidos}</p>
-                <p className="text-blue-100 text-xs mt-2">
+                <p className="text-3xl font-bold mt-1 text-gray-900">
+                  {stats.total_pedidos}
+                </p>
+                <p className="text-gray-400 text-xs mt-2">
                   Pedidos registrados
                 </p>
               </div>
-              <div className="flex items-center justify-center w-12 h-12 bg-white/20 rounded-xl">
-                <Package className="h-6 w-6" />
+              <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl">
+                <Package className="h-6 w-6 text-blue-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-0 shadow-lg">
+        <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100 text-sm font-medium">
+                <p className="text-gray-500 text-sm font-medium">
                   Clientes Únicos
                 </p>
-                <p className="text-3xl font-bold mt-1">
+                <p className="text-3xl font-bold mt-1 text-gray-900">
                   {stats.clientes_unicos}
                 </p>
-                <p className="text-green-100 text-xs mt-2">Clientes activos</p>
+                <p className="text-gray-400 text-xs mt-2">Clientes activos</p>
               </div>
-              <div className="flex items-center justify-center w-12 h-12 bg-white/20 rounded-xl">
-                <Users className="h-6 w-6" />
+              <div className="flex items-center justify-center w-12 h-12 bg-emerald-100 rounded-xl">
+                <Users className="h-6 w-6 text-emerald-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0 shadow-lg">
+        <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100 text-sm font-medium">
+                <p className="text-gray-500 text-sm font-medium">
                   Tasa de Entrega
                 </p>
-                <p className="text-3xl font-bold mt-1">
+                <p className="text-3xl font-bold mt-1 text-gray-900">
                   {totalPedidos > 0
                     ? Math.round(
                         (stats.pedidos_entregados / totalPedidos) * 100
@@ -168,12 +190,10 @@ const OrderStats = memo(function OrderStatsComponent({
                     : 0}
                   %
                 </p>
-                <p className="text-purple-100 text-xs mt-2">
-                  Pedidos entregados
-                </p>
+                <p className="text-gray-400 text-xs mt-2">Pedidos entregados</p>
               </div>
-              <div className="flex items-center justify-center w-12 h-12 bg-white/20 rounded-xl">
-                <TrendingUp className="h-6 w-6" />
+              <div className="flex items-center justify-center w-12 h-12 bg-indigo-100 rounded-xl">
+                <TrendingUp className="h-6 w-6 text-indigo-600" />
               </div>
             </div>
           </CardContent>
@@ -228,6 +248,203 @@ const OrderStats = memo(function OrderStatsComponent({
           color="red"
         />
       </div>
+
+      {/* Gráficos adicionales */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Pedidos por día de la semana */}
+        {stats.por_dia_semana && stats.por_dia_semana.length > 0 && (
+          <Card className="border-gray-200 shadow-sm">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-semibold text-gray-900">
+                    Distribución por Día de la Semana
+                  </CardTitle>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Total de pedidos por día
+                  </p>
+                </div>
+                <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg">
+                  <Calendar className="h-5 w-5 text-blue-600" />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {(() => {
+                  const dayNames = [
+                    "Domingo",
+                    "Lunes",
+                    "Martes",
+                    "Miércoles",
+                    "Jueves",
+                    "Viernes",
+                    "Sábado",
+                  ];
+                  const maxCantidad = Math.max(
+                    ...stats.por_dia_semana!.map((d) => d.cantidad)
+                  );
+
+                  // Iterar días 1-7
+                  return [1, 2, 3, 4, 5, 6, 7].map((backendDayIndex) => {
+                    const dayData = stats.por_dia_semana!.find(
+                      (d) => d.dia_semana === backendDayIndex
+                    );
+                    const cantidad = dayData?.cantidad || 0;
+                    const percentage =
+                      maxCantidad > 0 ? (cantidad / maxCantidad) * 100 : 0;
+
+                    return (
+                      <div key={backendDayIndex} className="space-y-1">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-medium text-gray-700">
+                            {dayNames[backendDayIndex - 1]}
+                          </span>
+                          <span className="text-gray-900 font-semibold">
+                            {cantidad} pedidos
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2.5">
+                          <div
+                            className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Productos más populares */}
+        {stats.productos_populares && stats.productos_populares.length > 0 && (
+          <Card className="border-gray-200 shadow-sm">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg font-semibold text-gray-900">
+                    Productos Más Vendidos
+                  </CardTitle>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Top {stats.productos_populares.length} productos
+                  </p>
+                </div>
+                <div className="flex items-center justify-center w-10 h-10 bg-emerald-100 rounded-lg">
+                  <ShoppingCart className="h-5 w-5 text-emerald-600" />
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {stats.productos_populares
+                  .slice(0, 7)
+                  .map((producto, index) => {
+                    const maxCantidad = Math.max(
+                      ...stats.productos_populares!.map((p) =>
+                        Number(p.cantidad_total)
+                      )
+                    );
+                    const percentage =
+                      (Number(producto.cantidad_total) / maxCantidad) * 100;
+
+                    return (
+                      <div key={producto.id} className="space-y-1">
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-2">
+                            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+                              {index + 1}
+                            </span>
+                            <span className="font-medium text-gray-700 truncate max-w-[180px]">
+                              {producto.name}
+                            </span>
+                          </div>
+                          <span className="text-gray-900 font-semibold">
+                            {Number(producto.cantidad_total).toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2.5">
+                          <div
+                            className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Insights adicionales */}
+      {(dayWithMostOrders || stats.productos_populares?.length) && (
+        <Card className="border-gray-200 shadow-sm bg-gradient-to-br from-slate-50 to-gray-100">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center w-8 h-8 bg-indigo-600 rounded-lg">
+                <BarChart3 className="h-4 w-4 text-white" />
+              </div>
+              <CardTitle className="text-lg font-semibold text-gray-900">
+                Insights del Período
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {dayWithMostOrders && (
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <p className="text-xs text-gray-500 font-medium mb-1">
+                    Día con más pedidos
+                  </p>
+                  <p className="text-2xl font-bold text-blue-600">
+                    {dayWithMostOrders.name}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    {dayWithMostOrders.cantidad} pedidos
+                  </p>
+                </div>
+              )}
+              {stats.productos_populares &&
+                stats.productos_populares.length > 0 && (
+                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                    <p className="text-xs text-gray-500 font-medium mb-1">
+                      Producto más vendido
+                    </p>
+                    <p className="text-lg font-bold text-blue-600 truncate">
+                      {stats.productos_populares[0].name}
+                    </p>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {Number(
+                        stats.productos_populares[0].cantidad_total
+                      ).toLocaleString()}{" "}
+                      unidades
+                    </p>
+                  </div>
+                )}
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <p className="text-xs text-gray-500 font-medium mb-1">
+                  Promedio diario
+                </p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {stats.por_dia_semana
+                    ? Math.round(
+                        stats.por_dia_semana.reduce(
+                          (acc, day) => acc + day.cantidad,
+                          0
+                        ) / stats.por_dia_semana.length
+                      )
+                    : 0}
+                </p>
+                <p className="text-xs text-gray-600 mt-1">pedidos/día</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 });
@@ -247,21 +464,21 @@ function StatSummaryCard({
   color,
 }: StatSummaryCardProps) {
   const colorClasses = {
-    slate: "bg-gray-50 border-gray-200 text-gray-700",
-    blue: "bg-blue-50/50 border-blue-200 text-blue-700",
-    amber: "bg-amber-50/50 border-amber-200 text-amber-700",
-    purple: "bg-purple-50/50 border-purple-200 text-purple-700",
-    green: "bg-green-50/50 border-green-200 text-green-700",
-    red: "bg-red-50/50 border-red-200 text-red-700",
+    slate: "bg-white border-gray-200 text-gray-700",
+    blue: "bg-white border-blue-200 text-gray-700",
+    amber: "bg-white border-amber-200 text-gray-700",
+    purple: "bg-white border-purple-200 text-gray-700",
+    green: "bg-white border-emerald-200 text-gray-700",
+    red: "bg-white border-rose-200 text-gray-700",
   };
 
   const iconClasses = {
-    slate: "text-gray-500",
-    blue: "text-blue-500",
-    amber: "text-amber-500",
-    purple: "text-purple-500",
-    green: "text-green-500",
-    red: "text-red-500",
+    slate: "text-slate-600 bg-slate-100",
+    blue: "text-blue-600 bg-blue-50",
+    amber: "text-amber-600 bg-amber-50",
+    purple: "text-purple-600 bg-purple-50",
+    green: "text-emerald-600 bg-emerald-50",
+    red: "text-rose-600 bg-rose-50",
   };
 
   return (
@@ -269,13 +486,13 @@ function StatSummaryCard({
       className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${colorClasses[color]} transition-all hover:shadow-sm`}
     >
       <div
-        className={`flex items-center justify-center w-8 h-8 rounded-lg ${iconClasses[color]} shadow-sm`}
+        className={`flex items-center justify-center w-8 h-8 rounded-lg ${iconClasses[color]}`}
       >
-        <Icon className={`h-4 w-4 ${iconClasses[color]}`} />
+        <Icon className={`h-4 w-4`} />
       </div>
       <div>
-        <p className="text-xs font-medium opacity-80">{label}</p>
-        <p className="text-lg font-bold">{value}</p>
+        <p className="text-xs font-medium text-gray-500">{label}</p>
+        <p className="text-lg font-bold text-gray-900">{value}</p>
       </div>
     </div>
   );
@@ -298,24 +515,32 @@ function StatCard({
   color,
 }: StatCardProps) {
   const colorClasses = {
-    blue: "border-l-blue-500 bg-blue-50/50",
-    amber: "border-l-amber-500 bg-amber-50/50",
-    purple: "border-l-purple-500 bg-purple-50/50",
-    green: "border-l-green-500 bg-green-50/50",
-    red: "border-l-red-500 bg-red-50/50",
+    blue: "border-l-blue-400 bg-white",
+    amber: "border-l-amber-400 bg-white",
+    purple: "border-l-purple-400 bg-white",
+    green: "border-l-emerald-400 bg-white",
+    red: "border-l-rose-400 bg-white",
   };
 
   const iconClasses = {
-    blue: "text-blue-500 bg-blue-100",
-    amber: "text-amber-500 bg-amber-100",
-    purple: "text-purple-500 bg-purple-100",
-    green: "text-green-500 bg-green-100",
-    red: "text-red-500 bg-red-100",
+    blue: "text-blue-600 bg-blue-50",
+    amber: "text-amber-600 bg-amber-50",
+    purple: "text-purple-600 bg-purple-50",
+    green: "text-emerald-600 bg-emerald-50",
+    red: "text-rose-600 bg-rose-50",
+  };
+
+  const progressClasses = {
+    blue: "bg-blue-500",
+    amber: "bg-amber-500",
+    purple: "bg-purple-500",
+    green: "bg-emerald-500",
+    red: "bg-rose-500",
   };
 
   return (
     <Card
-      className={`border-l-4 ${colorClasses[color]} hover:shadow-md transition-shadow`}
+      className={`border-l-4 ${colorClasses[color]} hover:shadow-md transition-shadow border border-gray-200`}
     >
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
@@ -337,17 +562,7 @@ function StatCard({
           </div>
           <div className="w-full bg-gray-200 rounded-full h-1.5">
             <div
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                color === "blue"
-                  ? "bg-blue-500"
-                  : color === "amber"
-                    ? "bg-amber-500"
-                    : color === "purple"
-                      ? "bg-purple-500"
-                      : color === "green"
-                        ? "bg-green-500"
-                        : "bg-red-500"
-              }`}
+              className={`h-1.5 rounded-full transition-all duration-300 ${progressClasses[color]}`}
               style={{ width: `${Math.min(percentage, 100)}%` }}
             />
           </div>

@@ -148,11 +148,23 @@ export const useOrderByTracking = (
  * Hook para obtener estadísticas de pedidos
  */
 export const useOrderStats = (
+  filters?: Pick<OrderFilter, "start_date" | "end_date">,
   options?: Partial<UseQueryOptions<StatsResponse>>
 ) => {
+  // Limpiar filtros vacíos
+  const cleanFilters = filters ? { ...filters } : {};
+  Object.keys(cleanFilters).forEach((key) => {
+    if (
+      cleanFilters[key as keyof typeof cleanFilters] === undefined ||
+      cleanFilters[key as keyof typeof cleanFilters] === ""
+    ) {
+      delete cleanFilters[key as keyof typeof cleanFilters];
+    }
+  });
+
   return useQuery({
-    queryKey: CACHE_KEYS.stats(),
-    queryFn: () => getOrderStats(),
+    queryKey: [...CACHE_KEYS.stats(), cleanFilters],
+    queryFn: () => getOrderStats(cleanFilters),
     staleTime: 2 * 60 * 1000, // 2 minutos - evita refetches frecuentes
     ...options,
   });

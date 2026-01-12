@@ -7,6 +7,7 @@ import {
   CustomerResponse,
   CustomerWithEquipmentResponse,
   CustomerStatsResponse,
+  InactiveCustomersResponse,
 } from "@/types/customers.types";
 
 /**
@@ -104,5 +105,17 @@ export const searchCustomers = async (
  */
 export const getCustomerStats = async (): Promise<CustomerStatsResponse> => {
   const res = await api.get(`customers/stats`);
+  return res.data;
+};
+
+/**
+ * Obtiene clientes inactivos con equipos asignados
+ */
+export const getInactiveCustomers = async (
+  daysThreshold: number = 14
+): Promise<InactiveCustomersResponse> => {
+  const res = await api.get(`customers/inactive-with-equipment`, {
+    params: { days_threshold: daysThreshold },
+  });
   return res.data;
 };
