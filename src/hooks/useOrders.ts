@@ -56,7 +56,7 @@ const CACHE_KEYS = {
  */
 export const useOrders = (
   filters?: OrderFilter,
-  options?: Partial<UseQueryOptions<OrdersResponse>>
+  options?: Partial<UseQueryOptions<OrdersResponse>>,
 ) => {
   // Limpiar filtros vacíos para evitar consultas innecesarias
   const cleanFilters = filters ? { ...filters } : {};
@@ -88,7 +88,7 @@ export const useOrders = (
 
 export const useOrdersForReceiver = (
   filters?: OrderFilter,
-  options?: Partial<UseQueryOptions<OrdersResponse>>
+  options?: Partial<UseQueryOptions<OrdersResponse>>,
 ) => {
   // Limpiar filtros vacíos para evitar consultas innecesarias
   const cleanFilters = filters ? { ...filters } : {};
@@ -119,7 +119,7 @@ export const useOrdersForReceiver = (
  */
 export const useOrder = (
   id: number,
-  options?: UseQueryOptions<OrderResponse>
+  options?: UseQueryOptions<OrderResponse>,
 ) => {
   return useQuery({
     queryKey: CACHE_KEYS.detail(id),
@@ -134,7 +134,7 @@ export const useOrder = (
  */
 export const useOrderByTracking = (
   trackingCode: string,
-  options?: Partial<UseQueryOptions<OrderResponse>>
+  options?: Partial<UseQueryOptions<OrderResponse>>,
 ) => {
   return useQuery({
     queryKey: CACHE_KEYS.tracking(trackingCode),
@@ -149,7 +149,7 @@ export const useOrderByTracking = (
  */
 export const useOrderStats = (
   filters?: Pick<OrderFilter, "start_date" | "end_date">,
-  options?: Partial<UseQueryOptions<StatsResponse>>
+  options?: Partial<UseQueryOptions<StatsResponse>>,
 ) => {
   // Limpiar filtros vacíos
   const cleanFilters = filters ? { ...filters } : {};
@@ -174,7 +174,7 @@ export const useOrderStats = (
  * Hook para obtener datos del dashboard
  */
 export const useOrderDashboard = (
-  options?: UseQueryOptions<DashboardResponse>
+  options?: UseQueryOptions<DashboardResponse>,
 ) => {
   return useQuery({
     queryKey: CACHE_KEYS.dashboard(),
@@ -202,7 +202,7 @@ export const useProducts = (options?: UseQueryOptions<ProductsResponse>) => {
 export const useSearchOrders = (
   term: string,
   limit: number = 10,
-  options?: Partial<UseQueryOptions<OrdersResponse>>
+  options?: Partial<UseQueryOptions<OrdersResponse>>,
 ) => {
   return useQuery({
     queryKey: CACHE_KEYS.search(term, limit),
@@ -222,9 +222,8 @@ export const useCreateOrder = () => {
     mutationFn: (orderData: CreateOrderRequest) => createOrder(orderData),
     onSuccess: () => {
       toast.success("Pedido creado exitosamente");
-      // Invalidar consultas relacionadas
-      queryClient.invalidateQueries({ queryKey: CACHE_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: CACHE_KEYS.stats() });
+      // Invalidar TODAS las consultas de pedidos para asegurar que el nuevo aparezca
+      queryClient.invalidateQueries({ queryKey: CACHE_KEYS.all });
     },
     onError: (error: any) => {
       toast.error(error.message || "Error al crear el pedido");

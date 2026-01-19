@@ -60,19 +60,23 @@ export default function PedidosPage() {
 
   // Vista activa: list, grid o stats
   const [activeView, setActiveView] = useState<"list" | "grid" | "stats">(
-    initialView || "grid"
+    initialView || "grid",
   );
 
   // Estado para paginación
   const [currentPage, setCurrentPage] = useState(1);
 
   // Estado para rango de fechas - inicializar con el mes actual
+  // Nota: end_date se extiende +1 día porque la BD guarda en UTC
+  // (un pedido creado a las 11pm local aparece como día siguiente en UTC)
   const [dateRange, setDateRange] = useState(() => {
     const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
     const startOfThisMonth = startOfMonth(today);
     return {
       start_date: format(startOfThisMonth, "yyyy-MM-dd"),
-      end_date: format(today, "yyyy-MM-dd"),
+      end_date: format(tomorrow, "yyyy-MM-dd"),
     };
   });
 
@@ -100,7 +104,7 @@ export default function PedidosPage() {
   // Calcular offset basado en la página actual
   const offset = useMemo(
     () => (currentPage - 1) * ITEMS_PER_PAGE,
-    [currentPage]
+    [currentPage],
   );
 
   // Filtros con paginación y rango de fechas
@@ -111,7 +115,7 @@ export default function PedidosPage() {
       limit: ITEMS_PER_PAGE,
       offset: offset,
     }),
-    [filters, dateRange, offset]
+    [filters, dateRange, offset],
   );
 
   // Filtros solo de fecha para estadísticas
@@ -120,7 +124,7 @@ export default function PedidosPage() {
       start_date: dateRange.start_date,
       end_date: dateRange.end_date,
     }),
-    [dateRange]
+    [dateRange],
   );
 
   // Consultas de datos con TanStack Query
@@ -139,7 +143,7 @@ export default function PedidosPage() {
     {
       refetchOnWindowFocus: false,
       placeholderData: (old) => old,
-    }
+    },
   );
 
   // Mutación para eliminar pedidos
@@ -255,7 +259,7 @@ export default function PedidosPage() {
       setDateRange(newRange);
       setCurrentPage(1);
     },
-    []
+    [],
   );
 
   // Manejador de eliminación de pedido
@@ -302,13 +306,13 @@ export default function PedidosPage() {
 
   const pagination = useMemo(
     () => ordersResponse?.pagination,
-    [ordersResponse]
+    [ordersResponse],
   );
 
   // Calcular información de paginación
   const totalPages = useMemo(
     () => Math.ceil((pagination?.total || 0) / ITEMS_PER_PAGE),
-    [pagination?.total]
+    [pagination?.total],
   );
 
   const canGoPrevious = currentPage > 1;
@@ -523,7 +527,7 @@ export default function PedidosPage() {
                                   return format(
                                     new Date(year, month - 1, day),
                                     "dd MMM yyyy",
-                                    { locale: es }
+                                    { locale: es },
                                   );
                                 })()}
                               </span>
@@ -540,7 +544,7 @@ export default function PedidosPage() {
                                   return format(
                                     new Date(year, month - 1, day),
                                     "dd MMM yyyy",
-                                    { locale: es }
+                                    { locale: es },
                                   );
                                 })()}
                               </span>
@@ -558,17 +562,17 @@ export default function PedidosPage() {
                                   const start = new Date(
                                     startYear,
                                     startMonth - 1,
-                                    startDay
+                                    startDay,
                                   );
                                   const end = new Date(
                                     endYear,
                                     endMonth - 1,
-                                    endDay
+                                    endDay,
                                   );
                                   return (
                                     Math.ceil(
                                       (end.getTime() - start.getTime()) /
-                                        (1000 * 60 * 60 * 24)
+                                        (1000 * 60 * 60 * 24),
                                     ) + 1
                                   );
                                 })()}{" "}
@@ -737,7 +741,7 @@ export default function PedidosPage() {
                   >
                     {pageNum}
                   </Button>
-                )
+                ),
               )}
             </div>
 
