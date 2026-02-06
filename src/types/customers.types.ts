@@ -64,11 +64,21 @@ export interface CustomerFilter {
   offset?: number;
 }
 
+export interface EquipmentDocument {
+  id: number;
+  file_key: string;
+  original_name: string;
+  mime_type: string;
+  size_byte: string;
+  created_at: string;
+}
+
 /**
  * Cliente con su información de equipos
  */
 export interface Equipment {
   id: number;
+  assignment_id: number;
   serial_number: string;
   type: string;
   description: string;
@@ -79,6 +89,7 @@ export interface Equipment {
   removal_reason: string | null;
   weekly_commitment: string | null;
   notes: string | null;
+  documents: EquipmentDocument[];
   assigned_by: string;
 }
 

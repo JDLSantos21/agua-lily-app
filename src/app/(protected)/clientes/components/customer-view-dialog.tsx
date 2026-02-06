@@ -1,7 +1,8 @@
 // src/app/clientes/components/customer-view-dialog.tsx - VERSIÓN MEJORADA
 "use client";
 
-import { useEffect, useState, useCallback, memo } from "react";
+import { useEffect, useState, useCallback, memo, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -33,11 +34,17 @@ import {
   Clock,
   Wrench,
 } from "lucide-react";
-import { Customer, CustomerStatus, Equipment } from "@/types/customers.types";
+import {
+  Customer,
+  CustomerStatus,
+  Equipment,
+  EquipmentDocument,
+} from "@/types/customers.types";
 import {
   useCustomerWithEquipment,
   useDeleteCustomer,
   useUpdateCustomerStatus,
+  CACHE_KEYS,
 } from "@/hooks/useCustomers";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -46,7 +53,17 @@ import { RoleBased } from "@/components/RoleBased";
 import { IoLogoWhatsapp } from "react-icons/io5";
 import formatPhoneNumber from "@/shared/utils/formatNumber";
 import { getStatusColor, getStatusText } from "../../activos/equipments/utils";
-// import { formatDate } from "@/lib/utils"; // Suponiendo que existe esta función de utilidad
+import {
+  getReadUrl,
+  getPresignedUrl,
+  confirmUpload,
+  deleteFile,
+} from "@/api/storage";
+import { toast } from "sonner";
+import { open } from "@tauri-apps/plugin-shell";
+import { Loader2, Upload, X } from "lucide-react";
+import axios from "axios";
+import { confirm } from "@tauri-apps/plugin-dialog";
 
 // Estructura de pestañas para ver un cliente
 const TABS = [
@@ -83,6 +100,7 @@ const CustomerViewDialog = memo(function CustomerViewDialog({
   onEdit,
   onDelete,
 }: CustomerViewDialogProps) {
+  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -154,9 +172,16 @@ const CustomerViewDialog = memo(function CustomerViewDialog({
         onSuccess: () => {
           refetch();
         },
-      }
+      },
     );
   }, [customer, customerId, updateStatusMutation, refetch]);
+
+  const handleUploadSuccess = useCallback(async () => {
+    // 1. Invalidar caché de clientes para actualizar listas
+    await queryClient.invalidateQueries({ queryKey: CACHE_KEYS.all });
+    // 2. Refrescar datos del cliente actual
+    refetch();
+  }, [queryClient, refetch]);
 
   // Si el diálogo no está abierto, no renderizar nada
   if (!isOpen) return null;
@@ -168,11 +193,16 @@ const CustomerViewDialog = memo(function CustomerViewDialog({
           aria-describedby={undefined}
           className="sm:max-w-4xl max-h-[95vh] overflow-hidden flex flex-col"
         >
-          <DialogTitle hidden />
           {isLoading ? (
-            <CustomerViewSkeleton />
+            <>
+              <DialogTitle className="sr-only">
+                Cargando detalles del cliente
+              </DialogTitle>
+              <CustomerViewSkeleton />
+            </>
           ) : error ? (
             <div className="py-12 flex flex-col items-center justify-center text-center">
+              <DialogTitle className="sr-only">Error de carga</DialogTitle>
               <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
               <DialogDescription className="text-red-500 text-lg">
                 Error al cargar los datos del cliente
@@ -256,7 +286,7 @@ const CustomerViewDialog = memo(function CustomerViewDialog({
                             "flex items-center justify-center w-8 h-8 rounded-lg border transition-all duration-200",
                             isActive
                               ? "bg-blue-500 border-blue-500 text-white shadow-sm"
-                              : "bg-white border-gray-200 text-gray-400 hover:border-gray-300"
+                              : "bg-white border-gray-200 text-gray-400 hover:border-gray-300",
                           )}
                         >
                           <Icon className="h-4 w-4" />
@@ -265,7 +295,7 @@ const CustomerViewDialog = memo(function CustomerViewDialog({
                           <p
                             className={cn(
                               "text-sm font-medium",
-                              isActive ? "text-blue-600" : "text-gray-500"
+                              isActive ? "text-blue-600" : "text-gray-500",
                             )}
                           >
                             {tab.title}
@@ -276,7 +306,7 @@ const CustomerViewDialog = memo(function CustomerViewDialog({
                         <div
                           className={cn(
                             "flex-1 h-px mx-3 transition-colors duration-300",
-                            isCompleted ? "bg-blue-500" : "bg-gray-200"
+                            isCompleted ? "bg-blue-500" : "bg-gray-200",
                           )}
                         />
                       )}
@@ -300,6 +330,7 @@ const CustomerViewDialog = memo(function CustomerViewDialog({
                     <div className="animate-in slide-in-from-right-5 duration-300">
                       <CustomerEquipmentTab
                         equipment={customer.current_equipments}
+                        onUploadSuccess={handleUploadSuccess}
                       />
                     </div>
                   )}
@@ -309,6 +340,7 @@ const CustomerViewDialog = memo(function CustomerViewDialog({
                     <div className="animate-in slide-in-from-right-5 duration-300">
                       <CustomerHistoryTab
                         history={customer.equipment_history}
+                        onUploadSuccess={handleUploadSuccess}
                       />
                     </div>
                   )}
@@ -378,6 +410,9 @@ const CustomerViewDialog = memo(function CustomerViewDialog({
             </>
           ) : (
             <div className="py-12 flex flex-col items-center justify-center text-center">
+              <DialogTitle className="sr-only">
+                Cliente no encontrado
+              </DialogTitle>
               <AlertCircle className="h-12 w-12 text-amber-500 mb-4" />
               <DialogDescription className="text-gray-500">
                 No se encontró información del cliente
@@ -400,6 +435,169 @@ const CustomerViewDialog = memo(function CustomerViewDialog({
     </>
   );
 });
+
+const DocumentItem = memo(function DocumentItem({
+  doc,
+  onDelete,
+}: {
+  doc: EquipmentDocument;
+  onDelete: () => void;
+}) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      const { signedUrl } = await getReadUrl(doc.file_key);
+      await open(signedUrl);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      toast.error("Error al abrir el documento");
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const confirmed = await confirm(`¿Eliminar "${doc.original_name}"?`);
+
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteFile(doc.file_key);
+      toast.success("Documento eliminado correctamente");
+      onDelete();
+    } catch (error: any) {
+      console.error("Error deleting file:", error);
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        toast.error(`Error: ${error.response.data.error}`);
+      } else {
+        toast.error("Error al eliminar el documento");
+      }
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  return (
+    <div className="inline-flex items-center gap-1 bg-white text-gray-700 text-xs font-medium rounded-md border border-gray-200 shadow-sm">
+      <button
+        onClick={handleDownload}
+        className="inline-flex items-center px-3 py-1.5 hover:bg-gray-50 transition-colors duration-200 rounded-l-md"
+        title={`Ver ${doc.original_name}`}
+      >
+        <FileText className="h-3.5 w-3.5 mr-2 text-blue-600" />
+        <span className="truncate max-w-[150px]">{doc.original_name}</span>
+      </button>
+      <button
+        onClick={handleDelete}
+        disabled={isDeleting}
+        className="px-2 py-1.5 hover:bg-red-50 hover:text-red-600 transition-colors duration-200 rounded-r-md border-l border-gray-200 disabled:opacity-50"
+        title="Eliminar documento"
+      >
+        {isDeleting ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        ) : (
+          <X className="h-3.5 w-3.5" />
+        )}
+      </button>
+    </div>
+  );
+});
+
+const FileUploadButton = ({
+  assignmentId,
+  onSuccess,
+}: {
+  assignmentId: number;
+  onSuccess: () => void;
+}) => {
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("El archivo excede el límite de 10MB");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      // Asegurar que tenemos un tipo MIME, si no, usar genérico
+      const contentType = file.type || "application/octet-stream";
+      // Truncar nombre si es muy largo (ej. > 200 caracteres) para evitar error BD
+      const fileName =
+        file.name.length > 200
+          ? file.name.substring(0, 190) +
+            "." +
+            (file.name.split(".").pop() || "bin")
+          : file.name;
+
+      // 1. Obtener URL prefirmada
+      const { signedUrl, key } = await getPresignedUrl(
+        fileName,
+        contentType,
+        assignmentId,
+      );
+
+      // 2. Subir archivo a R2/S3
+      await axios.put(signedUrl, file, {
+        headers: {
+          "Content-Type": contentType,
+        },
+      });
+
+      // 3. Confirmar subida en backend
+      await confirmUpload(assignmentId, key, fileName, contentType, file.size);
+
+      toast.success("Documento subido correctamente");
+      onSuccess();
+    } catch (error: any) {
+      console.error("Error uploading file:", error);
+      if (axios.isAxiosError(error) && error.response?.data?.error) {
+        toast.error(`Error: ${error.response.data.error}`);
+      } else {
+        toast.error("Error al subir el documento");
+      }
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  return (
+    <>
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={handleFileChange}
+      />
+      <button
+        onClick={handleFileClick}
+        disabled={isUploading}
+        className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-md hover:bg-blue-100 transition-colors duration-200"
+      >
+        {isUploading ? (
+          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+        ) : (
+          <Upload className="h-3 w-3 mr-1" />
+        )}
+        {isUploading ? "Subiendo..." : "Subir doc"}
+      </button>
+    </>
+  );
+};
 
 // Componente auxiliar para mostrar información
 const InfoCard = memo(function InfoCard({
@@ -564,8 +762,10 @@ const CustomerDetailTab = memo(function CustomerDetailTab({
 
 const CustomerEquipmentTab = memo(function CustomerEquipmentTab({
   equipment = [],
+  onUploadSuccess,
 }: {
   equipment?: Equipment[];
+  onUploadSuccess: () => void;
 }) {
   if (equipment.length === 0) {
     return (
@@ -654,6 +854,38 @@ const CustomerEquipmentTab = memo(function CustomerEquipmentTab({
                 </div>
               </div>
 
+              <div className="mt-4 pt-3 border-t border-gray-100 flex items-start justify-between">
+                <div>
+                  <h5 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 w-full">
+                    Documentos de la Asignación
+                  </h5>
+                  {item.documents && item.documents.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {item.documents.map((doc) => (
+                        <DocumentItem
+                          key={doc.id}
+                          doc={doc}
+                          onDelete={onUploadSuccess}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 p-3 bg-red-50 text-red-700 rounded-md border border-red-100 mb-2">
+                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                      <p className="text-sm font-medium">
+                        Esta asignación no tiene documentos cargados.
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <FileUploadButton
+                    assignmentId={item.assignment_id}
+                    onSuccess={onUploadSuccess}
+                  />
+                </div>
+              </div>
+
               {item.notes && (
                 <div className="mt-3 p-3 bg-gray-50 rounded-lg border-t">
                   <p className="text-sm text-gray-600 leading-relaxed">
@@ -671,8 +903,10 @@ const CustomerEquipmentTab = memo(function CustomerEquipmentTab({
 
 const CustomerHistoryTab = memo(function CustomerHistoryTab({
   history = [],
+  onUploadSuccess,
 }: {
   history?: Equipment[];
+  onUploadSuccess: () => void;
 }) {
   if (history.length === 0) {
     return (
@@ -727,7 +961,7 @@ const CustomerHistoryTab = memo(function CustomerHistoryTab({
                 <div
                   className={cn(
                     "absolute left-0 w-12 h-12 rounded-xl shadow-lg flex items-center justify-center",
-                    isActive ? "bg-blue-500" : "bg-gray-400"
+                    isActive ? "bg-blue-500" : "bg-gray-400",
                   )}
                 >
                   <Wrench className="h-5 w-5 text-white" />
@@ -740,7 +974,7 @@ const CustomerHistoryTab = memo(function CustomerHistoryTab({
                       "border-l-4 shadow-sm transition-all duration-200 hover:shadow-md",
                       isActive
                         ? "border-l-blue-500 bg-blue-50/50"
-                        : "border-l-gray-400 bg-gray-50/50"
+                        : "border-l-gray-400 bg-gray-50/50",
                     )}
                   >
                     <CardContent className="p-4">
@@ -785,6 +1019,23 @@ const CustomerHistoryTab = memo(function CustomerHistoryTab({
                           </div>
                         )}
                       </div>
+
+                      {item.documents && item.documents.length > 0 && (
+                        <div className="mb-3 mt-3 pt-3 border-t border-gray-100">
+                          <h5 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                            Documentos Asociados
+                          </h5>
+                          <div className="flex flex-wrap gap-2">
+                            {item.documents.map((doc) => (
+                              <DocumentItem
+                                key={doc.id}
+                                doc={doc}
+                                onDelete={onUploadSuccess}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Notas */}
                       {item.notes && (

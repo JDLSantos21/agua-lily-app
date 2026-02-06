@@ -30,7 +30,7 @@ import { toast } from "sonner";
 import { CustomerFormValues } from "@/app/(protected)/clientes/components/customer-form-dialog";
 
 // Claves de cache consistentes para evitar duplicaciones
-const CACHE_KEYS = {
+export const CACHE_KEYS = {
   all: ["customers"] as const,
   lists: () => [...CACHE_KEYS.all, "list"] as const,
   list: (filters: CustomerFilter = {}) =>
@@ -50,7 +50,7 @@ const CACHE_KEYS = {
  */
 export const useCustomers = (
   filters?: CustomerFilter,
-  options?: Partial<UseQueryOptions<CustomersResponse>>
+  options?: Partial<UseQueryOptions<CustomersResponse>>,
 ) => {
   // Limpiar filtros vacíos para evitar consultas innecesarias
   const cleanFilters = filters ? { ...filters } : {};
@@ -81,7 +81,7 @@ export const useCustomers = (
  */
 export const useCustomer = (
   id: number,
-  options?: UseQueryOptions<CustomerResponse>
+  options?: UseQueryOptions<CustomerResponse>,
 ) => {
   return useQuery({
     queryKey: CACHE_KEYS.detail(id),
@@ -96,7 +96,7 @@ export const useCustomer = (
  */
 export const useCustomerWithEquipment = (
   id: number,
-  options?: UseQueryOptions<CustomerWithEquipmentResponse>
+  options?: UseQueryOptions<CustomerWithEquipmentResponse>,
 ) => {
   return useQuery({
     queryKey: CACHE_KEYS.equipment(id),
@@ -180,7 +180,7 @@ export const useUpdateCustomerStatus = () => {
       });
       queryClient.invalidateQueries({ queryKey: CACHE_KEYS.stats() });
       toast.success(
-        `Cliente ${variables.status === "activo" ? "activado" : "desactivado"} exitosamente`
+        `Cliente ${variables.status === "activo" ? "activado" : "desactivado"} exitosamente`,
       );
     },
     onError: (error: any) => {
@@ -216,7 +216,7 @@ export const useDeleteCustomer = () => {
 export const useSearchCustomers = (
   term: string,
   limit?: number,
-  options?: UseQueryOptions<CustomersResponse>
+  options?: UseQueryOptions<CustomersResponse>,
 ) => {
   return useQuery({
     queryKey: CACHE_KEYS.search(term, limit),
@@ -230,7 +230,7 @@ export const useSearchCustomers = (
  * Hook para obtener estadísticas de clientes
  */
 export const useCustomerStats = (
-  options?: UseQueryOptions<CustomerStatsResponse>
+  options?: UseQueryOptions<CustomerStatsResponse>,
 ) => {
   return useQuery({
     queryKey: CACHE_KEYS.stats(),
@@ -245,7 +245,7 @@ export const useCustomerStats = (
  */
 export const useInactiveCustomers = (
   daysThreshold: number = 14,
-  options?: Partial<UseQueryOptions<InactiveCustomersResponse>>
+  options?: Partial<UseQueryOptions<InactiveCustomersResponse>>,
 ) => {
   return useQuery({
     queryKey: CACHE_KEYS.inactive(daysThreshold),

@@ -9,6 +9,11 @@ import { LoaderSpin } from "@/components/Loader";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  previewPDFWithTauri,
+  printPDFWithTauri,
+  savePDFWithTauri,
+} from "@/utils/generatePDF";
 
 // Configuración de paginación
 const ITEMS_PER_PAGE = 8;
@@ -18,14 +23,14 @@ export default function EquipmentsPage() {
   const [filters, setFilters] = useState<EquipmentFilter>({});
 
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(
-    null
+    null,
   );
   const [isOpen, setIsOpen] = useState(false);
 
   // Calcular offset basado en la página actual
   const offset = useMemo(
     () => (currentPage - 1) * ITEMS_PER_PAGE,
-    [currentPage]
+    [currentPage],
   );
 
   // Filtros con paginación
@@ -35,7 +40,7 @@ export default function EquipmentsPage() {
       limit: ITEMS_PER_PAGE,
       offset: offset,
     }),
-    [filters, offset]
+    [filters, offset],
   );
 
   // Consultas de datos con TanStack Query
@@ -48,18 +53,18 @@ export default function EquipmentsPage() {
   // Memoizar la lista de equipos para evitar re-renderizados
   const equipments = useMemo(
     () => equipmentsResponse?.data || [],
-    [equipmentsResponse]
+    [equipmentsResponse],
   );
 
   const pagination = useMemo(
     () => equipmentsResponse?.pagination,
-    [equipmentsResponse]
+    [equipmentsResponse],
   );
 
   // Calcular información de paginación
   const totalPages = useMemo(
     () => Math.ceil((pagination?.total || 0) / ITEMS_PER_PAGE),
-    [pagination?.total]
+    [pagination?.total],
   );
 
   // Manejador de cambio de filtros generales
@@ -142,12 +147,13 @@ export default function EquipmentsPage() {
     return Object.keys(filters).some(
       (key) =>
         filters[key as keyof EquipmentFilter] !== undefined &&
-        filters[key as keyof EquipmentFilter] !== ""
+        filters[key as keyof EquipmentFilter] !== "",
     );
   }, [filters]);
 
   return (
     <div className="flex flex-col h-[calc(100vh-186px)]">
+      <button onClick={() => printPDFWithTauri()}>Crear pdf</button>
       {/* Filtros */}
       <div className="flex-shrink-0">
         <EquipmentFilters
@@ -220,7 +226,7 @@ export default function EquipmentsPage() {
                   >
                     {pageNum}
                   </Button>
-                )
+                ),
               )}
             </div>
 

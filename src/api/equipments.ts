@@ -28,7 +28,7 @@ interface equipmentResponse {
 }
 
 export const getEquipmentByID = async (
-  equipment_id: number | null
+  equipment_id: number | null,
 ): Promise<equipmentResponse> => {
   if (!equipment_id) throw new Error("Equipment ID is required");
   try {
@@ -47,7 +47,7 @@ interface ShowInMobileMutationResponse {
 
 export const setShowOnMobile = async (
   equipment_id: number,
-  show: boolean
+  show: boolean,
 ): Promise<ShowInMobileMutationResponse> => {
   console.log(equipment_id, show);
   try {
@@ -59,7 +59,7 @@ export const setShowOnMobile = async (
   } catch (error) {
     console.log("Error setting show on mobile:", error);
     throw new Error(
-      "Ocurrió un problema al actualizar la visibilidad en móvil."
+      "Ocurrió un problema al actualizar la visibilidad en móvil.",
     );
   }
 };
@@ -77,7 +77,7 @@ export const setGPSUpdate = async (id: number, need_update: boolean) => {
 };
 
 export const getEquipments = async (
-  filters?: EquipmentFilter
+  filters?: EquipmentFilter,
 ): Promise<EquipmentsResponse> => {
   try {
     // Construir parámetros de consulta
@@ -117,7 +117,7 @@ interface CreateEquipmentModelResponse {
 }
 
 export const createEquipmentModel = async (
-  data: CreateEquipmentModelFormData
+  data: CreateEquipmentModelFormData,
 ): Promise<CreateEquipmentModelResponse> => {
   try {
     const res = await api.post("/equipments/models", data);
@@ -130,7 +130,7 @@ export const createEquipmentModel = async (
 
 export const updateEquipmentModel = async (
   id: number,
-  data: Partial<CreateEquipmentModelFormData>
+  data: Partial<CreateEquipmentModelFormData>,
 ): Promise<CreateEquipmentModelResponse> => {
   try {
     const res = await api.patch(`/equipments/models/${id}`, data);
@@ -142,7 +142,7 @@ export const updateEquipmentModel = async (
 };
 
 export const createEquipment = async (
-  data: CreateEquipmentParams
+  data: CreateEquipmentParams,
 ): Promise<Equipment> => {
   try {
     const res = await api.post("/equipments", data);
@@ -164,7 +164,7 @@ export const deleteEquipment = async (id: number): Promise<void> => {
 
 export const updateEquipment = async (
   id: number,
-  data: Partial<Equipment>
+  data: Partial<Equipment>,
 ): Promise<{ success: boolean; data: Equipment }> => {
   try {
     const res = await api.put(`/equipments/${id}`, data);
@@ -188,7 +188,7 @@ export interface EquipmentRemoval {
 }
 
 export const assignEquipmentToCustomer = async (
-  data: EquipmentAssignment
+  data: EquipmentAssignment,
 ): Promise<{ success: boolean; message: string }> => {
   try {
     const res = await api.post("/equipments/assign", data);
@@ -200,12 +200,27 @@ export const assignEquipmentToCustomer = async (
 
 export const removeEquipmentFromCustomer = async (
   equipmentId: number,
-  data: EquipmentRemoval
+  data: EquipmentRemoval,
 ): Promise<{ success: boolean; message: string }> => {
   try {
     const res = await api.post(`/equipments/${equipmentId}/remove`, data);
     return res.data;
   } catch (error) {
     throw error;
+  }
+};
+
+export const getAssigmentDocument = async (
+  assignmentId: number,
+): Promise<any> => {
+  try {
+    const res = await api.get(`/equipments/${assignmentId}/documents`);
+    console.log("res document: ", res.data);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching assignment document:", error);
+    throw new Error(
+      "Ocurrió un problema al obtener el documento de asignación.",
+    );
   }
 };

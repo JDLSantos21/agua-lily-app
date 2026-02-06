@@ -12,6 +12,7 @@ import {
   getEquipmentByID,
   setShowOnMobile,
   setGPSUpdate,
+  getAssigmentDocument,
 } from "@/api/equipments";
 import { CreateEquipmentModelFormData } from "@/schemas/equipment";
 import {
@@ -65,7 +66,7 @@ export function useGPSUpdateMutation() {
       setGPSUpdate(variables.id, variables.need_update),
     onSuccess: async (response, variables) => {
       toast.success(
-        response.message || "Solicitud de actualización de GPS exitosa"
+        response.message || "Solicitud de actualización de GPS exitosa",
       );
       await queryClient.invalidateQueries({
         queryKey: ["equipment", variables.id],
@@ -193,5 +194,15 @@ export const useRemoveEquipment = () => {
         error?.response?.data?.error || "Error al remover el equipo";
       toast.error(errorMessage);
     },
+  });
+};
+
+export const useAssignmentDocument = (assignmentId: number | null) => {
+  return useQuery({
+    queryKey: ["assignmentDocuments", assignmentId],
+    queryFn: async () => {
+      getAssigmentDocument(assignmentId as number);
+    },
+    enabled: assignmentId !== null,
   });
 };
