@@ -224,3 +224,31 @@ export const getAssigmentDocument = async (
     );
   }
 };
+
+export interface IEquipmentLocation {
+  equipment_id: number;
+  latitude: number;
+  longitude: number;
+  location_updated_at: Date;
+  serial_number: string;
+  status: "disponible" | "asignado" | "mantenimiento" | "inhabilitado";
+  model_name: string;
+  type: string;
+  customer_name: string | null;
+}
+
+export const getEquipmentsLocations = async () => {
+  try {
+    const res = await api.get<{
+      success: boolean;
+      data: IEquipmentLocation[];
+      count: number;
+    }>("/equipments/locations");
+    return res.data.data;
+  } catch (error) {
+    console.error("Error fetching equipments locations:", error);
+    throw new Error(
+      "Ocurrió un problema al obtener las ubicaciones de los equipos.",
+    );
+  }
+};

@@ -9,11 +9,6 @@ import { LoaderSpin } from "@/components/Loader";
 import { useEquipments } from "@/hooks/useEquipments";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import {
-  previewPDFWithTauri,
-  printPDFWithTauri,
-  savePDFWithTauri,
-} from "@/utils/generatePDF";
 
 // Configuración de paginación
 const ITEMS_PER_PAGE = 8;
@@ -153,7 +148,6 @@ export default function EquipmentsPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-186px)]">
-      <button onClick={() => printPDFWithTauri()}>Crear pdf</button>
       {/* Filtros */}
       <div className="flex-shrink-0">
         <EquipmentFilters

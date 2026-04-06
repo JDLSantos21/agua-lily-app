@@ -64,6 +64,8 @@ import { open } from "@tauri-apps/plugin-shell";
 import { Loader2, Upload, X } from "lucide-react";
 import axios from "axios";
 import { confirm } from "@tauri-apps/plugin-dialog";
+import { printPDFWithTauri } from "@/utils/generatePDF";
+import { Printer } from "lucide-react";
 
 // Estructura de pestañas para ver un cliente
 const TABS = [
@@ -329,6 +331,7 @@ const CustomerViewDialog = memo(function CustomerViewDialog({
                   {currentTab === 1 && (
                     <div className="animate-in slide-in-from-right-5 duration-300">
                       <CustomerEquipmentTab
+                        customer={customer}
                         equipment={customer.current_equipments}
                         onUploadSuccess={handleUploadSuccess}
                       />
@@ -761,9 +764,11 @@ const CustomerDetailTab = memo(function CustomerDetailTab({
 });
 
 const CustomerEquipmentTab = memo(function CustomerEquipmentTab({
+  customer,
   equipment = [],
   onUploadSuccess,
 }: {
+  customer: Customer;
   equipment?: Equipment[];
   onUploadSuccess: () => void;
 }) {
@@ -844,13 +849,24 @@ const CustomerEquipmentTab = memo(function CustomerEquipmentTab({
                 </div>
 
                 {/* Estado */}
-                <div className="ml-4 flex-shrink-0">
+                <div className="ml-4 flex-shrink-0 flex flex-col gap-2 items-end">
                   <Badge
                     variant="outline"
                     className={`text-sm font-medium ${getStatusColor(item.status)}`}
                   >
                     {getStatusText(item.status)}
                   </Badge>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => printPDFWithTauri(customer, [item])}
+                    className="gap-2 h-8"
+                    title="Imprimir hoja de entrega para este equipo"
+                  >
+                    <Printer className="h-3.5 w-3.5" />
+                    <span className="text-xs">Hoja de entrega</span>
+                  </Button>
                 </div>
               </div>
 

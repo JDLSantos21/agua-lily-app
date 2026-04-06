@@ -1,7 +1,7 @@
 {
-  "version": "v1.3.4",
-  "pub_date": "2025-11-23T00:00:00Z",
-  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSEF2dmExWTZIMUZyVTcvdzgyaHQ0ZXhXQUVuelNSWllkR2FkMGtkUU1KZ1dYVkRrM2pqR2prN2QvZnM4VG9iTWFMMS8wSk1OVEJRekhzdWlwV0l1blFnPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzYzOTM4NTA0CWZpbGU6QWd1YSBMaWx5IEFwcF8xLjMuM194NjRfZXMtRVMubXNpCjFIUGJXd3JZeU1vUkpXYmVBQUI4QS9HMFRnYnR0clJDaEZnSzlSNG40aGRuckFvN3h6eHhkVm5KS0NkTXRUaWFwWENhMnFRTEg2ejY2d0FJbENBWkJnPT0K",
+  "version": "v1.3.6",
+  "pub_date": "2026-03-02T00:00:00Z",
+  "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUN21BZTk1M1VpSEhxcThwck9GUkVyNVdOTFFoUHNNZjFITEhOM0NPS3RBSno4RmZaT0YyNUxacjd3TnFURmVjTTRaL0N5YWp2aTVYbU1SejNuUjJ6cm5xNktaa3M0MVE0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzcyNDc5ODMwCWZpbGU6QWd1YSBMaWx5IEFwcF8xLjMuNl94NjRfZXMtRVMubXNpCkRuK0pYUlBSR0pSZStTN1JFbk1kZU0yUzl6N2ZmRGxVVWJYazF5UTBWWEhsYy9qMWdGeGcrNHVwem9mT3ZleHlRcGx1TUxZQ2NjelFTZjNQSjRpd0N3PT0K",
   "url": "https://github.com/JDLSantos21/agua-lily-app/releases/latest/download/setup.msi",
-  "notes": "- Corregidos errores de paginación.\n- Corrección de errores menores.\n- Añadido: Alertas de clientes inactivos.\n"
+  "notes": "- Agregado mapa de ubicacion de los equipos."
 }

@@ -13,6 +13,7 @@ import {
   setShowOnMobile,
   setGPSUpdate,
   getAssigmentDocument,
+  getEquipmentsLocations,
 } from "@/api/equipments";
 import { CreateEquipmentModelFormData } from "@/schemas/equipment";
 import {
@@ -204,5 +205,14 @@ export const useAssignmentDocument = (assignmentId: number | null) => {
       getAssigmentDocument(assignmentId as number);
     },
     enabled: assignmentId !== null,
+  });
+};
+
+export const useEquipmentsLocations = () => {
+  return useQuery({
+    queryKey: ["equipmentsLocations"],
+    queryFn: getEquipmentsLocations,
+    staleTime: 1000 * 60 * 5, // 5 minutos
+    enabled: true, // Always enabled
   });
 };
