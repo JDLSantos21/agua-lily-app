@@ -21,7 +21,7 @@
     <MediaTemplate EmbedCab="yes" />
 
     <!-- Define the icon for the installer -->
-    <Icon Id="icon.ico" SourceFile="C:\Workspace\agua-lily-app\src-tauri\icons\icon.ico" />
+    <Icon Id="icon.ico" SourceFile="C:\w\agua-lily-app\src-tauri\icons\icon.ico" />
     <Property Id="ARPPRODUCTICON" Value="icon.ico" />
 
     <!-- Define the directory structure -->
@@ -40,7 +40,7 @@
       <Component Id="MainExecutable" Guid="*" Win64="yes">
         <File
           Id="MainExe"
-          Source="C:\Workspace\agua-lily-app\src-tauri\target\release\agua-lily-app.exe"
+          Source="C:\w\agua-lily-app\src-tauri\target\release\agua-lily-app.exe"
           KeyPath="yes"
         />
         <!-- Register the application in the system -->
@@ -130,7 +130,7 @@
     <!-- UI Configuration -->
     <UIRef Id="WixUI_InstallDir" />
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
-    <WixVariable Id="WixUIBannerBmp" Value="C:\Workspace\agua-lily-app\src-tauri\windows\banner.bmp" />
-    <WixVariable Id="WixUIDialogBmp" Value="C:\Workspace\agua-lily-app\src-tauri\windows\dialog.bmp" />
+    <WixVariable Id="WixUIBannerBmp" Value="C:\w\agua-lily-app\src-tauri\windows\banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="C:\w\agua-lily-app\src-tauri\windows\dialog.bmp" />
   </Product>
 </Wix>
